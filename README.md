@@ -3,6 +3,8 @@ Software for controlling an SECM (scanning electrochemical microscope)
 
 Scaneva is a Software Package (for Windows) written in .Net C# that was originally developed to control an SECM instument. However, due to the modular design of Hardware and Experiment Blocks it can be easily adapted to automate almost any Lab Experiment/ Measurements.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 #### Getting started
 
 1. Scaneva is developed with Visual Studio. Since the solution files provided are for Visual Studio we recommend using it for a quick start. 
