@@ -338,3 +338,7 @@ ASALocalRun/
 
 
 # End of https://www.gitignore.io/api/visualstudio
+
+# Scaneva PI Dlls
+PI_GCS2_DLL.dll
+PI_GCS2_DLL_x64.dll
