@@ -1,0 +1,328 @@
+!configmaxaxis 3
+!axismap x 1
+!axismap y 2
+!axismap z 3
+!axismap a 4
+!eqepconfig 4
+!motortype x 0
+!motortype y 0
+!motortype z 0
+!dim x 1
+!motorbrake x 0
+!motortempsensor x 0
+!motortempsensorminimum x 0
+!motortempsensormaximum x 0
+!motorcurrent x 1
+!motorfielddir x 0
+!motormomentconstant x 0
+!motormomentofinertia x 0
+!motorpolepairs x 50
+!motorpolepairres x 32768
+!motormaxvel x 30
+!speedfeedforward x 100
+!posconenable x 0
+!posconkp x 100
+!posconki x 100
+!posconoutpass x 100
+!speedconkp x 100
+!speedconki x 100
+!speedconoutpass x 125
+!actspeedfilterconst x 125
+!enctype x 0
+!enctoaxis x 0
+!swchange x 0
+!swpol x 0 0 0
+!deviationcheck x 0
+!poswindowcheck x 0
+!poswindowrange x 0
+!poswindowtime x 0
+!poswindowtimeout x 0
+!modulo x 0
+!dim x 1
+!pitch x 1
+!gearnumerator x 1
+!geardenominator x 1
+!axisdir x 0
+!dim y 1
+!motorbrake y 0
+!motortempsensor y 0
+!motortempsensorminimum y 0
+!motortempsensormaximum y 0
+!motorcurrent y 1
+!motorfielddir y 0
+!motormomentconstant y 0
+!motormomentofinertia y 0
+!motorpolepairs y 50
+!motorpolepairres y 32768
+!motormaxvel y 30
+!speedfeedforward y 100
+!posconenable y 0
+!posconkp y 100
+!posconki y 100
+!posconoutpass y 100
+!speedconkp y 100
+!speedconki y 100
+!speedconoutpass y 125
+!actspeedfilterconst y 125
+!enctype y 0
+!enctoaxis y 0
+!swchange y 0
+!swpol y 0 0 0
+!deviationcheck y 0
+!poswindowcheck y 0
+!poswindowrange y 0
+!poswindowtime y 0
+!poswindowtimeout y 0
+!modulo y 0
+!dim y 1
+!pitch y 1
+!gearnumerator y 1
+!geardenominator y 1
+!axisdir y 0
+!dim z 1
+!motorbrake z 0
+!motortempsensor z 0
+!motortempsensorminimum z 0
+!motortempsensormaximum z 0
+!motorcurrent z 1
+!motorfielddir z 0
+!motormomentconstant z 0
+!motormomentofinertia z 0
+!motorpolepairs z 50
+!motorpolepairres z 32768
+!motormaxvel z 30
+!speedfeedforward z 100
+!posconenable z 0
+!posconkp z 100
+!posconki z 100
+!posconoutpass z 100
+!speedconkp z 100
+!speedconki z 100
+!speedconoutpass z 125
+!actspeedfilterconst z 125
+!enctype z 0
+!enctoaxis z 0
+!swchange z 0
+!swpol z 0 0 0
+!deviationcheck z 0
+!poswindowcheck z 0
+!poswindowrange z 0
+!poswindowtime z 0
+!poswindowtimeout z 0
+!modulo z 0
+!dim z 1
+!pitch z 1
+!gearnumerator z 1
+!geardenominator z 1
+!axisdir z 0
+!configurated x 1
+!configurated y 1
+!configurated z 1
+!validconfig
+!stoppol 0
+!manmodepreselection 0
+!axis x 1
+!calibrmvel x 5000
+!calibrmbspeed x 5000
+!calibrmaccel x 10000
+!calibrmjerk x 10000
+!caliboffset x 100
+!rmoffset x 100
+!calibrmoffsetswact x 1
+!caldir x 0
+!swact x 1 0 1
+!acceljerk x 10000
+!deceljerk x 10000
+!accel x 1000
+!decel x 1000
+!vel x 1000
+!stopdeceljerk x 10000
+!stopdecel x 10000
+!nosetlimit x 1
+!lim x 0 270000
+!limctr x 1
+!joyenable x 0
+!joydir x 0
+!joyvel x 10000
+!joyoutpass x 500
+!joywindow x 60
+!joyredcur x 0
+!joytoaxis x 1
+!tippenable x 0
+!tippdir x 0
+!tippvel x 10000
+!tippoutpass x 500
+!tippredcur x 0
+!tbenable x 0
+!tbdir x 0
+!tbvel x 10000
+!tboutpass x 500
+!tbredcur x 0
+!tbtoaxis x 0
+!tvrm x 0
+!tvrf x 0
+!tvrtoaxis x 0
+!modulomode x 0
+!axis x 1
+!reduction x 50
+!curdelay x 100
+!axis y 1
+!calibrmvel y 3000
+!calibrmbspeed y 3000
+!calibrmaccel y 10000
+!calibrmjerk y 10000
+!caliboffset y 100
+!rmoffset y 100
+!calibrmoffsetswact y 1
+!caldir y 0
+!swact y 1 0 1
+!acceljerk y 10000
+!deceljerk y 10000
+!accel y 1000
+!decel y 1000
+!vel y 1000
+!stopdeceljerk y 10000
+!stopdecel y 10000
+!nosetlimit y 1
+!lim y 0 95000
+!limctr y 1
+!joyenable y 0
+!joydir y 0
+!joyvel y 10000
+!joyoutpass y 500
+!joywindow y 60
+!joyredcur y 0
+!joytoaxis y 2
+!tippenable y 0
+!tippdir y 0
+!tippvel y 10000
+!tippoutpass y 500
+!tippredcur y 0
+!tbenable y 0
+!tbdir y 0
+!tbvel y 10000
+!tboutpass y 500
+!tbredcur y 0
+!tbtoaxis y 0
+!tvrm y 0
+!tvrf y 0
+!tvrtoaxis y 0
+!modulomode y 0
+!axis y 1
+!reduction y 50
+!curdelay y 100
+!axis z 1
+!calibrmvel z 1000
+!calibrmbspeed z 1000
+!calibrmaccel z 10000
+!calibrmjerk z 10000
+!caliboffset z 100
+!rmoffset z 300
+!calibrmoffsetswact z 1
+!caldir z 0
+!swact z 1 0 1
+!acceljerk z 10000
+!deceljerk z 10000
+!accel z 1000
+!decel z 1000
+!vel z 1000
+!stopdeceljerk z 10000
+!stopdecel z 10000
+!nosetlimit z 1
+!lim z 0 20000
+!limctr z 1
+!joyenable z 0
+!joydir z 0
+!joyvel z 10000
+!joyoutpass z 500
+!joywindow z 60
+!joyredcur z 0
+!joytoaxis z 3
+!tippenable z 0
+!tippdir z 0
+!tippvel z 10000
+!tippoutpass z 500
+!tippredcur z 0
+!tbenable z 0
+!tbdir z 0
+!tbvel z 10000
+!tboutpass z 500
+!tbredcur z 0
+!tbtoaxis z 0
+!tvrm z 0
+!tvrf z 0
+!tvrtoaxis z 0
+!modulomode z 0
+!axis z 1
+!reduction z 50
+!curdelay z 100
+!snssource x 0
+!snssource y 0
+!snssource z 0
+!snsm 0
+!snsf 10
+!snsl 0
+!sns 0
+!trig 0
+!triga x
+!trigs 3
+!trigd 1000
+!trigm 0
+!trigsource 0
+!trigh 0.1
+!trig_two 0
+!triga_two x
+!trigs_two 3
+!trigd_two 1000
+!trigm_two 0
+!trigsource_two 0
+!trigh_two 0.1
+!digoutlinktosignal 0 0
+!digoutlinktosignal 1 0
+!digoutlinktosignal 2 0
+!digoutlinktosignal 3 0
+!digoutlinktosignal 4 0
+!digoutlinktosignal 5 0
+!digoutlinktosignal 6 0
+!digoutlinktosignal 7 0
+!digoutlinktosignal 8 0
+!digoutlinktosignal 9 0
+!digoutlinktosignal 10 0
+!digoutlinktosignal 11 0
+!digoutlinktosignal 12 0
+!digoutlinktosignal 13 0
+!digoutlinktosignal 14 0
+!digoutlinktosignal 15 0
+!invertdigoutsignal 1 0
+!invertdigoutsignal 2 0
+!invertdigoutsignal 3 0
+!invertdigoutsignal 4 0
+!invertdigoutsignal 100 0
+!invertdigoutsignal 101 0
+!invertdigoutsignal 102 0
+!invertdigoutsignal 103 0
+!invertdigoutsignal 104 0
+!invertdigoutsignal 105 0
+!invertdigoutsignal 106 0
+!invertdigoutsignal 107 0
+!invertdigoutsignal 108 0
+!invertdigoutsignal 109 0
+!invertdigoutsignal 110 0
+!invertdigoutsignal 111 0
+!invertdigoutsignal 112 0
+!invertdigoutsignal 113 0
+!invertdigoutsignal 114 0
+!invertdigoutsignal 115 0
+!invertdigoutsignal 200 0
+!invertdigoutsignal 201 0
+!invertdigoutsignal 202 0
+!invertdigoutsignal 203 0
+!invertdigoutsignal 204 0
+!invertdigoutsignal 205 0
+!roomacceljerk 10
+!roomdeceljerk 10
+!roomaccel 10
+!roomdecel 1
+!roomvel 1
+!roomstopjerk 10
+!roomstopdecel 1

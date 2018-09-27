@@ -1,0 +1,98 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil Calibri;}}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\keepn\sb100\sa100\b\f0\fs28\lang1031 Cyclic Voltammetry (CV)\par
+
+\pard\b0\i\fs24 Supported instruments: PalmSens and EmStat series\i0\par
+\b\par
+Description\b0\par
+In Cyclic Voltammetry a cyclic potential scan is performed between two vertex potentials E vtx1 and E vtx2. The scan might start (E start) at one of these vertex potential or anywhere in between. \par
+The scan is again not really linear, but small potential steps (E step) are made. The current is measured (sampled) during the 25% interval period of each step. So the number of points per scan of the current versus potential curve is 2 * (E end \f1\endash\f0  E begin) / (E step +1).\par
+The scan rate is specified in V/s, which determines the time between two steps and thus the sampling time. The interval time is (scan rate) / E step. So when E step is 0.005 V and the scan rate 0.1 V/s the interval time is 0.05 s.\par
+\b\par
+Measuring\b0\par
+As in LSV it is sometimes important that the current does not get too high. This might ruin the working electrode. If the potential at which this will occur is not known, it is possible to specify a maximum current value at which the scan direction will reverse. \par
+\line\b Technique specific parameters\b0\par
+\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmrg\cellx8115\clmrg\cellx9030 
+\pard\intbl\b E start\b0\cell Potential where scan starts and stops.\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmrg\cellx8115\clmrg\cellx9030 
+\pard\intbl\b E vertex1\b0\cell First potential where direction reverses.\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmrg\cellx8115\clmrg\cellx9030 
+\pard\intbl\b E vertex2\b0\cell Second potential where direction reverses.\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmgf\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i The applicable potential range for each instrument:\i0\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmgf\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens2\i0\cell\i -2 V to +2 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens3\i0\cell\i -5 V to +5 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens4\i0\cell\i -10 V to +10 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat2\i0\cell\i -2 V to +2 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat3\i0\cell\i -3 V to +3 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat3+\i0\cell\i -4 V to +4 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmgf\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i The applicable potential range for each instrument:\i0\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmgf\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens2\i0\cell\i -2 V to +2 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens3\i0\cell\i -5 V to +5 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i PalmSens4\i0\cell\i -10 V to +10 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat2\i0\cell\i -2 V to +2 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat3\i0\cell\i -3 V to +3 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx6105\clvmrg\clmgf\cellx8115\clmrg\cellx9030 
+\pard\intbl\cell\i EmStat3+\i0\cell\i -4 V to +4 V\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmgf\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmrg\cellx8115\cellx9030 
+\pard\intbl\b E step\b0\cell Step potential\par
+\i The applicable step range for all instruments\i0\cell\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmgf\cellx9030 
+\pard\intbl\cell\i PalmSens2\i0\cell\i 1 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i PalmSens3\i0\cell\i 0.15 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i PalmSens4\i0\cell\i 0.075 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat2\i0\cell\i 0.1 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat3\i0\cell\i 0.125 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\clmgf\cellx6105\clmrg\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat3+\i0\cell\i 0.125 mV to 250 mV\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmgf\cellx2370\clmgf\cellx3855\clmrg\cellx8115\cellx9030 
+\pard\intbl\b Scan rate\b0\cell The applied scan rate. The applicable range depends on the value of E step. \par
+For PalmSens2:\par
+In case the scan rate is so low that the time between two measured points is longer than approx. 0.05 s, the measured data points are displayed during the measurement. In other cases the measurement is completed before the points are shown.\par
+\i The applicable scan rates for each instrument:\line\i0\cell\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmgf\cellx9030 
+\pard\intbl\cell\i PalmSens2\i0\cell\i 1 mV/s (1 mV step) to\line 25 mV/s (5 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i PalmSens3\i0\cell\i 0.02 mV/s (0.15 mV step) to\i0\par
+\i 500 V/s (5 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i PalmSens4\i0\cell\i 0.02 mV/s (0.075 mV step) to\i0\par
+\i 500 V/s (10 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat2\i0\cell\i 0.02 mV/s (0.1 mV step) to\line 5 V/s (5 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat3\i0\cell\i 0.025 mV/s (0.125 mV step) to\line 5 V/s (5 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clvmrg\cellx2370\cellx3855\cellx8115\clvmrg\cellx9030 
+\pard\intbl\cell\i EmStat3+\i0\cell\i 0.025 mV/s (0.125 mV step) to\line 5 V/s (5 mV step)\i0\cell\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2370\clmgf\cellx3855\clmrg\cellx6105\clmrg\cellx8115\clmrg\cellx9030 
+\pard\intbl\b Number of scans\b0\cell The number of repetitions for this scan.\cell\cell\cell\cell\row 
+\pard\b Fast CV scans (PalmSens3 and PalmSens4\super  \nosupersub only):\b0\par
+If the scan rate in combination with E step results in a rate of over 5000 points / second \line (E step / scan rate > 5000), Fast CV options are enabled. These options include averaging multiple scans and using equilibration scans. This technique can be particularly useful for very noisy measurements. Of course, it would be preferable to eliminate noise at the source first.\par
+Auto ranging cannot be used at these high speeds, so only one current range should be selected.\par
+\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2235\cellx9045 
+\pard\intbl\b n averaged scans\b0\cell The number of scans to be averaged.\cell\row\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2235\cellx9045 
+\pard\intbl\b n equil. scans\b0\cell The number of equilibration scans. These are not used for measurement results.\cell\row 
+\pard\par
+
+\pard\sa200\sl276\slmult1\fs22\lang7\par
+}
+ 

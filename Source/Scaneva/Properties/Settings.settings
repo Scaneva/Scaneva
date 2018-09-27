@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Scaneva.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LogDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\Log</Value>
+    </Setting>
+    <Setting Name="ScanResultDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\Results</Value>
+    </Setting>
+    <Setting Name="DefaultScanMethodDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.\</Value>
+    </Setting>
+    <Setting Name="HWSettingsFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">HardwareSettings.xml</Value>
+    </Setting>
+    <Setting Name="PositionStoreFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">PositionStore.xml</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

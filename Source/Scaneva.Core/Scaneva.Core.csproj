@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F9A0F0FD-2201-440D-84E5-DF50B64E0254}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Scaneva.Core</RootNamespace>
+    <AssemblyName>Scaneva.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CClassLStep">
+      <HintPath>Dependencies\LANGLibraries\CClassLStep.dll</HintPath>
+    </Reference>
+    <Reference Include="PalmSens.Core">
+      <HintPath>Dependencies\PSLibraries\PalmSens.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PalmSens.Core.Windows, Version=5.4.223.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>Dependencies\PSLibraries\PalmSens.Core.Windows.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Experiments\ExperimentData\Generic1DExperimentData.cs" />
+    <Compile Include="Experiments\ExperimentData\ScanData.cs" />
+    <Compile Include="Experiments\ExperimentData\ScanDataFreeform.cs" />
+    <Compile Include="Experiments\Container\LoopExperimentContainer.cs" />
+    <Compile Include="Experiments\Container\LoopExperimentContainerSettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\Tools\PS_EISSettingsPalmSens3.cs" />
+    <Compile Include="Experiments\Container\ParallelExperimentContainer.cs" />
+    <Compile Include="Experiments\Scan\ScanArc.cs" />
+    <Compile Include="Experiments\Scan\ScanArcSettings.cs" />
+    <Compile Include="Experiments\DataAcquisition\TimeTraceExperiment.cs" />
+    <Compile Include="Experiments\DataAcquisition\TimeTraceExperimentSettings.cs" />
+    <Compile Include="Experiments\DataAcquisition\Tools\MathGenerator.cs" />
+    <Compile Include="Experiments\Control\SetPumpValue.cs" />
+    <Compile Include="Experiments\Control\SetSingleValue.cs" />
+    <Compile Include="Experiments\Control\SetPumpValueSettings.cs" />
+    <Compile Include="Experiments\Control\SetSingleValueSettings.cs" />
+    <Compile Include="Hardware\ADDA\ADC_Dummy.cs" />
+    <Compile Include="Hardware\ADDA\ADC_Dummy_Settings.cs" />
+    <Compile Include="Hardware\Pump\PumpTubing.cs" />
+    <Compile Include="Hardware\Pump\Pump_Jasco_PU_4180.cs" />
+    <Compile Include="Hardware\Pump\Pump_Watson-Marlow_520Du.cs" />
+    <Compile Include="Hardware\Pump\Pump_Jasco_PU_4180_Settings.cs" />
+    <Compile Include="Hardware\Pump\Pump_Watson_Marlow_520Du_Settings.cs" />
+    <Compile Include="Hardware\Pump\IPump.cs" />
+    <Compile Include="Hardware\Potentiostat\PS_PalmSens.cs" />
+    <Compile Include="Hardware\Potentiostat\PS_PalmSens_Settings.cs" />
+    <Compile Include="Experiments\DataAcquisition\Tools\MathGeneratorStore.cs" />
+    <Compile Include="Hardware\Sensors\Sensor_Temperature_BplusB_TLOG20_Settings.cs" />
+    <Compile Include="Hardware\Sensors\Sensor_Temperature_BplusB_TLOG20.cs" />
+    <Compile Include="MinMaxAttribute.cs" />
+    <Compile Include="NumericUpDownTypeEditor.cs" />
+    <Compile Include="Experiments\Scan\Tools\PIDController.cs" />
+    <Compile Include="Experiments\Scan\Tools\PIDControllerSettings.cs" />
+    <Compile Include="Experiments\Scan\Tools\Position.cs" />
+    <Compile Include="DropdownListConverter.cs" />
+    <Compile Include="DynamicPropertyNames.cs" />
+    <Compile Include="Experiments\ExperimentData\Generic2DExperimentData.cs" />
+    <Compile Include="Experiments\Container\ExperimentBase.cs" />
+    <Compile Include="Experiments\Container\DefaultExperimentContainer.cs" />
+    <Compile Include="Experiments\Container\ExperimentContainer.cs" />
+    <Compile Include="Experiments\Scan\Autoapproach.cs" />
+    <Compile Include="Experiments\Scan\AutoapproachSettings.cs" />
+    <Compile Include="Experiments\Scan\ScanArray.cs" />
+    <Compile Include="Experiments\Scan\ScanArraySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\Tools\PS_AutoRangingSettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\Tools\PS_BiPotSettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_Chronoamperometry.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_CyclicVoltammetry.cs" />
+    <Compile Include="Experiments\Electrochemistry\Tools\PS_EISFrequencySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\Tools\PS_EISScanSettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_FastAmperometry.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_ImpedanceSpectroscopy.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_LinearSweepVoltammetry.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_OpenCircuitPotentiometry.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_OpenCircuitPotentiometrySettings.cs" />
+    <Compile Include="Experiments\Scan\Tools\FeedbackController.cs" />
+    <Compile Include="Experiments\Scan\Tools\FeedbackControllerSettings.cs" />
+    <Compile Include="Hardware\Positioner\PC_Dummy.cs" />
+    <Compile Include="Hardware\Positioner\PC_Dummy_Settings.cs" />
+    <Compile Include="Hardware\Positioner\PC_Gnrc_Gnrc_Settings_Axis.cs" />
+    <Compile Include="Hardware\Positioner\PC_PI_E_727_3x.cs" />
+    <Compile Include="Hardware\Positioner\PC_PI_E_727_3x_Settings.cs" />
+    <Compile Include="Hardware\Positioner\SMC_Gnrc_Gnrc_Settings_Axis.cs" />
+    <Compile Include="Hardware\Positioner\SMC_LStep_PCIe.cs" />
+    <Compile Include="Hardware\Positioner\SMC_LStep_PCIe_Settings.cs" />
+    <Compile Include="Experiments\IExperiment.cs" />
+    <Compile Include="Experiments\IExperimentData.cs" />
+    <Compile Include="Hardware\Positioner\IPositioner.cs" />
+    <Compile Include="Hardware\Tools\ITransducer.cs" />
+    <Compile Include="Experiments\Scan\Tools\PositionStore.cs" />
+    <Compile Include="Experiments\Scan\Tools\ScanDataEventArgs.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_ChronoamperometrySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_CyclicVoltammetrySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\FastAmperometrySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_ImpedanceSpectroscopySettings.cs" />
+    <Compile Include="Experiments\Electrochemistry\PS_LinearSweepVoltammetrySettings.cs" />
+    <Compile Include="Hardware\IHWManager.cs" />
+    <Compile Include="ISettings.cs" />
+    <Compile Include="ParametrizableObject.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScanevaCore.cs" />
+    <Compile Include="Experiments\Scan\ScannerArc.cs" />
+    <Compile Include="Experiments\Scan\IScanner.cs" />
+    <Compile Include="Experiments\Scan\ScannerArray.cs" />
+    <Compile Include="Experiments\DataAcquisition\GetSingleValue.cs" />
+    <Compile Include="Experiments\DataAcquisition\GetSingleValueSettings.cs" />
+    <Compile Include="Experiments\Scan\Tools\TiltCorrection.cs" />
+    <Compile Include="Hardware\Tools\TransducerChannel.cs" />
+    <Compile Include="ScanevaCoreSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Scaneva.Tools\Scaneva.Tools.csproj">
+      <Project>{fd29e9af-770d-4b3b-8c07-63392c549057}</Project>
+      <Name>Scaneva.Tools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>for /r "$(SolutionDir)../Dependencies" %25%25f in (*.*) do @copy "%25%25f" "$(TargetDir)"</PreBuildEvent>
+  </PropertyGroup>
+</Project>
