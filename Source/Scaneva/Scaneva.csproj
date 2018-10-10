@@ -54,10 +54,10 @@
       <HintPath>..\..\Dependencies\OxyPlot\OxyPlot.WindowsForms.dll</HintPath>
     </Reference>
     <Reference Include="PalmSens.Core">
-      <HintPath>..\Scaneva.Core\Dependencies\PSLibraries\PalmSens.Core.dll</HintPath>
+      <HintPath>..\..\Dependencies\PSLibraries\PalmSens.Core.dll</HintPath>
     </Reference>
     <Reference Include="PalmSens.Core.Windows">
-      <HintPath>..\Scaneva.Core\Dependencies\PSLibraries\PalmSens.Core.Windows.dll</HintPath>
+      <HintPath>..\..\Dependencies\PSLibraries\PalmSens.Core.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

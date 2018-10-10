@@ -949,7 +949,7 @@ namespace Scaneva
                         double[][] data2D = data.Get2DData(i);
 
                         // HACK Warning: if the second Value is NaN we had an overflow in time trace buffer and we clear the series
-                        if (double.IsNaN(data2D[1][1]))
+                        if ((data2D.Length > 1) && (data2D[1].Length > 1) && (double.IsNaN(data2D[1][1])))
                         {
                             currentSeries[i].Points.Clear();
                         }

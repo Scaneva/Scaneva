@@ -81,11 +81,17 @@ namespace Scaneva.Core.Hardware
         private void refreshDeviceList()
         {
             string error = String.Empty;
-
+            
             var list = FTDIDevice.DiscoverDevices(ref error);
             if (error != String.Empty)
             {
                 log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
+            }
+
+            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
+            if (error != String.Empty)
+            {
+                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
             }
 
             list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
@@ -94,7 +100,7 @@ namespace Scaneva.Core.Hardware
                 log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
             }
             
-            Settings.ListofConnections = list.Select(x => (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))).ToArray();
+            Settings.ListofConnections = list.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
         }
 
         public PS_PalmSens_Settings Settings
@@ -160,7 +166,7 @@ namespace Scaneva.Core.Hardware
         {
             try
             {
-                if (SupportedRanges != null)
+                if ((SupportedRanges != null) && (SupportedRanges.Count > 0))
                 {
                     Settings.ListofCurrentRanges = SupportedRanges.Select(x => x.ToString()).ToArray();
                 }
@@ -177,9 +183,10 @@ namespace Scaneva.Core.Hardware
 
                         string error = String.Empty;
                         var list = FTDIDevice.DiscoverDevices(ref error);
+                        list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
                         list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
 
-                        Device device = list.Where(x => (Regex.Replace(x.ToString(),@" \[[0-9]+\]","") == connName)).FirstOrDefault() as Device;
+                        Device device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
                         device.Open(); //try to open this COM port
 
@@ -211,15 +218,22 @@ namespace Scaneva.Core.Hardware
                 log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
             }
 
+            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
+            if (error != String.Empty)
+            {
+                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
+            }
+
             list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
             if (error != String.Empty)
             {
                 log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
             }
 
+
             // Get Connection Name from Settings and find according Device
             string connName = Settings.Connection;
-            device = list.Where(x => (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "") == connName)).FirstOrDefault() as Device;
+            device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
             if (device == null)
             {
@@ -361,7 +375,11 @@ namespace Scaneva.Core.Hardware
         private void Comm_ReceiveStatus(object sender, StatusEventArgs e)
         {         
             string txtPotential = e.GetStatus().PotentialReading.GetFormattedValue();
-            string txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
+            string txtCurrent = e.GetStatus().CurrentReading.ReadingStatus.ToString();
+            if (e.GetStatus().CurrentReading.ReadingStatus == ReadingStatus.OK)
+            {
+                 txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
+            }
             string txtCR = $"{e.GetStatus().CurrentReading.CurrentRange}";
             string txtStatus = $"{e.GetStatus().CurrentReading.ReadingStatus}";
             log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");         
@@ -392,12 +410,17 @@ namespace Scaneva.Core.Hardware
                 try
                 {
                     TaskCompletionSource<string> measurementStarted = new TaskCompletionSource<string>();
+
+                    //if (Comm.DeviceType == enumDeviceType.PalmSens4)
+                    //{
+                    //    errors = Comm.Measure(m);
+                    //}
                     Comm.ClientConnection.Run(() =>
                     {
                         try
                         {
-                            string result = Comm.Measure(m);
-                            measurementStarted.SetResult(result);
+                            measurementStarted.SetResult("");
+                            Comm.Measure(m);
                         }
                         catch (Exception e)
                         {
