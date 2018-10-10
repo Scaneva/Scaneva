@@ -220,20 +220,13 @@ namespace Scaneva.Core.Experiments.PalmSens
         private void HW_NewDataAdded(object sender, ArrayDataAddedEventArgs e)
         {
             var curve = sender as Curve;
+            int curveIdx = resultCurves.IndexOf(curve);
 
             double[] xVals = curve.GetXValues();
             double[] yVals = curve.GetYValues();
 
-            if (curve.YAxisDataArray.ArrayType != (int)DataArrayType.ExtraValue) //Check if curve contains Bipot (WE2) data
-            {
-                experimentData.data[0][0] = xVals;
-                experimentData.data[0][1] = yVals;
-            }
-            else
-            {
-                experimentData.data[1][0] = xVals;
-                experimentData.data[1][1] = yVals;
-            }
+            experimentData.data[curveIdx][0] = xVals;
+            experimentData.data[curveIdx][1] = yVals;
 
             NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, true));
         }
