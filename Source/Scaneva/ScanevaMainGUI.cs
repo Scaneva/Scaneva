@@ -32,6 +32,7 @@ using Scaneva.Tools;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -221,15 +222,31 @@ namespace Scaneva
                 pName = parent.Label + "." + pName;
             }
 
-            if ((typeof(IHWManager)).IsAssignableFrom(editedObject.GetType()))
+            if (editedObject != null)
             {
-                (editedObject as ParametrizableObject).ParameterChanged(pName);
-                hwStoreHasUnsaveChanges = true;
+                if ((typeof(IHWManager)).IsAssignableFrom(editedObject.GetType()))
+                {
+                    (editedObject as ParametrizableObject).ParameterChanged(pName);
+                    hwStoreHasUnsaveChanges = true;
+                }
+                else if ((typeof(IExperiment)).IsAssignableFrom(editedObject.GetType()))
+                {
+                    (editedObject as ParametrizableObject).ParameterChanged(pName);
+                    scanMethodHasUnsavedChanges = true;
+                }
             }
-            else if ((typeof(IExperiment)).IsAssignableFrom(editedObject.GetType()))
+            else if (propertyGrid1.SelectedObject.GetType().Equals(typeof(DynamicSettingsClass)))
             {
-                (editedObject as ParametrizableObject).ParameterChanged(pName);
-                scanMethodHasUnsavedChanges = true;
+                // Manual Transducer Channel Setting
+                DynamicSettingsClass cc = propertyGrid1.SelectedObject as DynamicSettingsClass;
+                ITransducer hw = cc?.RefObject as ITransducer;
+                if (hw != null)
+                {
+                    if (e.ChangedItem.Value.GetType().Equals(typeof(double)))
+                    {
+                        hw.Channels.Find(x => (x.Name == e.ChangedItem.Label)).SetValue((double)e.ChangedItem.Value);
+                    }
+                }
             }
 
             // refresh para box
@@ -427,6 +444,9 @@ namespace Scaneva
             while (!stopLiveManualInput)
             {
                 System.Threading.Thread.Sleep(delayMS);
+
+                refreshTransducerValues();
+
                 string chan = manualInputChan;
 
                 TimeSpan timeDifference = DateTime.Now.Subtract(startDate);
@@ -1145,6 +1165,10 @@ namespace Scaneva
         {
             core.InitializeAllHardware();
 
+            // Add initialized HW to list:
+            listBoxManualHwSelect.Items.Clear();
+            listBoxManualHwSelect.Items.AddRange(core.hwStore.Where(x => x.Value.IsEnabled).Select(x => x.Key).ToArray());
+
             // load Position Store
             foreach (var item in core.positionStore.PositionsList())
             {
@@ -1242,5 +1266,48 @@ namespace Scaneva
             AboutBox about = new AboutBox();
             about.ShowDialog();
         }
+
+        private void listBoxManualHwSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string hwKey = listBoxManualHwSelect.SelectedItem as string;
+            if (hwKey != null)
+            {
+                ITransducer hw = core.hwStore[hwKey] as ITransducer;
+
+                DynamicSettingsClass expando = new DynamicSettingsClass();
+                expando.Name = hwKey;
+                expando.RefObject = hw;
+
+                foreach (var chan in hw.Channels)
+                {
+                    string unit = (chan.Prefix == enuPrefix.none) ? chan.Unit : chan.Prefix + chan.Unit;
+                    expando.Add(new CustomProperty(chan.Name, chan.Name + " (" + unit + ")", hwKey, double.NaN, typeof(double), chan.ChannelType == enuChannelType.passive, true));
+                }
+
+                propertyGrid1.SelectedObject = expando;
+                refreshTransducerValues(false);
+            }            
+        }
+
+        private void refreshTransducerValues(bool passiveChansOnly = true)
+        {
+            DynamicSettingsClass cc = propertyGrid1.SelectedObject as DynamicSettingsClass;
+            ITransducer hw = cc?.RefObject as ITransducer;
+            if (hw != null)
+            {
+                foreach (var tchan in hw.Channels)
+                {
+                    double val = tchan.GetValue();
+                    CustomProperty cProp = cc.Find(x => (x.Name == tchan.Name));
+                    if ((cProp != null) && ((!passiveChansOnly) || (tchan.ChannelType != enuChannelType.active)))
+                    {
+                        cProp.Value = val;
+                    }
+                }
+            }
+            propertyGrid1.Invoke(new MethodInvoker(delegate { propertyGrid1.Refresh(); }));
+        }
+
+
     }
 }

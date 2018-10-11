@@ -37,10 +37,18 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.informationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolStrip = new System.Windows.Forms.ToolStrip();
+            this.toolStripButtonSaveSettings = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButtonConnect = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLoadMethod = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonSaveMethod = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButtonRun = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.label1 = new System.Windows.Forms.Label();
@@ -78,12 +86,20 @@
             this.buttonMoveToPos = new System.Windows.Forms.Button();
             this.btnSavePosition = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
+            this.btnMoveRight = new System.Windows.Forms.Button();
+            this.btnMoveLeft = new System.Windows.Forms.Button();
+            this.btnMoveForward = new System.Windows.Forms.Button();
+            this.btnMoveBackward = new System.Windows.Forms.Button();
             this.listBoxStoredPosition = new System.Windows.Forms.ListBox();
             this.tabPageScan = new System.Windows.Forms.TabPage();
             this.buttonDeleteExp = new System.Windows.Forms.Button();
             this.buttonAddExp = new System.Windows.Forms.Button();
             this.treeViewScanMethod = new System.Windows.Forms.TreeView();
             this.label3 = new System.Windows.Forms.Label();
+            this.buttonIncLevel = new System.Windows.Forms.Button();
+            this.buttonDecLevel = new System.Windows.Forms.Button();
+            this.buttonDown = new System.Windows.Forms.Button();
+            this.buttonUp = new System.Windows.Forms.Button();
             this.tabPagePlotView = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.label13 = new System.Windows.Forms.Label();
@@ -92,22 +108,8 @@
             this.plotViewScan = new OxyPlot.WindowsForms.PlotView();
             this.label12 = new System.Windows.Forms.Label();
             this.plotView1 = new OxyPlot.WindowsForms.PlotView();
-            this.informationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnMoveRight = new System.Windows.Forms.Button();
-            this.btnMoveLeft = new System.Windows.Forms.Button();
-            this.btnMoveForward = new System.Windows.Forms.Button();
-            this.btnMoveBackward = new System.Windows.Forms.Button();
-            this.buttonIncLevel = new System.Windows.Forms.Button();
-            this.buttonDecLevel = new System.Windows.Forms.Button();
-            this.buttonDown = new System.Windows.Forms.Button();
-            this.buttonUp = new System.Windows.Forms.Button();
-            this.toolStripButtonSaveSettings = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonConnect = new System.Windows.Forms.ToolStripButton();
-            this.toolStripLoadMethod = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonSaveMethod = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonRun = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
+            this.label2 = new System.Windows.Forms.Label();
+            this.listBoxManualHwSelect = new System.Windows.Forms.ListBox();
             this.mainStatusStrip.SuspendLayout();
             this.mainMenuStrip.SuspendLayout();
             this.mainToolStrip.SuspendLayout();
@@ -198,6 +200,21 @@
             this.editSettingsToolStripMenuItem.Text = "Edit Scaneva Settings";
             this.editSettingsToolStripMenuItem.Click += new System.EventHandler(this.editSettingsToolStripMenuItem_Click);
             // 
+            // informationToolStripMenuItem
+            // 
+            this.informationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
+            this.informationToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.informationToolStripMenuItem.Text = "Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
             // mainToolStrip
             // 
             this.mainToolStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
@@ -217,20 +234,83 @@
             this.mainToolStrip.TabIndex = 2;
             this.mainToolStrip.Text = "toolStrip1";
             // 
+            // toolStripButtonSaveSettings
+            // 
+            this.toolStripButtonSaveSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonSaveSettings.Image = global::Scaneva.Properties.Resources.Save_HW_green_red;
+            this.toolStripButtonSaveSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonSaveSettings.Name = "toolStripButtonSaveSettings";
+            this.toolStripButtonSaveSettings.Size = new System.Drawing.Size(36, 36);
+            this.toolStripButtonSaveSettings.Text = "toolStripButton1";
+            this.toolStripButtonSaveSettings.ToolTipText = "Save Settings";
+            this.toolStripButtonSaveSettings.Click += new System.EventHandler(this.toolStripButtonSaveSettings_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 39);
+            // 
+            // toolStripButtonConnect
+            // 
+            this.toolStripButtonConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonConnect.Image = global::Scaneva.Properties.Resources.plug_green;
+            this.toolStripButtonConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonConnect.Name = "toolStripButtonConnect";
+            this.toolStripButtonConnect.Size = new System.Drawing.Size(36, 36);
+            this.toolStripButtonConnect.Text = "Initialize HW";
+            this.toolStripButtonConnect.Click += new System.EventHandler(this.toolStripButtonConnect_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 39);
             // 
+            // toolStripLoadMethod
+            // 
+            this.toolStripLoadMethod.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripLoadMethod.Image = global::Scaneva.Properties.Resources.Open_folder_green;
+            this.toolStripLoadMethod.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripLoadMethod.Name = "toolStripLoadMethod";
+            this.toolStripLoadMethod.Size = new System.Drawing.Size(36, 36);
+            this.toolStripLoadMethod.Text = "toolStripButton2";
+            this.toolStripLoadMethod.ToolTipText = "Load Method";
+            this.toolStripLoadMethod.Click += new System.EventHandler(this.toolStripLoadMethod_Click);
+            // 
+            // toolStripButtonSaveMethod
+            // 
+            this.toolStripButtonSaveMethod.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonSaveMethod.Image = global::Scaneva.Properties.Resources.Save_method_green_red;
+            this.toolStripButtonSaveMethod.ImageTransparentColor = System.Drawing.Color.Transparent;
+            this.toolStripButtonSaveMethod.Name = "toolStripButtonSaveMethod";
+            this.toolStripButtonSaveMethod.Size = new System.Drawing.Size(36, 36);
+            this.toolStripButtonSaveMethod.Text = "Save Method";
+            this.toolStripButtonSaveMethod.Click += new System.EventHandler(this.toolStripButtonSaveMethod_Click);
+            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 39);
+            // 
+            // toolStripButtonRun
+            // 
+            this.toolStripButtonRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonRun.Image = global::Scaneva.Properties.Resources.Run_grey;
+            this.toolStripButtonRun.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonRun.Name = "toolStripButtonRun";
+            this.toolStripButtonRun.Size = new System.Drawing.Size(36, 36);
+            this.toolStripButtonRun.Text = "Run";
+            this.toolStripButtonRun.Click += new System.EventHandler(this.toolStripButtonRun_Click);
+            // 
+            // toolStripButtonStop
+            // 
+            this.toolStripButtonStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonStop.Image = global::Scaneva.Properties.Resources.Stop_grey;
+            this.toolStripButtonStop.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonStop.Name = "toolStripButtonStop";
+            this.toolStripButtonStop.Size = new System.Drawing.Size(36, 36);
+            this.toolStripButtonStop.Text = "Stop";
+            this.toolStripButtonStop.ToolTipText = "Stop";
+            this.toolStripButtonStop.Click += new System.EventHandler(this.toolStripButtonStop_Click);
             // 
             // splitContainer1
             // 
@@ -359,6 +439,8 @@
             // 
             // tabPageManualControl
             // 
+            this.tabPageManualControl.Controls.Add(this.listBoxManualHwSelect);
+            this.tabPageManualControl.Controls.Add(this.label2);
             this.tabPageManualControl.Controls.Add(this.btnStopMovement);
             this.tabPageManualControl.Controls.Add(this.txtZSpeed);
             this.tabPageManualControl.Controls.Add(this.txtYSpeed);
@@ -553,7 +635,7 @@
             this.groupBox2.Controls.Add(this.plotView_ManualTab);
             this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.comboBox_ManualInput);
-            this.groupBox2.Location = new System.Drawing.Point(14, 299);
+            this.groupBox2.Location = new System.Drawing.Point(205, 283);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(426, 269);
             this.groupBox2.TabIndex = 27;
@@ -653,12 +735,48 @@
             this.label6.TabIndex = 5;
             this.label6.Text = "Stored Positions";
             // 
+            // btnMoveRight
+            // 
+            this.btnMoveRight.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveRight.Image")));
+            this.btnMoveRight.Location = new System.Drawing.Point(435, 186);
+            this.btnMoveRight.Name = "btnMoveRight";
+            this.btnMoveRight.Size = new System.Drawing.Size(34, 34);
+            this.btnMoveRight.TabIndex = 36;
+            this.btnMoveRight.UseVisualStyleBackColor = true;
+            // 
+            // btnMoveLeft
+            // 
+            this.btnMoveLeft.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveLeft.Image")));
+            this.btnMoveLeft.Location = new System.Drawing.Point(355, 184);
+            this.btnMoveLeft.Name = "btnMoveLeft";
+            this.btnMoveLeft.Size = new System.Drawing.Size(34, 34);
+            this.btnMoveLeft.TabIndex = 35;
+            this.btnMoveLeft.UseVisualStyleBackColor = true;
+            // 
+            // btnMoveForward
+            // 
+            this.btnMoveForward.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveForward.Image")));
+            this.btnMoveForward.Location = new System.Drawing.Point(355, 224);
+            this.btnMoveForward.Name = "btnMoveForward";
+            this.btnMoveForward.Size = new System.Drawing.Size(34, 34);
+            this.btnMoveForward.TabIndex = 34;
+            this.btnMoveForward.UseVisualStyleBackColor = true;
+            // 
+            // btnMoveBackward
+            // 
+            this.btnMoveBackward.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveBackward.Image")));
+            this.btnMoveBackward.Location = new System.Drawing.Point(435, 147);
+            this.btnMoveBackward.Name = "btnMoveBackward";
+            this.btnMoveBackward.Size = new System.Drawing.Size(34, 34);
+            this.btnMoveBackward.TabIndex = 33;
+            this.btnMoveBackward.UseVisualStyleBackColor = true;
+            // 
             // listBoxStoredPosition
             // 
             this.listBoxStoredPosition.FormattingEnabled = true;
             this.listBoxStoredPosition.Location = new System.Drawing.Point(14, 30);
             this.listBoxStoredPosition.Name = "listBoxStoredPosition";
-            this.listBoxStoredPosition.Size = new System.Drawing.Size(185, 225);
+            this.listBoxStoredPosition.Size = new System.Drawing.Size(185, 160);
             this.listBoxStoredPosition.Sorted = true;
             this.listBoxStoredPosition.TabIndex = 4;
             // 
@@ -717,6 +835,46 @@
             this.label3.Size = new System.Drawing.Size(113, 13);
             this.label3.TabIndex = 10;
             this.label3.Text = "Experiments in method";
+            // 
+            // buttonIncLevel
+            // 
+            this.buttonIncLevel.Image = ((System.Drawing.Image)(resources.GetObject("buttonIncLevel.Image")));
+            this.buttonIncLevel.Location = new System.Drawing.Point(215, 136);
+            this.buttonIncLevel.Name = "buttonIncLevel";
+            this.buttonIncLevel.Size = new System.Drawing.Size(34, 34);
+            this.buttonIncLevel.TabIndex = 18;
+            this.buttonIncLevel.UseVisualStyleBackColor = true;
+            this.buttonIncLevel.Click += new System.EventHandler(this.buttonIncLevel_Click);
+            // 
+            // buttonDecLevel
+            // 
+            this.buttonDecLevel.Image = ((System.Drawing.Image)(resources.GetObject("buttonDecLevel.Image")));
+            this.buttonDecLevel.Location = new System.Drawing.Point(215, 176);
+            this.buttonDecLevel.Name = "buttonDecLevel";
+            this.buttonDecLevel.Size = new System.Drawing.Size(34, 34);
+            this.buttonDecLevel.TabIndex = 17;
+            this.buttonDecLevel.UseVisualStyleBackColor = true;
+            this.buttonDecLevel.Click += new System.EventHandler(this.buttonDecLevel_Click);
+            // 
+            // buttonDown
+            // 
+            this.buttonDown.Image = ((System.Drawing.Image)(resources.GetObject("buttonDown.Image")));
+            this.buttonDown.Location = new System.Drawing.Point(215, 96);
+            this.buttonDown.Name = "buttonDown";
+            this.buttonDown.Size = new System.Drawing.Size(34, 34);
+            this.buttonDown.TabIndex = 13;
+            this.buttonDown.UseVisualStyleBackColor = true;
+            this.buttonDown.Click += new System.EventHandler(this.buttonDown_Click);
+            // 
+            // buttonUp
+            // 
+            this.buttonUp.Image = ((System.Drawing.Image)(resources.GetObject("buttonUp.Image")));
+            this.buttonUp.Location = new System.Drawing.Point(215, 56);
+            this.buttonUp.Name = "buttonUp";
+            this.buttonUp.Size = new System.Drawing.Size(34, 34);
+            this.buttonUp.TabIndex = 12;
+            this.buttonUp.UseVisualStyleBackColor = true;
+            this.buttonUp.Click += new System.EventHandler(this.buttonUp_Click);
             // 
             // tabPagePlotView
             // 
@@ -821,159 +979,24 @@
             this.plotView1.ZoomRectangleCursor = System.Windows.Forms.Cursors.SizeNWSE;
             this.plotView1.ZoomVerticalCursor = System.Windows.Forms.Cursors.SizeNS;
             // 
-            // informationToolStripMenuItem
+            // label2
             // 
-            this.informationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-            this.informationToolStripMenuItem.Name = "informationToolStripMenuItem";
-            this.informationToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.informationToolStripMenuItem.Text = "Help";
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 212);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(62, 13);
+            this.label2.TabIndex = 54;
+            this.label2.Text = "Select HW:";
             // 
-            // aboutToolStripMenuItem
+            // listBoxManualHwSelect
             // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // btnMoveRight
-            // 
-            this.btnMoveRight.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveRight.Image")));
-            this.btnMoveRight.Location = new System.Drawing.Point(435, 186);
-            this.btnMoveRight.Name = "btnMoveRight";
-            this.btnMoveRight.Size = new System.Drawing.Size(34, 34);
-            this.btnMoveRight.TabIndex = 36;
-            this.btnMoveRight.UseVisualStyleBackColor = true;
-            // 
-            // btnMoveLeft
-            // 
-            this.btnMoveLeft.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveLeft.Image")));
-            this.btnMoveLeft.Location = new System.Drawing.Point(355, 184);
-            this.btnMoveLeft.Name = "btnMoveLeft";
-            this.btnMoveLeft.Size = new System.Drawing.Size(34, 34);
-            this.btnMoveLeft.TabIndex = 35;
-            this.btnMoveLeft.UseVisualStyleBackColor = true;
-            // 
-            // btnMoveForward
-            // 
-            this.btnMoveForward.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveForward.Image")));
-            this.btnMoveForward.Location = new System.Drawing.Point(355, 224);
-            this.btnMoveForward.Name = "btnMoveForward";
-            this.btnMoveForward.Size = new System.Drawing.Size(34, 34);
-            this.btnMoveForward.TabIndex = 34;
-            this.btnMoveForward.UseVisualStyleBackColor = true;
-            // 
-            // btnMoveBackward
-            // 
-            this.btnMoveBackward.Image = ((System.Drawing.Image)(resources.GetObject("btnMoveBackward.Image")));
-            this.btnMoveBackward.Location = new System.Drawing.Point(435, 147);
-            this.btnMoveBackward.Name = "btnMoveBackward";
-            this.btnMoveBackward.Size = new System.Drawing.Size(34, 34);
-            this.btnMoveBackward.TabIndex = 33;
-            this.btnMoveBackward.UseVisualStyleBackColor = true;
-            // 
-            // buttonIncLevel
-            // 
-            this.buttonIncLevel.Image = ((System.Drawing.Image)(resources.GetObject("buttonIncLevel.Image")));
-            this.buttonIncLevel.Location = new System.Drawing.Point(215, 136);
-            this.buttonIncLevel.Name = "buttonIncLevel";
-            this.buttonIncLevel.Size = new System.Drawing.Size(34, 34);
-            this.buttonIncLevel.TabIndex = 18;
-            this.buttonIncLevel.UseVisualStyleBackColor = true;
-            this.buttonIncLevel.Click += new System.EventHandler(this.buttonIncLevel_Click);
-            // 
-            // buttonDecLevel
-            // 
-            this.buttonDecLevel.Image = ((System.Drawing.Image)(resources.GetObject("buttonDecLevel.Image")));
-            this.buttonDecLevel.Location = new System.Drawing.Point(215, 176);
-            this.buttonDecLevel.Name = "buttonDecLevel";
-            this.buttonDecLevel.Size = new System.Drawing.Size(34, 34);
-            this.buttonDecLevel.TabIndex = 17;
-            this.buttonDecLevel.UseVisualStyleBackColor = true;
-            this.buttonDecLevel.Click += new System.EventHandler(this.buttonDecLevel_Click);
-            // 
-            // buttonDown
-            // 
-            this.buttonDown.Image = ((System.Drawing.Image)(resources.GetObject("buttonDown.Image")));
-            this.buttonDown.Location = new System.Drawing.Point(215, 96);
-            this.buttonDown.Name = "buttonDown";
-            this.buttonDown.Size = new System.Drawing.Size(34, 34);
-            this.buttonDown.TabIndex = 13;
-            this.buttonDown.UseVisualStyleBackColor = true;
-            this.buttonDown.Click += new System.EventHandler(this.buttonDown_Click);
-            // 
-            // buttonUp
-            // 
-            this.buttonUp.Image = ((System.Drawing.Image)(resources.GetObject("buttonUp.Image")));
-            this.buttonUp.Location = new System.Drawing.Point(215, 56);
-            this.buttonUp.Name = "buttonUp";
-            this.buttonUp.Size = new System.Drawing.Size(34, 34);
-            this.buttonUp.TabIndex = 12;
-            this.buttonUp.UseVisualStyleBackColor = true;
-            this.buttonUp.Click += new System.EventHandler(this.buttonUp_Click);
-            // 
-            // toolStripButtonSaveSettings
-            // 
-            this.toolStripButtonSaveSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonSaveSettings.Image = global::Scaneva.Properties.Resources.Save_HW_green_red;
-            this.toolStripButtonSaveSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonSaveSettings.Name = "toolStripButtonSaveSettings";
-            this.toolStripButtonSaveSettings.Size = new System.Drawing.Size(36, 36);
-            this.toolStripButtonSaveSettings.Text = "toolStripButton1";
-            this.toolStripButtonSaveSettings.ToolTipText = "Save Settings";
-            this.toolStripButtonSaveSettings.Click += new System.EventHandler(this.toolStripButtonSaveSettings_Click);
-            // 
-            // toolStripButtonConnect
-            // 
-            this.toolStripButtonConnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonConnect.Image = global::Scaneva.Properties.Resources.plug_green;
-            this.toolStripButtonConnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonConnect.Name = "toolStripButtonConnect";
-            this.toolStripButtonConnect.Size = new System.Drawing.Size(36, 36);
-            this.toolStripButtonConnect.Text = "Initialize HW";
-            this.toolStripButtonConnect.Click += new System.EventHandler(this.toolStripButtonConnect_Click);
-            // 
-            // toolStripLoadMethod
-            // 
-            this.toolStripLoadMethod.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripLoadMethod.Image = global::Scaneva.Properties.Resources.Open_folder_green;
-            this.toolStripLoadMethod.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripLoadMethod.Name = "toolStripLoadMethod";
-            this.toolStripLoadMethod.Size = new System.Drawing.Size(36, 36);
-            this.toolStripLoadMethod.Text = "toolStripButton2";
-            this.toolStripLoadMethod.ToolTipText = "Load Method";
-            this.toolStripLoadMethod.Click += new System.EventHandler(this.toolStripLoadMethod_Click);
-            // 
-            // toolStripButtonSaveMethod
-            // 
-            this.toolStripButtonSaveMethod.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonSaveMethod.Image = global::Scaneva.Properties.Resources.Save_method_green_red;
-            this.toolStripButtonSaveMethod.ImageTransparentColor = System.Drawing.Color.Transparent;
-            this.toolStripButtonSaveMethod.Name = "toolStripButtonSaveMethod";
-            this.toolStripButtonSaveMethod.Size = new System.Drawing.Size(36, 36);
-            this.toolStripButtonSaveMethod.Text = "Save Method";
-            this.toolStripButtonSaveMethod.Click += new System.EventHandler(this.toolStripButtonSaveMethod_Click);
-            // 
-            // toolStripButtonRun
-            // 
-            this.toolStripButtonRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonRun.Image = global::Scaneva.Properties.Resources.Run_grey;
-            this.toolStripButtonRun.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonRun.Name = "toolStripButtonRun";
-            this.toolStripButtonRun.Size = new System.Drawing.Size(36, 36);
-            this.toolStripButtonRun.Text = "Run";
-            this.toolStripButtonRun.Click += new System.EventHandler(this.toolStripButtonRun_Click);
-            // 
-            // toolStripButtonStop
-            // 
-            this.toolStripButtonStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonStop.Image = global::Scaneva.Properties.Resources.Stop_grey;
-            this.toolStripButtonStop.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonStop.Name = "toolStripButtonStop";
-            this.toolStripButtonStop.Size = new System.Drawing.Size(36, 36);
-            this.toolStripButtonStop.Text = "Stop";
-            this.toolStripButtonStop.ToolTipText = "Stop";
-            this.toolStripButtonStop.Click += new System.EventHandler(this.toolStripButtonStop_Click);
+            this.listBoxManualHwSelect.FormattingEnabled = true;
+            this.listBoxManualHwSelect.Location = new System.Drawing.Point(14, 228);
+            this.listBoxManualHwSelect.Name = "listBoxManualHwSelect";
+            this.listBoxManualHwSelect.Size = new System.Drawing.Size(185, 160);
+            this.listBoxManualHwSelect.Sorted = true;
+            this.listBoxManualHwSelect.TabIndex = 55;
+            this.listBoxManualHwSelect.SelectedIndexChanged += new System.EventHandler(this.listBoxManualHwSelect_SelectedIndexChanged);
             // 
             // ScanevaMainGUI
             // 
@@ -1100,6 +1123,8 @@
         private System.Windows.Forms.Button buttonAddExp;
         private System.Windows.Forms.ToolStripMenuItem informationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ListBox listBoxManualHwSelect;
+        private System.Windows.Forms.Label label2;
     }
 }
 

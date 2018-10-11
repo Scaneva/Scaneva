@@ -475,6 +475,7 @@ namespace Scaneva.Core.Hardware
             channels.Add(new TransducerChannel(this, "BiPot Potential", "A", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "WE2 Current", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));           
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Potentiostat;
@@ -502,6 +503,14 @@ namespace Scaneva.Core.Hardware
 
                         case "WE2 Current":
                             t = new Task<float>(() => { return (float)(Comm?.ReadBiPotCurrent).GetValueOrDefault(double.NaN); });
+                            break;
+
+                        case "Cell On":
+                            t = new Task<float>(() => { return (Comm?.CellOn).GetValueOrDefault(false) ? 1.0f : 0.0f; });
+                            break;
+
+                        case "Current Range":
+                            t = new Task<float>(() => { return ((float?)Comm?.CurrentRange?.CRbyte).GetValueOrDefault(float.NaN); });
                             break;
 
                         default:
@@ -545,6 +554,21 @@ namespace Scaneva.Core.Hardware
 
                     case "Cell On":
                         Comm.CellOn = (_value != 0.0);  // 0 is off, everything else on
+                        break;
+
+                    case "Current Range":
+                        try
+                        {
+                            sbyte sbRange = Convert.ToSByte(_value);
+                            CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
+                            if (cr != null)
+                            {
+                                Comm.CurrentRange = cr;
+                            }
+                        }
+                        catch
+                        {
+                        }                        
                         break;
 
                     default:
