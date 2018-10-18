@@ -51,6 +51,9 @@ namespace Scaneva.Core.Hardware
     [Category("Potentiostats")]
     public class PS_PalmSens : ParametrizableObject, IHWManager, ITransducer
     {
+        private static List<Device> deviceList = null;
+        private static DateTime lastDeviceRefresh = DateTime.Now;
+
         public enuHWStatus HWStatus => enuHWStatus.Ready;
         public List<CurrentRange> SupportedRanges;
 
@@ -64,6 +67,7 @@ namespace Scaneva.Core.Hardware
         private CommManager Comm = null;
         private Thread CommManagerThread;
         private Device device = null;
+        private DeviceCapabilities capabilities = null;
 
         public PS_PalmSens(LogHelper log)
             : base(log)
@@ -81,26 +85,33 @@ namespace Scaneva.Core.Hardware
         private void refreshDeviceList()
         {
             string error = String.Empty;
-            
-            var list = FTDIDevice.DiscoverDevices(ref error);
-            if (error != String.Empty)
-            {
-                log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
-            }
 
-            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
-            }
+            bool bNeedRefresh = (DateTime.Now - lastDeviceRefresh).TotalSeconds > 30; // Refresh after 30 Seconds
 
-            list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
+            if ((deviceList == null) || (bNeedRefresh))
             {
-                log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
+                lastDeviceRefresh = DateTime.Now;
+
+                deviceList = FTDIDevice.DiscoverDevices(ref error);
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
+                }
+
+                deviceList.AddRange(USBCDCDevice.DiscoverDevices(ref error));
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
+                }
+
+                deviceList.AddRange(SerialPortDevice.DiscoverDevices(ref error));
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
+                }
             }
             
-            Settings.ListofConnections = list.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
+            Settings.ListofConnections = deviceList.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
         }
 
         public PS_PalmSens_Settings Settings
@@ -182,11 +193,10 @@ namespace Scaneva.Core.Hardware
                         string connName = Settings.Connection;
 
                         string error = String.Empty;
-                        var list = FTDIDevice.DiscoverDevices(ref error);
-                        list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-                        list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
 
-                        Device device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
+                        refreshDeviceList();
+
+                        Device device = deviceList.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
                         device.Open(); //try to open this COM port
 
@@ -211,29 +221,11 @@ namespace Scaneva.Core.Hardware
         {
             log.Add("PS_PalmSens.Initialize");
 
-            string error = String.Empty;
-            var list = FTDIDevice.DiscoverDevices(ref error);
-            if (error != String.Empty)
-            {
-                log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
-            }
-
-            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
-            }
-
-            list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
-            }
-
+            refreshDeviceList();
 
             // Get Connection Name from Settings and find according Device
             string connName = Settings.Connection;
-            device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
+            device = deviceList.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
             if (device == null)
             {
@@ -307,6 +299,8 @@ namespace Scaneva.Core.Hardware
             Comm.StateChanged += Comm_StateChanged;
             Comm.UnknownDataEvent += Comm_UnknownDataEvent;
             Comm.CommErrorOccorred += Comm_CommErrorOccorred;
+
+            capabilities = Comm.Capabilities;
 
             InitTransducerChannels();
 
@@ -472,8 +466,13 @@ namespace Scaneva.Core.Hardware
             channels = new List<TransducerChannel>();
             channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "BiPot Potential", "A", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "WE2 Current", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
+
+            if (capabilities.BiPotPresent)
+            {
+                channels.Add(new TransducerChannel(this, "BiPot Potential", "A", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
+                channels.Add(new TransducerChannel(this, "WE2 Current", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
+            }
+
             channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));           
         }

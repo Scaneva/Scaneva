@@ -38,11 +38,27 @@ namespace Scaneva.Core.Settings
 {
     public class Pump_Watson_Marlow_520Du_Settings : ISettings
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum ProtocolType
+        {
+            /// <summary>
+            /// Basic Communication Protocol
+            /// </summary>
+            Basic,
+            /// <summary>
+            /// Enhanced Communication Protocol (e.g. Model 530Du)
+            /// </summary>
+            Enhanced
+        }
 
         private string headType = "520R";
         private double volPerRev = 15.84;
         private bool useTableofVolPerRev = true;
         private double tubeSize = 9.6;
+
+        private ProtocolType communicationProtocol = ProtocolType.Basic;
 
         private string tubing;
         private List<PumpTubing> _ListofTubings;
@@ -94,6 +110,10 @@ namespace Scaneva.Core.Settings
         [Category("Watson Marlow 520Du RS232 settings")]
         [DisplayName("Auto echo")]
         public bool AutoEcho { get => autoEcho; set => autoEcho = value; }
+
+        [Category("Watson Marlow 520Du RS232 settings")]
+        [DisplayName("Communication Protocol")]
+        public ProtocolType CommunicationProtocol { get => communicationProtocol; set => communicationProtocol = value; }
 
         [Category("Watson Marlow 520Du hardware settings")]
         [DisplayName("Head type")]

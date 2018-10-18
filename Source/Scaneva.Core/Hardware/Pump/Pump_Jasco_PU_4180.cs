@@ -681,7 +681,14 @@ namespace Scaneva.Core.Hardware
                             SerialDataReceivedEventArgs e)
         {
             // Read Bytes
-            serialAsyncReadBuf += _serialPort.ReadExisting();
+            try
+            {
+                serialAsyncReadBuf += _serialPort.ReadExisting();
+            }
+            catch (Exception ex)
+            {
+                log.Add(ex.ToString());
+            }
 
             if (bAsyncHandlingEnabled)
             {
