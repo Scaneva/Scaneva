@@ -42,7 +42,7 @@ namespace Scaneva.Core.Experiments.PalmSens
         public string[] ListofCurrentRanges { get => _ListofCurrentRanges; set => _ListofCurrentRanges = value; }
 
         //Bipot settings
-        private EnumExtraValue recordExtraValue = EnumExtraValue.WE2; //Set to WE2 to record data from bipot
+        private EnumExtraValue recordExtraValue = EnumExtraValue.None; //Set to WE2 to record data from bipot
         private Method.EnumPalmSensBipotMode biPotModePS = Method.EnumPalmSensBipotMode.constant; //Set bipot to a fixed potential (constant) or an offset of the main WE (offset)
         private float biPotPotential = 1f; //Set the fixed or offset potential of WE2 in Volt
         private string biPotCR = null; //Set the current range for the WE2 recordings (autoranging not supported)

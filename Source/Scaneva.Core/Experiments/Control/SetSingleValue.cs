@@ -134,6 +134,9 @@ namespace Scaneva.Core.Experiments
             // Only Run if Experiment is Idle and Task not running
             if ((status == enExperimentStatus.Idle) && ((measurementTask == null) || (measurementTask.IsCompleted) || (measurementTask.IsCanceled)))
             {
+                // Write Settings
+                writeHeader("", new string[] { }, Settings, false);
+
                 measurementTask = new Task(() => { ExecuteSetSingleValue(); });
                 status = enExperimentStatus.Running;
                 measurementTask.Start();
