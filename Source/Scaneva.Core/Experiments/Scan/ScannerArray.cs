@@ -127,7 +127,7 @@ namespace Scaneva.Core.Experiments
             }
 
             //and move to the next position 
-            if (mPositioner.RelativePosition(Dest) != enuPositionerStatus.Ready)
+            if (mPositioner.AbsolutePosition(Dest) != enuPositionerStatus.Ready)
             {
                 mStatus = enuScannerErrors.Error;
                 return mStatus;
