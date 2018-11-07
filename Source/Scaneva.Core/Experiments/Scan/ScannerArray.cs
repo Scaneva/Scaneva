@@ -29,9 +29,10 @@ using System;
 
 namespace Scaneva.Core.Experiments
 {
-  
-    public class ScannerArray: IScanner
+
+    public class ScannerArray : IScanner
     {
+        string Mode = "Comb";
         Position mStartPosition = new Position();     //Startpos. in abs. Koordinaten
         Position mEndPosition = new Position();       // Endpos. in abs. Koordinaten
 
@@ -51,9 +52,10 @@ namespace Scaneva.Core.Experiments
         TiltCorrection mTilt;
         enuScannerErrors mStatus = 0;
 
-        public ScannerArray(IPositioner _pos, Position _lengths, Position _increments,
+        public ScannerArray(string _mode, IPositioner _pos, Position _lengths, Position _increments,
             Position _speeds, Position _revspeeds, Position _premove, Position _postmove, TiltCorrection _tilt, long _xDelay, long _yDelay, long _zDelay)
         {
+            Mode = _mode;
             mPositioner = _pos;
             mLengths = _lengths;
             mIncrements = _increments;
@@ -80,13 +82,13 @@ namespace Scaneva.Core.Experiments
             //store current absolute position as starting position and calculate end position
             mStartPosition = mPositioner.AbsolutePosition();
             mEndPosition = mStartPosition.Sum(mLengths);
-            if (mPositioner.ValidatePosition (ref mEndPosition) == enuPositionerStatus.Ready )
+            if (mPositioner.ValidatePosition(ref mEndPosition) == enuPositionerStatus.Ready)
             {
                 if (mPositioner.ValidateSpeeds(ref mSpeeds) == enuPositionerStatus.Ready)
                 {
                     mStatus = enuScannerErrors.Initialized;
                     mStatus |= enuScannerErrors.Ready;
-                } 
+                }
             }
             return mStatus;
         }
@@ -167,50 +169,108 @@ namespace Scaneva.Core.Experiments
         //expects pos to be the current absolute position (global scope).
         Position CalculateNextAbsolutePosition(Position _pos)
         {
-            // We only keep the Z-component of the current position (if it is not a z- scan)
-            Position dest = _pos.Copy;
-
-            // Increment Indices
-            mScanPointIndex[0]++;
-
-            //todo: integrate delays
-            // end of Line?
-            if (mScanPointIndex[0] >= mScanPoints[0])
+            switch (Mode)
             {
-                mScanPointIndex[0] = 0;
-                mScanPointIndex[1]++;
+                case "Comb":
+                    // We only keep the Z-component of the current position (if it is not a z- scan)
 
-                // end of column?
-                if (mScanPointIndex[1] >= mScanPoints[1])
-                {
-                    mScanPointIndex[1] = 0;
-                    mScanPointIndex[2]++;
-                }
+                    Position cdest = _pos.Copy;
+                    // Increment Indices
+                    mScanPointIndex[0]++;
+
+                    //todo: integrate delays
+                    // end of Line?
+                    if (mScanPointIndex[0] >= mScanPoints[0])
+                    {
+                        mScanPointIndex[0] = 0;
+                        mScanPointIndex[1]++;
+
+                        // end of column?
+                        if (mScanPointIndex[1] >= mScanPoints[1])
+                        {
+                            mScanPointIndex[1] = 0;
+                            mScanPointIndex[2]++;
+                        }
+                    }
+
+                    // is the scan finished?
+                    if ((mScanPointIndex[2] >= mScanPoints[2]))
+                    {
+                        return null;
+                    }
+
+                    cdest.X = mStartPosition.X + mScanPointIndex[0] * mIncrements.X;
+                    cdest.Y = mStartPosition.Y + mScanPointIndex[1] * mIncrements.Y;
+
+                    // For z-scan ignore current z-Position and calculate
+                    if (mScanPoints[2] > 1)
+                    {
+                        cdest.Z = cdest.Z + mScanPointIndex[2] * mIncrements.Z;
+                    }
+
+                    return cdest;
+
+                //finish, return sum of relativ pos and scan start position
+                //validation of the position is the responsibility of the caller.
+                case "Meander":
+                    // We only keep the Z-component of the current position (if it is not a z- scan)
+                    Position mdest = _pos.Copy;
+
+                    if (mScanPointIndex[1] % 2 == 0) // even line: 0, 2, 4, 6... then we scan from left to right
+                    {
+                        mScanPointIndex[0]++;
+                        // end of Line?
+                        if (mScanPointIndex[0] >= mScanPoints[0])
+                        {// we scan the next line from right to left, thus we leave the current index
+                            mScanPointIndex[1]++;
+                        }
+                    }
+                    else
+                    {// odd line: 1, 3, 5...  then we scan from right to left 
+                        mScanPointIndex[0]--;
+                        // end of Line?
+                        if (mScanPointIndex[0] <= 0)
+                        {// we scan the next line from left to right
+                            mScanPointIndex[1]++;
+                        }
+                    }
+
+                    // end of column?
+                    if (mScanPointIndex[1] >= mScanPoints[1])
+                    {
+                        mScanPointIndex[1] = 0;
+                        mScanPointIndex[2]++;
+                    }
+
+                    // is the scan finished?
+                    if ((mScanPointIndex[2] >= mScanPoints[2]))
+                    {
+                        return null;
+                    }
+
+                    mdest.X = mStartPosition.X + mScanPointIndex[0] * mIncrements.X;
+                    mdest.Y = mStartPosition.Y + mScanPointIndex[1] * mIncrements.Y;
+
+                    // For z-scan ignore current z-Position and calculate
+                    if (mScanPoints[2] > 1)
+                    {
+                        mdest.Z = mdest.Z + mScanPointIndex[2] * mIncrements.Z;
+                    }
+
+                    return mdest;
+                //finish, return sum of relativ pos and scan start position
+                //validation of the position is the responsibility of the caller.
+
+                default:
+                    return null;
             }
-
-            // is the scan finished?
-            if ((mScanPointIndex[2] >= mScanPoints[2]))
-            {
-                return null;
-            }
-
-            dest.X = mStartPosition.X + mScanPointIndex[0] * mIncrements.X;
-            dest.Y = mStartPosition.Y + mScanPointIndex[1] * mIncrements.Y;
-
-            // For z-scan ignore current z-Position and calculate
-            if (mScanPoints[2] > 1)
-            {
-                dest.Z = dest.Z + mScanPointIndex[2] * mIncrements.Z;
-            }
-
-            return dest;
-            //finish, return sum of relativ pos and scan start position
-            //validation of the position is the responsibility of the caller.
         }
+
 
         public Position Position()
         {// Position relativ zur Startposition
             return mPositioner.AbsolutePosition().Delta(mStartPosition);
         }
+
     }
 }

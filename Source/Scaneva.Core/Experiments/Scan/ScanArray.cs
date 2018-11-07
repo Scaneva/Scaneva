@@ -52,6 +52,9 @@ namespace Scaneva.Core.Experiments.ScanEva
             : base(log)
         {
             settings = new ScanArraySettings();
+            Settings.ScannerModes.Add("Comb");
+            Settings.ScannerModes.Add("Saw");
+            Settings.ScannerModes.Add("Meander");
         }
 
         public ScanArraySettings Settings
@@ -116,7 +119,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                     Tilt.PositionStore = PositionStore;
                 }
 
-                Scanner = new ScannerArray( pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
+                string Mode = Settings.ScannerMode;
+                Scanner = new ScannerArray(Mode, pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
                     Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt, Settings.XDelay, Settings.YDelay, Settings.ZDelay);
                 Scanner.Initialize();
 
