@@ -173,20 +173,12 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         /// <summary>
-        /// Default implementation returns no offset for Experiment
-        /// override if necessary
+        /// Return current Scanner Position relative to scan start
         /// </summary>
         /// <returns></returns>
         public override Position Position()
         {
-            if (parent != null)
-            {
-                return parent.Position();
-            }
-            //kopie liefern, keine Referenz aufs Originalobjekt
-            Position pos = new Position();
-            pos = Scanner.Position();
-            return pos;
+            return Scanner.Position();
         }
         
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)
@@ -275,7 +267,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                 status = enExperimentStatus.Aborted;
                 NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));               
             }
-            else if (res == enuScannerErrors.Finished)
+            else if (res.HasFlag(enuScannerErrors.Finished))
             {
                 // Experiment ended regularly
                 status = enExperimentStatus.Completed;
