@@ -53,7 +53,6 @@ namespace Scaneva.Core.Experiments.ScanEva
         {
             settings = new ScanArraySettings();
             Settings.ScannerModes.Add("Comb");
-            Settings.ScannerModes.Add("Saw");
             Settings.ScannerModes.Add("Meander");
         }
 
@@ -180,7 +179,7 @@ namespace Scaneva.Core.Experiments.ScanEva
         {
             return Scanner.Position();
         }
-        
+
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)
         {
             // Get Data from single vlaue experiments
@@ -216,7 +215,7 @@ namespace Scaneva.Core.Experiments.ScanEva
 
             int i = 0;
             enuScannerErrors res = enuScannerErrors.Ready;
-            while ((!res.HasFlag( enuScannerErrors.Finished)) && (!abortExperiment))
+            while ((!res.HasFlag(enuScannerErrors.Finished)) && (!abortExperiment))
             {
                 // Here we run all child experiments including Autoapproch if contained in the queue at the first (and may be single) point of the scan
                 Task childRunner = RunChildExperiments();
@@ -265,19 +264,19 @@ namespace Scaneva.Core.Experiments.ScanEva
             {
                 // Experiment was aborted
                 status = enExperimentStatus.Aborted;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));               
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));
             }
             else if (res.HasFlag(enuScannerErrors.Finished))
             {
                 // Experiment ended regularly
                 status = enExperimentStatus.Completed;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Completed, scanData));                
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Completed, scanData));
             }
             else
             {
                 // Something else happend => error
                 status = enExperimentStatus.Error;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Error, null));                
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Error, null));
             }
         }
     }

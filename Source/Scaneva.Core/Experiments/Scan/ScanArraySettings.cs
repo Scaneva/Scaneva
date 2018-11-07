@@ -36,17 +36,14 @@ namespace Scaneva.Core.Experiments.ScanEva
 {
     public class ScanArraySettings : ISettings
     {
-        private Dictionary<string, IPositioner> positioners = new Dictionary<string, IPositioner>();
         private Dictionary<string, IPositioner> tiltpositioners = new Dictionary<string, IPositioner>();
-        private List<string> scannerModes = new List<string>();
-        
-        [Browsable(false)]
-        [XmlIgnore]
-        public Dictionary<string, IPositioner> Positioners { get => positioners; set => positioners = value; }
 
         [Browsable(false)]
         [XmlIgnore]
-        public List<string> ScannerModes { get => scannerModes; set => scannerModes = value; }
+        public Dictionary<string, IPositioner> Positioners { get; set; } = new Dictionary<string, IPositioner>();
+        [Browsable(false)]
+        [XmlIgnore]
+        public List<string> ScannerModes { get; set; } = new List<string>();
 
         [Category("1. Hardware")]
         [DisplayName("Select positioner")]
@@ -89,7 +86,7 @@ namespace Scaneva.Core.Experiments.ScanEva
         [DisplayName("Scanner mode")]
         [TypeConverter(typeof(DropdownListConverter))]
         [DropdownList("ScannerModes")]
-        public string ScannerMode { get; set; } = "Comb";
+        public string ScannerMode { get; set; } = null;
         
         [Category("2. Scanner settings")]
         [DisplayName("X-delay (ms)")]
