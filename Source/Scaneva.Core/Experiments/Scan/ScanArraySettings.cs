@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +38,8 @@ namespace Scaneva.Core.Experiments.ScanEva
     {
         private Dictionary<string, IPositioner> positioners = new Dictionary<string, IPositioner>();
         private Dictionary<string, IPositioner> tiltpositioners = new Dictionary<string, IPositioner>();
-
+        private List<string> ScannerMode = new List<string>();
+        
         [Browsable(false)]
         [XmlIgnore]
         public Dictionary<string, IPositioner> Positioners { get => positioners; set => positioners = value; }
@@ -76,7 +78,28 @@ namespace Scaneva.Core.Experiments.ScanEva
         [Category("2. Scanner settings")]
         [DisplayName("Increments (µm)")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
+        //[Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, long.MaxValue, 1)] todo!
         public Position Increments { get; set; } = new Position();
+
+        /*
+        [Category("3. Scanner settings")]
+        [DisplayName("Scanner mode")]
+        [TypeConverter(typeof(DropdownListConverter))]
+        [DropdownList("ScannerMode")]
+        public string ScannerMode { get; set; } = "Comb";
+        */
+        [Category("2. Scanner settings")]
+        [DisplayName("X-delay (ms)")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, long.MaxValue, 1)]
+        public long XDelay { get; set; } = 0;
+
+        [Category("2. Scanner settings")]
+        [DisplayName("Y-delay (ms)")]
+        public long YDelay { get; set; } = 0;
+
+        [Category("2. Scanner settings")]
+        [DisplayName("Z-delay (ms)")]
+        public long ZDelay { get; set; } = 0;
 
         [Category("3. Tilt correction")]
         [DisplayName("Use tilt correction")]

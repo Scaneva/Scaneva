@@ -69,6 +69,11 @@ namespace Scaneva.Core
         [DropdownList("Positioners")]
         public string Positioner { get => positioner; set => positioner = value; }
 
+        [Category("1. Hardware")]
+        [DisplayName("Positioner speeds [µm/s]")]
+        [Description("Specify the positioner speed in [µm/s].")]
+        public Position Speeds { get; set; }
+
         private void updateDisplayNames()
         {
             string units = "";
@@ -103,47 +108,63 @@ namespace Scaneva.Core
                 channel = value;
                 updateDisplayNames();
             }
+            //todo: add averaging control!
         }
 
+        [Category("1. Hardware")]
+        [DisplayName("Source signal averaging [#]")]
+        [Description("Specify the number of sample being averaged for the selected transducer.")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue)]
+        public int Averaging { get; set; } = 0;
+
         [Category("2. Feedback controller")]
-        [DisplayName("Min Setpoint")]
+        [DisplayName("Minimum setpoint")]
         [Description("Specify the lower limit of the setpoint in signal source units.")]
-        // [TypeConverter(typeof(NumericUpDownTypeConverter))]
-        // [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 1, 0.1)]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(double.MinValue, double.MaxValue)]
         public double MinSetpoint { get; set; } = 0;
 
         [Category("2. Feedback controller")]
         [DisplayName("Maximum setpoint")]
         [Description("Specify the upper limit of the setpoint in signal source units.")]
-        // [TypeConverter(typeof(NumericUpDownTypeConverter))]
-        // [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 1, 0.1)]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(double.MinValue, double.MaxValue)]
         public double MaxSetpoint { get; set; } = 1;
 
         [Category("2. Feedback controller")]
         [DisplayName("Number of bulk signal samples")]
         [Description("Specify the number of bulk signal samples to be acquired.")]
-        [TypeConverter(typeof(NumericUpDownTypeConverter))]
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, long.MaxValue, 1)]
         public long BulkSamples { get; set; } = 10;
 
         [Category("2. Feedback controller")]
         [DisplayName("Time out")]
         [Description("Specify the time out for the feedback controller in [ms].")]
-        [TypeConverter(typeof(NumericUpDownTypeConverter))]
-        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, long.MaxValue, 1)]
-        public long TimeOut { get; set; } = 30000;
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue, 1)]
+        public int TimeOut { get; set; } = 30000;
 
         [Category("2. Feedback controller")]
-        [DisplayName("Loop delay")]
+        [DisplayName("Loop delay [ms]")]
         [Description("Specify the delay between feedback loops in [ms].")]
-        [TypeConverter(typeof(NumericUpDownTypeConverter))]
-        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, long.MaxValue, 1)]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue, 1)]
         public int LoopDelay { get; set; } = 20;
 
-        [Category("2. Feedback controller")]
-        [DisplayName("Loop delay")]
-        [Description("Specify the positioner speed in [µm/s].")]
-        public Position Speeds { get; set; }
+        [Category("3. Post-approach feedback")]
+        [DisplayName("Enable post-approach feedback control")]
+        [Description("Enable post-approach feedback control?")]
+        public bool PostAppFBC { get; set; } = false;
+
+        [Category("3. Post-approach feedback")]
+        [DisplayName("Loop delay at setpoint [ms]")]
+        [Description("Specify the delay between feedback loops in [ms].")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue, 1)]
+        public int SPLoopDelay { get; set; } = 1000;
+
+        [Category("3. Post-approach feedback")]
+        [DisplayName("Time out [ms]")]
+        [Description("Specify the time out for the post-approach feedback controller in [ms].")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue, 1)]
+        public int PostAppTimeOut { get; set; } = 30000;
+
+
 
         /*
         [Category("2. Feedback controller")]

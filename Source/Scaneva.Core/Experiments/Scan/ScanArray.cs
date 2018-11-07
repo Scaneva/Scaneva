@@ -117,7 +117,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                 }
 
                 Scanner = new ScannerArray( pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
-                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt);
+                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt, Settings.XDelay, Settings.YDelay, Settings.ZDelay);
                 Scanner.Initialize();
 
                 //safety check: if the tilt correction is in use, a scan in Z direction is not a good idea.
@@ -243,14 +243,17 @@ namespace Scaneva.Core.Experiments.ScanEva
                 res = Scanner.NextPosition();
 
                 //todo: get coordinate from the scanner
+                Thread.Sleep((int)Settings.XDelay);
                 i++;
                 currentXPos++;
                 if (currentXPos >= scanPointsX)
                 {
+                    Thread.Sleep((int)Settings.YDelay);
                     currentXPos = 0;
                     currentYPos++;
                     if (currentYPos >= scanPointsY)
                     {
+                        Thread.Sleep((int)Settings.ZDelay);
                         currentYPos = 0;
                     }
                 }

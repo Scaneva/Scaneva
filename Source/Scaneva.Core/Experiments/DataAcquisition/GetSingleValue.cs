@@ -112,6 +112,7 @@ namespace Scaneva.Core.Experiments
             string headerString = "Experiment: SingleValueExperiment - " + Name + "\r\n";
             List<string> dataColumnHeaders = new List<string>();
             int i = 0;
+            int j = 0;
 
             foreach (string chan in Settings.Channels)
             {
@@ -124,6 +125,8 @@ namespace Scaneva.Core.Experiments
                     TransducerChannel channel = transducerChannels[chan];
                     activeChannels.Add(channel);
 
+                    channel.Averaging = Settings.ChannelsAvging[j];
+
                     headerString += "Channel [" + i + "]: " + chan + "\r\n";
                     headerString += "Channel [" + i + "] Name: " + channel.Name + "\r\n";
 
@@ -131,6 +134,7 @@ namespace Scaneva.Core.Experiments
                     headerString += "Channel [" + i + "] Unit: " + unit + "\r\n";
                     dataColumnHeaders.Add(channel.Name + " [" + unit + "]");
                 }
+                j++;
             }
             writeHeader(headerString, dataColumnHeaders.ToArray());
 
@@ -169,7 +173,7 @@ namespace Scaneva.Core.Experiments
             int i = 0;
             foreach (TransducerChannel channel in activeChannels)
             {
-                double value = channel.GetValue();
+                double value = channel.GetAveragedValue();
                 data.datasetNames.Add(Name + "." + channel.Name);
                 data.axisNames.Add(channel.Name);
                 data.axisUnits.Add(channel.Unit);

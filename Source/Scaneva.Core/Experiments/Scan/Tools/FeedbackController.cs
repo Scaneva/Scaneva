@@ -87,7 +87,6 @@ namespace Scaneva.Core
 
     class FeedbackController : ParametrizableObject
     {
-
         private Dictionary<string, IHWManager> hwStore;
         private Dictionary<string, TransducerChannel> transducerChannels;
 
@@ -97,13 +96,12 @@ namespace Scaneva.Core
         private double SetPoint = 0;
         //current baseline
         private double BulkSignal = double.NaN;
-
         private PIDController PID;
 
         /// <summary>
         /// An event to notify about each movement step
         /// </summary>        
-        public event EventHandler<FBPositionUpdatedEventArgs> FBPosotionUpdated;
+        public event EventHandler<FBPositionUpdatedEventArgs> FBPositionUpdated;
 
         //Hardware
         private IPositioner mPositioner = null;
@@ -166,9 +164,9 @@ namespace Scaneva.Core
         /// Invoke the FBPosotionUpdated event
         /// </summary>
         /// <param name="e"></param>
-        protected virtual void OnFBPosotionUpdated(FBPositionUpdatedEventArgs e)
+        protected virtual void OnFBPositionUpdated(FBPositionUpdatedEventArgs e)
         {
-            FBPosotionUpdated?.Invoke(this, e);
+            FBPositionUpdated?.Invoke(this, e);
         }
 
         public enuFeedbackStatusFlags Initialize()
@@ -334,19 +332,41 @@ namespace Scaneva.Core
                 if (abortFlag)
                 {
                     mStatus |= enuFeedbackStatusFlags.Aborted;
-                    log.Add("GotoSetpoint() aborted by user");
+                    log.Add("GotoSetpoint() was aborted by user");
                     return Status();
                 }
                 mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds);
 
-                if (mStatus.HasFlag(enuFeedbackStatusFlags.AtSetpoint)
-                    || mStatus.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
+                if (stopwatch.ElapsedMilliseconds > Settings.TimeOut)
+                {
+                    return enuFeedbackStatusFlags.Timeout;
+                }
+
+                if (mStatus.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
                 {
                     return mStatus;
                 }
-                System.Threading.Thread.Sleep(Settings.LoopDelay); //todo: make it properly considering time passed
-            } while (stopwatch.ElapsedMilliseconds < Settings.TimeOut);
-            return enuFeedbackStatusFlags.Timeout;
+
+                System.Threading.Thread.Sleep(Settings.LoopDelay);
+            } while (!mStatus.HasFlag(enuFeedbackStatusFlags.AtSetpoint));
+
+            if (Settings.PostAppFBC)
+            {
+               stopwatch.Restart();
+                do
+                {
+                    if (abortFlag)
+                    {
+                        mStatus |= enuFeedbackStatusFlags.Aborted;
+                        log.Add("Post-approach FB control was aborted by user");
+                        return Status();
+                    }
+                    mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds);
+                    System.Threading.Thread.Sleep(Settings.SPLoopDelay);
+                }
+                while (stopwatch.ElapsedMilliseconds < Settings.PostAppTimeOut);
+            }
+            return mStatus;
         }
 
         private enuFeedbackStatusFlags GotoSetpointStep(long millis)
@@ -354,7 +374,7 @@ namespace Scaneva.Core
             double signal = mSensor.GetAveragedValue();
             enuFeedbackStatusFlags stat = CheckFeedback(signal);
 
-            OnFBPosotionUpdated(new FBPositionUpdatedEventArgs(mPositioner.AxisAbsolutePosition(enuAxes.ZAxis), signal));
+            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mPositioner.AxisAbsolutePosition(enuAxes.ZAxis), signal));
 
             if (stat.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
             {

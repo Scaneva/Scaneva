@@ -49,6 +49,7 @@ namespace Scaneva.Core.Experiments
         }
 
         private string[] channels = new string[8] { "NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "NONE" };
+        private int[] channelsAvging = new int[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
 
         [Browsable(false)]
         public string[] Channels
@@ -78,6 +79,27 @@ namespace Scaneva.Core.Experiments
             }
         }
 
+        [Browsable(false)]
+        public int[] ChannelsAvging
+        {
+            get => channelsAvging;
+            set
+            {
+                if (value != null)
+                {
+                    int i = 0;
+                    for (; (i < 8) && (i < value.Length); i++)
+                    {
+                        channelsAvging[i] = value[i];
+                    }
+                    for (; i < 8; i++)
+                    {
+                        channelsAvging[i] = 1;
+                    }
+                }
+            }
+        }
+
         [Category("Single Value Experiment Settings")]
         [DisplayName("Channel 1")]
         [Description("Select transducer channel 1")]
@@ -90,6 +112,19 @@ namespace Scaneva.Core.Experiments
             set
             {
                 channels[0] = value;
+            }
+        }
+        
+        [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 1 Averaging")]
+        [Description("Select averaging for channel 1")]
+        [XmlIgnore]
+        public int Channel1Averaging
+        {
+            get => channelsAvging[0];
+            set
+            {
+                channelsAvging[0] = value;
             }
         }
 
@@ -109,6 +144,18 @@ namespace Scaneva.Core.Experiments
         }
 
         [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 2 Averaging")]
+        [Description("Select averaging for channel 2")]
+        [XmlIgnore]
+        public int Channel2Averaging
+        {
+            get => channelsAvging[1];
+            set
+            {
+                channelsAvging[1] = value;
+            }
+        }
+        [Category("Single Value Experiment Settings")]
         [DisplayName("Channel 3")]
         [Description("Select transducer channel 3")]
         [TypeConverter(typeof(DropdownListConverter))]
@@ -124,6 +171,18 @@ namespace Scaneva.Core.Experiments
         }
 
         [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 3 Averaging")]
+        [Description("Select averaging for channel 3")]
+        [XmlIgnore]
+        public int Channel3Averaging
+        {
+            get => channelsAvging[2];
+            set
+            {
+                channelsAvging[2] = value;
+            }
+        }
+        [Category("Single Value Experiment Settings")]
         [DisplayName("Channel 4")]
         [Description("Select transducer channel 4")]
         [TypeConverter(typeof(DropdownListConverter))]
@@ -135,6 +194,19 @@ namespace Scaneva.Core.Experiments
             set
             {
                 channels[3] = value;
+            }
+        }
+        
+        [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 4 Averaging")]
+        [Description("Select averaging for channel 4")]
+        [XmlIgnore]
+        public int Channel4Averaging
+        {
+            get => channelsAvging[3];
+            set
+            {
+                channelsAvging[3] = value;
             }
         }
 
@@ -154,6 +226,19 @@ namespace Scaneva.Core.Experiments
         }
 
         [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 5 Averaging")]
+        [Description("Select averaging for channel 5")]
+        [XmlIgnore]
+        public int Channel5Averaging
+        {
+            get => channelsAvging[4];
+            set
+            {
+                channelsAvging[4] = value;
+            }
+        }
+
+        [Category("Single Value Experiment Settings")]
         [DisplayName("Channel 6")]
         [Description("Select transducer channel 6")]
         [TypeConverter(typeof(DropdownListConverter))]
@@ -165,6 +250,19 @@ namespace Scaneva.Core.Experiments
             set
             {
                 channels[5] = value;
+            }
+        }
+
+        [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 6 Averaging")]
+        [Description("Select averaging for channel 6")]
+        [XmlIgnore]
+        public int Channel6Averaging
+        {
+            get => channelsAvging[5];
+            set
+            {
+                channelsAvging[5] = value;
             }
         }
 
@@ -184,6 +282,19 @@ namespace Scaneva.Core.Experiments
         }
 
         [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 7 Averaging")]
+        [Description("Select averaging for channel 7")]
+        [XmlIgnore]
+        public int Channel7Averaging
+        {
+            get => channelsAvging[6];
+            set
+            {
+                channelsAvging[6] = value;
+            }
+        }
+
+        [Category("Single Value Experiment Settings")]
         [DisplayName("Channel 8")]
         [Description("Select transducer channel 8")]
         [TypeConverter(typeof(DropdownListConverter))]
@@ -195,6 +306,19 @@ namespace Scaneva.Core.Experiments
             set
             {
                 channels[7] = value;
+            }
+        }
+
+        [Category("Single Value Experiment Settings")]
+        [DisplayName("Channel 8 Averaging")]
+        [Description("Select averaging for channel 8")]
+        [XmlIgnore]
+        public int Channel8Averaging
+        {
+            get => channelsAvging[7];
+            set
+            {
+                channelsAvging[7] = value;
             }
         }
     }

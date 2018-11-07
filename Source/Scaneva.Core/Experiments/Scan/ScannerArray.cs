@@ -47,11 +47,12 @@ namespace Scaneva.Core.Experiments
         int[] mScanPointIndex = new int[] { 0, 0, 0 };
         int[] mScanPoints = new int[] { 0, 0, 0 };
 
+        long XDelay, YDelay, ZDelay;
         TiltCorrection mTilt;
         enuScannerErrors mStatus = 0;
 
         public ScannerArray(IPositioner _pos, Position _lengths, Position _increments,
-            Position _speeds, Position _revspeeds, Position _premove, Position _postmove, TiltCorrection _tilt)
+            Position _speeds, Position _revspeeds, Position _premove, Position _postmove, TiltCorrection _tilt, long _xDelay, long _yDelay, long _zDelay)
         {
             mPositioner = _pos;
             mLengths = _lengths;
@@ -61,6 +62,9 @@ namespace Scaneva.Core.Experiments
             mPreMove = _premove;
             mPostMove = _postmove;
             mTilt = _tilt;
+            XDelay = _xDelay;
+            YDelay = _yDelay;
+            ZDelay = _zDelay;
 
             mScanPoints[0] = (int)Math.Floor(Math.Abs(_lengths.X / _increments.X)) + 1;
             mScanPoints[1] = (int)Math.Floor(Math.Abs(_lengths.Y / _increments.Y)) + 1;
@@ -102,11 +106,15 @@ namespace Scaneva.Core.Experiments
             }
 
             //premovement hook: usually move away from surface to avoid damage of the tip
-            mPositioner.RelativePosition(mPreMove); //todo: error check
+            if (mPositioner.RelativePosition(mPreMove) != enuPositionerStatus.Ready)
+            {
+                mStatus = enuScannerErrors.Error;
+                return mStatus;
+            }
 
             Position oldpos = new Position();
             oldpos = mPositioner.AbsolutePosition();  //this is the current absolute position
-            Position Dest = CalculateNextAbsolutePosition(oldpos);// here we get a new absolute position to go as next
+            Position Dest = CalculateNextAbsolutePosition(oldpos);// here we get a new absolute position to go as next, also the delay is considered there
             if (Dest == null)
             {//no next position, scan finished
                 mStatus |= enuScannerErrors.Finished;
@@ -117,12 +125,21 @@ namespace Scaneva.Core.Experiments
             {//consider the tilt corrected Z-height if tilt is set
                 Dest.Z = mTilt.CalculateZ(Dest);
             }
+
             //and move to the next position 
-            mPositioner.AbsolutePosition(Dest);//todo: error check
+            if (mPositioner.RelativePosition(Dest) != enuPositionerStatus.Ready)
+            {
+                mStatus = enuScannerErrors.Error;
+                return mStatus;
+            }
 
             //postmovement hook: usually move down to surface to reduce travel distance for FBC.
             //The hook is less, then the premovement. Not really meaningful while using tilt correction
-            mPositioner.RelativePosition(mPostMove); //todo: error check
+            if (mPositioner.RelativePosition(mPostMove) != enuPositionerStatus.Ready)
+            {
+                mStatus = enuScannerErrors.Error;
+                return mStatus;
+            }
             return mStatus;
         }
 
@@ -156,6 +173,7 @@ namespace Scaneva.Core.Experiments
             // Increment Indices
             mScanPointIndex[0]++;
 
+            //todo: integrate delays
             // end of Line?
             if (mScanPointIndex[0] >= mScanPoints[0])
             {

@@ -116,7 +116,7 @@ namespace Scaneva.Core.Experiments.ScanEva
         {
             FBC = new FeedbackController(log);
             FBC.Settings = Settings.FeedbackController;
-            FBC.FBPosotionUpdated += FBC_FBPosotionUpdated;
+            FBC.FBPositionUpdated += FBC_FBPositionUpdated;
 
             if (!FBC.Initialize().HasFlag(enuFeedbackStatusFlags.Ready))
             {
@@ -162,7 +162,7 @@ namespace Scaneva.Core.Experiments.ScanEva
             return status;
         }
 
-        private void FBC_FBPosotionUpdated(object sender, FBPositionUpdatedEventArgs e)
+        private void FBC_FBPositionUpdated(object sender, FBPositionUpdatedEventArgs e)
         {
             if (experimentData != null)
             {
