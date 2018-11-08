@@ -2,7 +2,7 @@
 // ---------------------------------------------------------------------------------------------------------------
 //  <copyright file="SMC_LStep_PCIe_Settings.cs" company="Scaneva">
 // 
-//  Copyright (C) 2018 Roche Diabetes Care GmbH (Christoph Pieper)
+//  Copyright (C) 2018 Roche Diabetes Care GmbH (Kirill Sliozberg, Christoph Pieper)
 // 
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,39 +34,44 @@ namespace Scaneva.Core.Settings
 {
     public class SMC_LStep_PCIe_Settings : ISettings
     {
-        //COM Port
-        private int intCOMPort = 4;
-        private String strPath = AppDomain.CurrentDomain.BaseDirectory + @"LStepConfig.LSControl";
-        private bool reloadConfiguration = false;
-        SMC_Gnrc_Gnrc_Settings_Axis XAxis = new SMC_Gnrc_Gnrc_Settings_Axis();
-        SMC_Gnrc_Gnrc_Settings_Axis YAxis = new SMC_Gnrc_Gnrc_Settings_Axis();
-        SMC_Gnrc_Gnrc_Settings_Axis ZAxis = new SMC_Gnrc_Gnrc_Settings_Axis();
-
-        [Category("LStep controller settings")]
+        [Category("1. Controller settings")]
         [DisplayName("COM port [#]")]
         [Description("COM port used by the controller card as an integer number")]
-        public int COMPort { get => intCOMPort; set => intCOMPort = value; }
+        public int COMPort { get; set; } = 4;
 
-        [Category("LStep controller settings")]
+        [Category("1. Controller settings")]
         [DisplayName("Configuration file")]
-        public string Path { get => strPath; set => strPath = value; }
+        public string Path { get; set; } = AppDomain.CurrentDomain.BaseDirectory + @"LStepConfig.LSControl";
 
-        [Category("LStep controller settings")]
-        [DisplayName("Reload configuration")]
-        [Description("Activate this option to reload controller configuration and save the parameters into EEPROM")]
-        public bool ReloadConfiguration { get => reloadConfiguration; set => reloadConfiguration = value; }
+        [Category("1. Controller settings")]
+        [DisplayName("Read configuration from file")]
+        [Description("Activate this option to read controller configuration from profile and save them in EEPROM.")]
+        public bool ReadConfigurationF { get; set; } = false;
 
-        [Category("Axis parameters")]
+        [Category("1. Controller settings")]
+        [DisplayName("Save configuration to file")]
+        [Description("Activate this option to reload controller configuration and save the parameters into EEPROM and profile.")]
+        public bool SaveConfigurationF { get; set; } = false;
+
+        [Category("1. Controller settings")]
+        [DisplayName("Save configuration to EEPROM")]
+        [Description("Activate this option to reload controller configuration and save the parameters into EEPROM and profile.")]
+        public bool SaveConfigurationE { get; set; } = false;
+
+        [Category("2. Axis settings")]
         [DisplayNameAttribute("X Axis Settings")]
-        public SMC_Gnrc_Gnrc_Settings_Axis X { get => XAxis; set => XAxis = value; }
+        public SMC_LStep_Axis_Settings X { get; set; } = new SMC_LStep_Axis_Settings();
 
-        [Category("Axis parameters")]
+        [Category("2. Axis settings")]
         [DisplayNameAttribute("Y Axis Settings")]
-        public SMC_Gnrc_Gnrc_Settings_Axis Y { get => YAxis; set => YAxis = value; }
+        public SMC_LStep_Axis_Settings Y { get; set; } = new SMC_LStep_Axis_Settings();
 
-        [Category("Axis parameters")]
+        [Category("2. Axis settings")]
         [DisplayNameAttribute("Z Axis Settings")]
-        public SMC_Gnrc_Gnrc_Settings_Axis Z { get => ZAxis; set => ZAxis = value; }
-        
+        public SMC_LStep_Axis_Settings Z { get; set; } = new SMC_LStep_Axis_Settings();
+
+        [Category("2. Axis settings")]
+        [DisplayNameAttribute("A Axis Settings")]
+        public SMC_LStep_Axis_Settings A { get; set; } = new SMC_LStep_Axis_Settings();
     }
 }
