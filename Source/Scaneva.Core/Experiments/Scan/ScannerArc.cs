@@ -23,6 +23,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using Scaneva.Tools;
 using System;
 
 namespace Scaneva.Core.Experiments
@@ -45,13 +46,15 @@ namespace Scaneva.Core.Experiments
         Position mPreMove = new Position();
         Position mPostMove = new Position();
         IPositioner mPositioner; //Positioner for scan
+        LogHelper log = null;
 
         TiltCorrection mTilt;
         enuScannerErrors mStatus = 0;
 
         public ScannerArc(IPositioner _pos, Position _parameters,
-            Position _speeds, Position _revspeeds, Position _premove, Position _postmove, TiltCorrection _tilt)
+            Position _speeds, Position _revspeeds, Position _premove, Position _postmove, TiltCorrection _tilt, LogHelper log)
         {
+            this.log = log;
             mPositioner = _pos;
             mRadius = _parameters.X;
             mRadIncr = _parameters.Y;
@@ -112,6 +115,8 @@ namespace Scaneva.Core.Experiments
             }
             //and move to the next position 
             mPositioner.AbsolutePosition(Dest);//todo: error check
+
+            log.AddStatusUpdate(0, Dest);
 
             //postmovement hook: usually move down to surface to reduce travel distance for FBC.
             //The hook is less, then the premovement. Not really meaningful while using tilt correction

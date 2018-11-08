@@ -95,9 +95,6 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private ScanData scanData = null;
-        private int currentXPos, currentYPos;
-        private int scanPointsX = 0;
-        private int scanPointsY = 0;
         private bool reverseScanX = false;
         private bool reverseScanY = false;
 
@@ -118,9 +115,10 @@ namespace Scaneva.Core.Experiments.ScanEva
                     Tilt.PositionStore = PositionStore;
                 }
 
-                string Mode = Settings.ScannerMode;
-                Scanner = new ScannerArray(Mode, pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
-                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt, Settings.XDelay, Settings.YDelay, Settings.ZDelay);
+                Scanner = new ScannerArray(Settings.ScannerMode, pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
+                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt,
+                    Settings.XDelay, Settings.YDelay, Settings.ZDelay,
+                    log);
                 Scanner.Initialize();
 
                 //safety check: if the tilt correction is in use, a scan in Z direction is not a good idea.
@@ -135,22 +133,18 @@ namespace Scaneva.Core.Experiments.ScanEva
                 scanData = new ScanData();
                 scanData.experimentName = Name;
 
-                scanPointsX = (int)Math.Floor(Math.Abs(Settings.Lengths.X / Settings.Increments.X)) + 1;
-                scanPointsY = (int)Math.Floor(Math.Abs(Settings.Lengths.Y / Settings.Increments.Y)) + 1;
-                currentXPos = 0; //todo: consider scan direction and starting point
-                currentYPos = 0;
                 reverseScanX = Settings.Increments.X < 0;
                 reverseScanY = Settings.Increments.Y < 0;
-                scanData.setScanDimensions(scanPointsX, scanPointsY);
+                scanData.setScanDimensions(Scanner.NumScanPoints[0], Scanner.NumScanPoints[1]);
 
                 // Current Positioner pos
                 Position startPos = pos.AbsolutePosition();
 
                 // set scanData dimensions
-                scanData.X0 = Math.Min(startPos.X, (scanPointsX - 1) * Settings.Increments.X);
-                scanData.Y0 = Math.Min(startPos.Y, (scanPointsY - 1) * Settings.Increments.Y);
-                scanData.X1 = Math.Max(startPos.X, (scanPointsX - 1) * Settings.Increments.X);
-                scanData.Y1 = Math.Max(startPos.Y, (scanPointsY - 1) * Settings.Increments.Y);
+                scanData.X0 = Math.Min(startPos.X, (Scanner.NumScanPoints[0] - 1) * Settings.Increments.X);
+                scanData.Y0 = Math.Min(startPos.Y, (Scanner.NumScanPoints[1] - 1) * Settings.Increments.Y);
+                scanData.X1 = Math.Max(startPos.X, (Scanner.NumScanPoints[0] - 1) * Settings.Increments.X);
+                scanData.Y1 = Math.Max(startPos.Y, (Scanner.NumScanPoints[1] - 1) * Settings.Increments.Y);
                 status = enExperimentStatus.Idle;
                 return status;
             }
@@ -191,14 +185,14 @@ namespace Scaneva.Core.Experiments.ScanEva
                 foreach (string dataset in data.datasetNames)
                 {
                     // only add datasets once
-                    if ((currentXPos == 0) && (currentYPos == 0) && (!scanData.GetDatasetNames().Contains(dataset)))
+                    if ((Scanner.ScanPointIndex[0] == 0) && (Scanner.ScanPointIndex[1] == 0) && (!scanData.GetDatasetNames().Contains(dataset)))
                     {
                         scanData.addDataset(dataset, data.axisNames[0] + " (" + data.axisUnits[0] + ")");
                     }
                     // Add first point of 1D Data (Single Value Experiment should only have one)
                     scanData.setValue(dataset,
-                        reverseScanX ? (scanPointsX - currentXPos - 1) : currentXPos,
-                        reverseScanY ? (scanPointsY - currentYPos - 1) : currentYPos,
+                        reverseScanX ? (Scanner.NumScanPoints[0] - Scanner.ScanPointIndex[0] - 1) : Scanner.ScanPointIndex[0],
+                        reverseScanY ? (Scanner.NumScanPoints[0] - Scanner.ScanPointIndex[1] - 1) : Scanner.ScanPointIndex[1],
                         data.Get1DData(i)[0]);
                     i++;
                 }
@@ -236,22 +230,6 @@ namespace Scaneva.Core.Experiments.ScanEva
                 //the scanner takes care of pre- and post-movements
                 //but also tilt correction if set
                 res = Scanner.NextPosition();
-
-                //todo: get coordinate from the scanner
-                Thread.Sleep((int)Settings.XDelay);
-                i++;
-                currentXPos++;
-                if (currentXPos >= scanPointsX)
-                {
-                    Thread.Sleep((int)Settings.YDelay);
-                    currentXPos = 0;
-                    currentYPos++;
-                    if (currentYPos >= scanPointsY)
-                    {
-                        Thread.Sleep((int)Settings.ZDelay);
-                        currentYPos = 0;
-                    }
-                }
             }
 
             if (!abortExperiment)
