@@ -71,6 +71,7 @@
     <Compile Include="Experiments\Control\SetSingleValueSettings.cs" />
     <Compile Include="Hardware\ADDA\ADC_Dummy.cs" />
     <Compile Include="Hardware\ADDA\ADC_Dummy_Settings.cs" />
+    <Compile Include="Hardware\Positioner\SMC_LSTep_PCIe_Axis_Settings.cs" />
     <Compile Include="Hardware\Pump\PumpTubing.cs" />
     <Compile Include="Hardware\Pump\Pump_Jasco_PU_4180.cs" />
     <Compile Include="Hardware\Pump\Pump_Watson-Marlow_520Du.cs" />
