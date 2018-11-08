@@ -147,7 +147,7 @@ namespace Scaneva.Core.Experiments.ScanEva
 
             headerString += "Positioner: " + FBC.Settings.Positioner + "\r\n";
             headerString += "Sensor: " + FBC.Settings.Channel + "\r\n";
-            writeHeader(headerString, dataColumnHeaders.ToArray(), settingsObj: Settings, positionColumns: false);
+            writeHeader(headerString, dataColumnHeaders.ToArray(), settingsObj: Settings, positionColumns: false, timeColumn: true);
 
             // Init ResultData
             experimentData = new Generic2DExperimentData();
