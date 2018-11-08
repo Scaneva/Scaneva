@@ -36,6 +36,13 @@ namespace Scaneva.Core.Experiments.ScanEva
 {
     public class ScanArraySettings : ISettings
     {
+        public enum ScanMode
+        {
+            Saw = 0,
+            Comb,
+            Meander
+        }
+
         private Dictionary<string, IPositioner> tiltpositioners = new Dictionary<string, IPositioner>();
 
         [Browsable(false)]
@@ -84,21 +91,22 @@ namespace Scaneva.Core.Experiments.ScanEva
 
         [Category("2. Scanner settings")]
         [DisplayName("Scanner mode")]
-        [TypeConverter(typeof(DropdownListConverter))]
-        [DropdownList("ScannerModes")]
-        public string ScannerMode { get; set; } = null;
+        public ScanMode ScannerMode { get; set; } = ScanMode.Comb;
         
         [Category("2. Scanner settings")]
         [DisplayName("X-delay (ms)")]
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, long.MaxValue, 1)]
+        [Description("Delay after movement to new scan point.")]
         public long XDelay { get; set; } = 0;
 
         [Category("2. Scanner settings")]
         [DisplayName("Y-delay (ms)")]
+        [Description("Delay after movement to new scan line. Y-delay will be ignored for scan mode meander.")]
         public long YDelay { get; set; } = 0;
 
         [Category("2. Scanner settings")]
         [DisplayName("Z-delay (ms)")]
+        [Description("Delay after movement to a new scan plane.")]
         public long ZDelay { get; set; } = 0;
 
         [Category("3. Tilt correction")]

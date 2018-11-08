@@ -116,7 +116,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                 Position Parameters = new Position(Settings.Radius, Settings.RadiusIncrement, Settings.AngularIncrement);
                 //we just create a scanner object and it is dealing with the rest
                 Scanner = new ScannerArc( pos, Parameters, Settings.Speeds,
-                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt);
+                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt, log);
                 Scanner.Initialize();
 
                 // create ScanData container
