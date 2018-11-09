@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -45,7 +46,7 @@ namespace Scaneva
 {
     public partial class ScanevaMainGUI : Form
     {
-        private ScanevaCore core = new ScanevaCore();
+        private ScanevaCore core = null;
 
         // rememebr changes
         private ParametrizableObject editedObject = null;
@@ -53,9 +54,12 @@ namespace Scaneva
         private bool hwStoreHasUnsaveChanges = false;
         private Position currentPos = new Position();
 
+        private string methodFile = "New Method.smf";
+
         public ScanevaMainGUI()
         {
             InitializeComponent();
+            updateTitleBar();
 
             // Change culture to en-US for UI
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -76,7 +80,8 @@ namespace Scaneva
             // set sorting
             propertyGrid1.PropertySort = PropertySort.Categorized;
 
-            UpdateCoreSettings();
+            ScanevaCoreSettings settings = BuildCoreSettings();
+            core = new ScanevaCore(settings);
 
             // Load HW Settings           
             core.LoadHardwareSettings();
@@ -93,13 +98,21 @@ namespace Scaneva
             lockSettings(enViewState.hwConfigView);
         }
 
-        private void UpdateCoreSettings()
+        private void updateTitleBar()
         {
-            core.Settings.DefaultScanMethodDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
-            core.Settings.HWSettingsFilePath = Properties.Settings.Default.HWSettingsFilePath;
-            core.Settings.LogDirectory = Properties.Settings.Default.LogDirectory;
-            core.Settings.PositionStoreFilePath = Properties.Settings.Default.PositionStoreFilePath;
-            core.Settings.ScanResultDirectory = Properties.Settings.Default.ScanResultDirectory;
+            this.Text = "Scaneva - " + methodFile + (scanMethodHasUnsavedChanges ? "*" : "");
+        }
+
+        private ScanevaCoreSettings BuildCoreSettings()
+        {
+            ScanevaCoreSettings settings = new ScanevaCoreSettings();
+            settings.DefaultScanMethodDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            settings.HWSettingsFilePath = Properties.Settings.Default.HWSettingsFilePath;
+            settings.LogDirectory = Properties.Settings.Default.LogDirectory;
+            settings.PositionStoreFilePath = Properties.Settings.Default.PositionStoreFilePath;
+            settings.ScanResultDirectory = Properties.Settings.Default.ScanResultDirectory;
+
+            return settings;
         }
 
         private void Log_StatusUpdated(object sender, StatusUpdatedEventArgs e)
@@ -197,6 +210,21 @@ namespace Scaneva
                     //do nothing
                 }
             }
+
+            if (scanMethodHasUnsavedChanges)
+            {
+                DialogResult dialogResult = MessageBox.Show("Do you want to save changes to Scan Method before exit?", "Save Changes to method?", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    toolStripButtonSaveMethod_Click(null, null);
+                }
+                else if (dialogResult == DialogResult.No)
+                {
+                    //do nothing
+                }
+            }
+            
+
             // Release all Hardware
             try
             {
@@ -233,6 +261,7 @@ namespace Scaneva
                 {
                     (editedObject as ParametrizableObject).ParameterChanged(pName);
                     scanMethodHasUnsavedChanges = true;
+                    updateTitleBar();
                 }
             }
             else if (propertyGrid1.SelectedObject.GetType().Equals(typeof(DynamicSettingsClass)))
@@ -350,6 +379,9 @@ namespace Scaneva
                     // Create new Experiment and update treeView
                     TreeNode newExp = core.AddExperimentToScanMethod(treeViewScanMethod.Nodes, insertAfter, expName, expTypeName);
                     treeViewScanMethod.SelectedNode = newExp;
+
+                    scanMethodHasUnsavedChanges = true;
+                    updateTitleBar();
                 }
             }
         }
@@ -552,6 +584,11 @@ namespace Scaneva
             openFileDialog1.CheckFileExists = true;
             openFileDialog1.InitialDirectory = LogHelper.getMainDirectory();
 
+            if (File.GetAttributes(Properties.Settings.Default.DefaultScanMethodDirectory).HasFlag(FileAttributes.Directory))
+            {
+                openFileDialog1.InitialDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            }
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 path = openFileDialog1.FileName;
@@ -562,6 +599,10 @@ namespace Scaneva
 
                 refreshMethod(true);
                 setEditObject(null);
+
+                scanMethodHasUnsavedChanges = false;
+                methodFile = Path.GetFileName(path);
+                updateTitleBar();
             }
         }
 
@@ -573,12 +614,19 @@ namespace Scaneva
             saveFileDialog1.Filter = "Scaneva Method Files (*.smf)|*.smf";
             saveFileDialog1.InitialDirectory = LogHelper.getMainDirectory();
 
+            if (File.GetAttributes(Properties.Settings.Default.DefaultScanMethodDirectory).HasFlag(FileAttributes.Directory))
+            {
+                saveFileDialog1.InitialDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            }
+
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 path = saveFileDialog1.FileName;
 
                 core.SaveScanMethod(path);
                 scanMethodHasUnsavedChanges = false;
+                methodFile = Path.GetFileName(path);
+                updateTitleBar();
             }
         }
 
@@ -592,7 +640,7 @@ namespace Scaneva
                 treeViewScanMethod.SelectedNode = node;
 
                 scanMethodHasUnsavedChanges = true;
-
+                updateTitleBar();
                 refreshMethod();
             }
         }
@@ -607,6 +655,7 @@ namespace Scaneva
                 treeViewScanMethod.SelectedNode = node;
 
                 scanMethodHasUnsavedChanges = true;
+                updateTitleBar();
 
                 refreshMethod();
             }
@@ -699,26 +748,38 @@ namespace Scaneva
         {
             if (core.scanMethod.Count > 0)
             {
-                toolStripStatusError.Text = "";
+                // Ask for Result Directory Name
+                InputDialog dialog = new InputDialog(Cursor.Position.X, Cursor.Position.Y);
+                dialog.Text = "Run Result Path";
+                dialog.TextEntryLabel = "Enter Run Name:";
+                dialog.TextEntry = methodFile.Split(new string[] { ".smf" }, StringSplitOptions.RemoveEmptyEntries).First() + " " + DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
 
-                // Stop Live Input if running
-                StartLiveInput(false);
-                Thread.Sleep(10);
+                DialogResult dResult = dialog.ShowDialog();
+                string runName = dialog.TextEntry;
 
-                lockSettings();
+                if (dResult == DialogResult.OK)
+                {
+                    toolStripStatusError.Text = "";
 
-                setEditObject(null);
-                treeViewScanMethod.SelectedNode = null;
-                checkedListBoxHardware.SelectedIndex = -1;
+                    // Stop Live Input if running
+                    StartLiveInput(false);
+                    Thread.Sleep(10);
 
-                // Initialized by Button
-                //core.InitializeAllHardware();
+                    lockSettings();
 
-                recentScanDataFree = null;
-                recentScanData = null;
+                    setEditObject(null);
+                    treeViewScanMethod.SelectedNode = null;
+                    checkedListBoxHardware.SelectedIndex = -1;
 
-                ResetPlotView("Unnamed");
-                core.RunScanMethod();
+                    // Initialized by Button
+                    //core.InitializeAllHardware();
+
+                    recentScanDataFree = null;
+                    recentScanData = null;
+
+                    ResetPlotView("Unnamed");
+                    core.RunScanMethod(runName);
+                }
             }
             else
             {
@@ -1253,7 +1314,7 @@ namespace Scaneva
             if (dResult == DialogResult.OK)
             {
                 Properties.Settings.Default.Save();
-                UpdateCoreSettings();
+                core.Settings = BuildCoreSettings();
             }
             else
             {
