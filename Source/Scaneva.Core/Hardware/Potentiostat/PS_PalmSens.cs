@@ -70,6 +70,7 @@ namespace Scaneva.Core.Hardware
         private DeviceCapabilities capabilities = null;
 
         private CurrentRange currentRangeBiPot = null;
+        private float setPotentialBiPot = float.NaN;
 
         public PS_PalmSens(LogHelper log)
             : base(log)
@@ -80,8 +81,6 @@ namespace Scaneva.Core.Hardware
             CoreDependencies.Init();
 
             refreshDeviceList();
-
-
         }
 
         private void refreshDeviceList()
@@ -517,6 +516,10 @@ namespace Scaneva.Core.Hardware
                             t = new Task<float>(() => { return (Comm?.CellOn).GetValueOrDefault(false) ? 1.0f : 0.0f; });
                             break;
 
+                        case "Potential Bi-Pot":
+                            t = new Task<float>(() => { return setPotentialBiPot; });
+                            break;
+
                         case "Current Bi-Pot":
                             t = new Task<float>(() => { return (float)(Comm?.ReadBiPotCurrent).GetValueOrDefault(double.NaN); });
                             break;                   
@@ -600,6 +603,7 @@ namespace Scaneva.Core.Hardware
                         break;
 
                     case "Potential Bi-Pot":
+                        setPotentialBiPot = (float)_value;
                         Comm.BiPotPotential = (float)_value;
                         break;
 
@@ -618,7 +622,6 @@ namespace Scaneva.Core.Hardware
                         {
                         }
                         break;
-
 
                     case "Cell On Bi-pot":
                         if (_value == 0)
