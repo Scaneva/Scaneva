@@ -369,15 +369,22 @@ namespace Scaneva.Core.Hardware
 
         private void Comm_ReceiveStatus(object sender, StatusEventArgs e)
         {
-            string txtPotential = e.GetStatus().PotentialReading.GetFormattedValue();
-            string txtCurrent = e.GetStatus().CurrentReading.ReadingStatus.ToString();
-            if (e.GetStatus().CurrentReading.ReadingStatus == ReadingStatus.OK)
+            Status stat = e.GetStatus();
+            if (stat != null)
             {
-                txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
+                PalmSens.Data.CurrentReading cReading = stat.CurrentReading;
+                PalmSens.Data.VoltageReading pReading = stat.PotentialReading;
+
+                string txtPotential = pReading.GetFormattedValue();
+                string txtCurrent = cReading.ReadingStatus.ToString();
+                if (cReading.ReadingStatus == ReadingStatus.OK)
+                {
+                    txtCurrent = $"{cReading.ValueInRange:0.000}";
+                }
+                string txtCR = $"{cReading.CurrentRange}";
+                string txtStatus = $"{cReading.ReadingStatus}";
+                log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");
             }
-            string txtCR = $"{e.GetStatus().CurrentReading.CurrentRange}";
-            string txtStatus = $"{e.GetStatus().CurrentReading.ReadingStatus}";
-            log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");
         }
 
         private void Comm_EndMeasurement(object sender, EventArgs e)
@@ -549,14 +556,13 @@ namespace Scaneva.Core.Hardware
         {
             return channel.Averaging;
         }
-
-
+        
         public double GetAveragedValue(TransducerChannel channel)
         {
             double value = 0;
             for (int i = 1; i <= channel.Averaging; i++)
             {
-                value = +GetValue(channel);
+                value += GetValue(channel);
             }
 
             return value / channel.Averaging;
