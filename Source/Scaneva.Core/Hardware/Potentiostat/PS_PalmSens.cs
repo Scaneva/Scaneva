@@ -623,7 +623,7 @@ namespace Scaneva.Core.Hardware
                         }
                         break;
 
-                    case "Cell On Bi-pot":
+                    case "Cell On Bi-Pot":
                         if (_value == 0)
                         {
                             Comm.SetBipotOff();
