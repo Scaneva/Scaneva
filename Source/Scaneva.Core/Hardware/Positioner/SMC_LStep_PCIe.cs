@@ -228,118 +228,118 @@ namespace Scaneva.Core.Hardware
                 {
                     mHWStatus |= LogError(Positioner.LoadConfigW(Settings.Path)); // Lade Config Datei
                     mHWStatus |= LogError(Positioner.SetControlPars()); // Setzen der Geladenen Parameter in Controller
-                    return mHWStatus;
                 }
                 log.Add("Configuration profile was not found. The run-time profile will be " +
                     "created based on user settings. It is advised to save the profile during next program run");
             }
+            else
+            {
+                //Beschreibung der Mechanik
+                mHWStatus |= LogError(Positioner.SetFactorMode(true, 1, 1, 1, 0));
+                mHWStatus |= LogError(Positioner.SetPitch(Settings.X.Pitch, Settings.Y.Pitch, Settings.Z.Pitch, 1));
+                mHWStatus |= LogError(Positioner.SetControllerSteps(Settings.X.FullSteps, Settings.Y.FullSteps, Settings.Z.FullSteps, 200));
 
-            //Beschreibung der Mechanik
-            mHWStatus |= LogError(Positioner.SetFactorMode(true, 1, 1, 1, 0));
-            mHWStatus |= LogError(Positioner.SetPitch(Settings.X.Pitch, Settings.Y.Pitch, Settings.Z.Pitch, 1)); //    SetPitch(),
-            mHWStatus |= LogError(Positioner.SetControllerSteps(Settings.X.FullSteps, Settings.Y.FullSteps, Settings.Z.FullSteps, 200)); //??
-                                                                                                                                         //LS.MoveAbs(1.234, 2.468, 2.345, 0, true);
+                mHWStatus |= LogError(Positioner.ConfigMaxAxes(4));
 
-            mHWStatus |= LogError(Positioner.ConfigMaxAxes(4));
+                //    SetGear()
+                mHWStatus |= LogError(Positioner.SetGear(Settings.X.MotorGear, Settings.Y.MotorGear, Settings.Z.MotorGear, Settings.A.MotorGear));
 
-            //    SetGear()
-            mHWStatus |= LogError(Positioner.SetGear(Settings.X.MotorGear, Settings.Y.MotorGear, Settings.Z.MotorGear, Settings.A.MotorGear));
+                //    SetDimensions() - µm
+                mHWStatus |= LogError(Positioner.SetDimensions(1, 1, 1, 1));
 
-            //    SetDimensions() - µm
-            mHWStatus |= LogError(Positioner.SetDimensions(1, 1, 1, 1));
+                //    SetActiveAxis()
+                int e = 0;
+                if (Settings.X.Enabled) e++;
+                if (Settings.Y.Enabled) e = e + 2;
+                if (Settings.Z.Enabled) e = e + 4;
+                if (Settings.A.Enabled) e = e + 8;
+                mHWStatus |= LogError(Positioner.SetActiveAxes(e));
 
-            //    SetActiveAxis()
-            int e = 0;
-            if (Settings.X.Enabled) e++;
-            if (Settings.Y.Enabled) e = e + 2;
-            if (Settings.Z.Enabled) e = e + 4;
-            if (Settings.A.Enabled) e = e + 8;
-            mHWStatus |= LogError(Positioner.SetActiveAxes(e));
+                //    SetAxisDirection()
+                mHWStatus |= LogError(Positioner.SetAxisDirection(Math.Abs(Convert.ToInt16(!Settings.X.Sign)),
+                    Math.Abs(Convert.ToInt16(!Settings.Y.Sign)),
+                    Math.Abs(Convert.ToInt16(!Settings.Z.Sign)), 1));
 
-            //    SetAxisDirection()
-            mHWStatus |= LogError(Positioner.SetAxisDirection(Math.Abs(Convert.ToInt16(!Settings.X.Sign)),
-                Math.Abs(Convert.ToInt16(!Settings.Y.Sign)),
-                Math.Abs(Convert.ToInt16(!Settings.Z.Sign)), 1));
+                //    SetXYComp(),
+                mHWStatus |= LogError(Positioner.SetXYAxisComp(1));
 
-            //    SetXYComp(),
-            mHWStatus |= LogError(Positioner.SetXYAxisComp(1));
+                //Konfiguration der Endschalter
+                //    SetSwitchActive(),
+                mHWStatus |= LogError(Positioner.SetSwitchActive(5, 5, 5, 5));
 
-            //Konfiguration der Endschalter
-            //    SetSwitchActive(),
-            mHWStatus |= LogError(Positioner.SetSwitchActive(5, 5, 5, 5));
-
-            //    SetSwitchPolarity(),
-            mHWStatus |= LogError(Positioner.SetSwitchPolarity(5, 5, 5, 5));
-
-
-            //            Konfiguration der Softwareendschalter
-            //SetLimit(),
-            mHWStatus |= LogError(Positioner.SetLimit(1, 0, Settings.X.Travel));
-            mHWStatus |= LogError(Positioner.SetLimit(2, 0, Settings.Y.Travel));
-            mHWStatus |= LogError(Positioner.SetLimit(3, 0, Settings.Z.Travel));
-            mHWStatus |= LogError(Positioner.SetLimit(4, 0, Settings.A.Travel));
-
-            //SetLimitControl(),
-            mHWStatus |= LogError(Positioner.SetLimitControl(1, true));
-            mHWStatus |= LogError(Positioner.SetLimitControl(2, true));
-            mHWStatus |= LogError(Positioner.SetLimitControl(3, true));
-            mHWStatus |= LogError(Positioner.SetLimitControl(4, true));
-
-            mHWStatus |= LogError(Positioner.SetLimitControlMode(1));
-            //mHWStatus |= LogError(Positioner.SetAutoLimitAfterCalibRM(15);
-
-            //rotativer 2-Phasen Schrittmotor
-            mHWStatus |= LogError(Positioner.SetMotorType(0, 0, 0, 0));
-
-            //RPM
-            mHWStatus |= LogError(Positioner.SetMotorMaxVel((60 * (Settings.X.MaxSpeed / 1000) / Settings.X.Pitch), (60 * (Settings.Y.MaxSpeed / 1000) / Settings.Y.Pitch),
-                (60 * (Settings.Z.MaxSpeed / 1000) / Settings.Z.Pitch), (60 * (Settings.A.MaxSpeed / 1000) / Settings.A.Pitch)));
-
-            //SetCurrent()
-            mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrent, Settings.Y.MotorCurrent, Settings.Z.MotorCurrent, Settings.A.MotorCurrent));
-
-            //SetReduction()
-            mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrentReduction, Settings.Y.MotorCurrentReduction,
-                Settings.Z.MotorCurrentReduction, Settings.A.MotorCurrentReduction));
-
-            //            Konfiguration der Encoder
-            //SetEncoderActive();
-            //            SetEncoderPeriod();
-            //            SetEncoderRefSignal();
-            //            SetEncoderPosition();
-
-            //            Parametrierung des Reglers
-            //SetTargetWindow();
-            //            SetControllerCall();
-            //            SetControllerSteps();
-            //            SetControllerFaktor();
-            //            SetControllerTWDelay();
-            //            SetControllerTimeout();
-
-            //            Konfiguration des Trigger
-            //SetTriggerPar(),
-            //SetTrigger(),
-
-            //            Konfiguration des Snapshot
-            //SetSnapshotPar(),
-            //SetSnapshot(),
-
-            //SetAccel(),
-            mHWStatus |= LogError(Positioner.SetAccel(Settings.X.Acceleration, Settings.Y.Acceleration,
-                    Settings.Z.Acceleration, Settings.A.Acceleration));
-
-            //SetVel()
-            mHWStatus |= LogError(Positioner.SetVel(1000, 1000, 100, 100)); // will be set at run time. Some initial values here
-
-            //            Einstellen des TVR Modes
-            //SetTVRMode(),
-
-            mHWStatus |= LogError(Positioner.SetCommandTimeout(1000, 0, 0));
+                //    SetSwitchPolarity(),
+                mHWStatus |= LogError(Positioner.SetSwitchPolarity(5, 5, 5, 5));
 
 
+                //  Configuration der Softwareendschalter
+                //SetLimit(),
+                mHWStatus |= LogError(Positioner.SetLimit(1, 0, Settings.X.Travel));
+                mHWStatus |= LogError(Positioner.SetLimit(2, 0, Settings.Y.Travel));
+                mHWStatus |= LogError(Positioner.SetLimit(3, 0, Settings.Z.Travel));
+                mHWStatus |= LogError(Positioner.SetLimit(4, 0, Settings.A.Travel));
 
-            //mHWStatus |= LogError(Positioner.SetPos(0, 0, 0, 0));
+                //SetLimitControl(),
+                mHWStatus |= LogError(Positioner.SetLimitControl(1, true));
+                mHWStatus |= LogError(Positioner.SetLimitControl(2, true));
+                mHWStatus |= LogError(Positioner.SetLimitControl(3, true));
+                mHWStatus |= LogError(Positioner.SetLimitControl(4, true));
 
+                mHWStatus |= LogError(Positioner.SetLimitControlMode(1));
+                //mHWStatus |= LogError(Positioner.SetAutoLimitAfterCalibRM(15);
+
+                //rotativer 2-Phasen Schrittmotor
+                mHWStatus |= LogError(Positioner.SetMotorType(0, 0, 0, 0));
+
+                //RPM
+                mHWStatus |= LogError(Positioner.SetMotorMaxVel((60 * (Settings.X.MaxSpeed / 1000) / Settings.X.Pitch), (60 * (Settings.Y.MaxSpeed / 1000) / Settings.Y.Pitch),
+                    (60 * (Settings.Z.MaxSpeed / 1000) / Settings.Z.Pitch), (60 * (Settings.A.MaxSpeed / 1000) / Settings.A.Pitch)));
+
+                //SetCurrent()
+                mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrent, Settings.Y.MotorCurrent, Settings.Z.MotorCurrent, Settings.A.MotorCurrent));
+
+                //SetReduction()
+                mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrentReduction, Settings.Y.MotorCurrentReduction,
+                    Settings.Z.MotorCurrentReduction, Settings.A.MotorCurrentReduction));
+
+                //            Konfiguration der Encoder
+                //SetEncoderActive();
+                //            SetEncoderPeriod();
+                //            SetEncoderRefSignal();
+                //            SetEncoderPosition();
+
+                //            Parametrierung des Reglers
+                //SetTargetWindow();
+                //            SetControllerCall();
+                //            SetControllerSteps();
+                //            SetControllerFaktor();
+                //            SetControllerTWDelay();
+                //            SetControllerTimeout();
+
+                //            Konfiguration des Trigger
+                //SetTriggerPar(),
+                //SetTrigger(),
+
+                //            Konfiguration des Snapshot
+                //SetSnapshotPar(),
+                //SetSnapshot(),
+
+                //SetAccel(),
+                mHWStatus |= LogError(Positioner.SetAccel(Settings.X.Acceleration, Settings.Y.Acceleration,
+                        Settings.Z.Acceleration, Settings.A.Acceleration));
+
+                //SetVel()
+                mHWStatus |= LogError(Positioner.SetVel(1000, 1000, 100, 100)); // will be set at run time. Some initial values here
+
+                //            Einstellen des TVR Modes
+                //SetTVRMode(),
+
+                mHWStatus |= LogError(Positioner.SetCommandTimeout(1000, 0, 0));
+
+
+
+                //mHWStatus |= LogError(Positioner.SetPos(0, 0, 0, 0));
+
+            }
             mHWStatus |= LogError(Positioner.SetPowerAmplifier(true)); //Schaltet die Endstufen der Steuerung Ein
 
 
@@ -719,7 +719,7 @@ namespace Scaneva.Core.Hardware
 
         public enuPositionerStatus AxisStop(enuAxes _axis)
         {
-            mHWStatus = LogError(Positioner.SetAbortFlag());
+           // mHWStatus = LogError(Positioner.SetAbortFlag());
             mHWStatus = LogError(Positioner.StopAxes());
             return mPosStatus;
         }
@@ -860,9 +860,28 @@ namespace Scaneva.Core.Hardware
                     return 0;
             }
         }
+        public void SetAveraging(TransducerChannel channel, int _value)
+        {
+            channel.Averaging = _value;
+        }
+
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+
+
         public double GetAveragedValue(TransducerChannel channel)
         {
-            return GetValue(channel);
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
         }
 
         public void SetValue(TransducerChannel channel, double _value)
@@ -881,12 +900,6 @@ namespace Scaneva.Core.Hardware
                 default:
                     break;
             }
-        }
-
-        int ITransducer.Averaging
-        {
-            get => 1;
-            set { }
         }
         //Transducer
     }

@@ -65,7 +65,7 @@ namespace Scaneva.Core
     {
         private ITransducer parent;
 
-        public TransducerChannel(ITransducer parent, string name, string unit, enuPrefix prefix, enuChannelType channelType, enuSensorStatus status)
+        public TransducerChannel(ITransducer parent, string name, string unit, enuPrefix prefix, enuChannelType channelType, enuSensorStatus status, int averaging = 1)
         {
             this.parent = parent;
             Name = name;
@@ -73,7 +73,7 @@ namespace Scaneva.Core
             Prefix = prefix;
             ChannelType = channelType;
             Status = status;
-            Averaging = Averaging;
+            Averaging = averaging;
         }
 
         public string Unit { get; } = "";

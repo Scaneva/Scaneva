@@ -69,6 +69,7 @@ namespace Scaneva.Core.Hardware
         private Device device = null;
         private DeviceCapabilities capabilities = null;
 
+
         public PS_PalmSens(LogHelper log)
             : base(log)
         {
@@ -79,7 +80,7 @@ namespace Scaneva.Core.Hardware
 
             refreshDeviceList();
 
-            
+
         }
 
         private void refreshDeviceList()
@@ -110,7 +111,7 @@ namespace Scaneva.Core.Hardware
                     log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
                 }
             }
-            
+
             Settings.ListofConnections = deviceList.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
         }
 
@@ -142,7 +143,7 @@ namespace Scaneva.Core.Hardware
                 default:
                     break;
             }
-            
+
         }
 
         private void FetchCurrentRanges(CommManager lComm)
@@ -260,7 +261,7 @@ namespace Scaneva.Core.Hardware
                     {
                         commSarted.SetResult(ex);
                     }
-                        
+
                 });
                 CommManagerThread.Start();
 
@@ -367,16 +368,16 @@ namespace Scaneva.Core.Hardware
         }
 
         private void Comm_ReceiveStatus(object sender, StatusEventArgs e)
-        {         
+        {
             string txtPotential = e.GetStatus().PotentialReading.GetFormattedValue();
             string txtCurrent = e.GetStatus().CurrentReading.ReadingStatus.ToString();
             if (e.GetStatus().CurrentReading.ReadingStatus == ReadingStatus.OK)
             {
-                 txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
+                txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
             }
             string txtCR = $"{e.GetStatus().CurrentReading.CurrentRange}";
             string txtStatus = $"{e.GetStatus().CurrentReading.ReadingStatus}";
-            log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");         
+            log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");
         }
 
         private void Comm_EndMeasurement(object sender, EventArgs e)
@@ -474,14 +475,13 @@ namespace Scaneva.Core.Hardware
             }
 
             channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));           
+            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Potentiostat;
 
         public List<TransducerChannel> Channels { get => channels; }
-        public int Averaging { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
+       
         public double GetValue(TransducerChannel channel)
         {
             if ((Comm != null) && Comm.Active && (channel != null))
@@ -493,11 +493,11 @@ namespace Scaneva.Core.Hardware
                     switch (channel.Name)
                     {
                         case "Potential":
-                            t = new Task<float>(() => {return (Comm?.Potential).GetValueOrDefault(float.NaN); });
+                            t = new Task<float>(() => { return (Comm?.Potential).GetValueOrDefault(float.NaN); });
                             break;
 
                         case "Current":
-                            t = new Task<float>(() => {return (Comm?.Current).GetValueOrDefault(float.NaN); });
+                            t = new Task<float>(() => { return (Comm?.Current).GetValueOrDefault(float.NaN); });
                             break;
 
                         case "WE2 Current":
@@ -527,9 +527,27 @@ namespace Scaneva.Core.Hardware
             return double.NaN;
         }
 
+        public void SetAveraging(TransducerChannel channel, int _value)
+        {
+            channel.Averaging = _value;
+        }
+
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+
+
         public double GetAveragedValue(TransducerChannel channel)
         {
-            return GetValue(channel);
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value/ channel.Averaging;
+
             //todo: make internal avaraging
         }
 
@@ -567,7 +585,7 @@ namespace Scaneva.Core.Hardware
                         }
                         catch
                         {
-                        }                        
+                        }
                         break;
 
                     default:
@@ -575,6 +593,5 @@ namespace Scaneva.Core.Hardware
                 }
             }
         }
-
     }
 }

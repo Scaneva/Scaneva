@@ -64,7 +64,7 @@ namespace Scaneva.Core
             double deviation = 0;
 
             //deviation of the process variable from the setpoint
-            deviation = (Setpoint - _processVariable); //negative - SetPoint not reached
+            deviation = (Setpoint - _processVariable); 
 
             //limit the deviation
             if (Math.Abs(deviation) > Settings.P)
@@ -72,7 +72,7 @@ namespace Scaneva.Core
                 deviation = (deviation < 0) ? -Settings.P : Settings.P;
                 mDeviationSum = 0;
             }
-
+            
             res = deviation;   //val * µm/val
 
             //differential component if configured.

@@ -195,7 +195,7 @@ namespace Scaneva.Core.Experiments
 
             //and move to the next position 
             mPositioner.AbsolutePosition(Dest);//todo: error check
-
+            log.AddStatusUpdate(0, Dest);
             //before the next scan a call to Prepare() is enforced by this. This ensures that the start
             //position is set properly for each scan.
             mStatus = enuScannerErrors.NotInitialized;

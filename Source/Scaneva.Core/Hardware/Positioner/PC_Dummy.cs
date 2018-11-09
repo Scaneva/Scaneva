@@ -90,19 +90,40 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double GetAveragedValue(TransducerChannel channel)
-        {
-            return GetValue(channel);
-        }
+
+        //Transducer
 
         public void SetValue(TransducerChannel channel, double _value)
         {
             //noop
         }
 
-        public int Averaging { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        //Transducer
+
+
+        public void SetAveraging(TransducerChannel channel, int _value)
+        {
+            channel.Averaging = _value;
+        }
+
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+
+
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
+        }
 
         public enuHWStatus HWStatus => hwStatus;
 

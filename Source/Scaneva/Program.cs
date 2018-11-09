@@ -41,7 +41,7 @@ namespace Scaneva
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ScanevaMainGUI());
+           Application.Run(new ScanevaMainGUI());
         }
     }
 }

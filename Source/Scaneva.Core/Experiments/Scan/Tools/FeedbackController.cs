@@ -181,6 +181,7 @@ namespace Scaneva.Core
                     {
                         if (mSensor.Status == enuSensorStatus.OK)
                         {
+                            mSensor.Averaging = Settings.Averaging;
                             abortFlag = false;
                             PID = new PIDController(log);
                             PID.Settings = Settings.PIDController;
@@ -394,7 +395,7 @@ namespace Scaneva.Core
             }
 
             Position Correction = new Position();
-            Correction.Z = PID.SimpleCorrection(signal);
+            Correction.Z = -PID.SimpleCorrection(signal);
 
             if (!mPositioner.RelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
             {

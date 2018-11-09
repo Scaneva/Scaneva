@@ -115,7 +115,7 @@ namespace Scaneva.Core
         [DisplayName("Source signal averaging [#]")]
         [Description("Specify the number of sample being averaged for the selected transducer.")]
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue)]
-        public int Averaging { get; set; } = 0;
+        public int Averaging { get; set; } = 1;
 
         [Category("2. Feedback controller")]
         [DisplayName("Minimum setpoint")]

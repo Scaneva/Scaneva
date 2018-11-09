@@ -95,8 +95,7 @@ namespace Scaneva.Core.Hardware
         public enuTransducerType TransducerType => enuTransducerType.ADC;
 
         public List<TransducerChannel> Channels { get => channels; }
-        public int Averaging { get => 1; }
-        int ITransducer.Averaging { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+       
 
         public double GetValue(TransducerChannel channel)
         {
@@ -123,10 +122,31 @@ namespace Scaneva.Core.Hardware
             }
         }
 
+        public void SetAveraging(TransducerChannel channel, int _value)
+        {
+            channel.Averaging = _value;
+        }
+
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+
+
         public double GetAveragedValue(TransducerChannel channel)
         {
-            return GetValue(channel);
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
         }
+
+        //Transducer
 
         private double GetCurrent(double _potential)
         {

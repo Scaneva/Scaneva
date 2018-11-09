@@ -48,7 +48,8 @@ namespace Scaneva.Core
         List<TransducerChannel> Channels { get; }
         double GetValue(TransducerChannel channel);
         double GetAveragedValue(TransducerChannel channel);
-        int Averaging { get; set; }
+        void SetAveraging(TransducerChannel channel, int _value);
+        int GetAveraging(TransducerChannel channel);
         void SetValue(TransducerChannel channel, double _value);
     }
 }
