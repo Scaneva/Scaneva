@@ -40,6 +40,7 @@ namespace Scaneva
         public InputDialog()
         {
             InitializeComponent();
+            textBoxEntry.Text = null;
 
             // Disable resize
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -92,7 +93,7 @@ namespace Scaneva
 
         private void InputDialog_Shown(object sender, EventArgs e)
         {
-            textBoxEntry.Text = null;
+            //textBoxEntry.Text = null;
         }
 
         private void InputDialog_Load(object sender, EventArgs e)
