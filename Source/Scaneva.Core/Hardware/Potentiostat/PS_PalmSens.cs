@@ -68,7 +68,7 @@ namespace Scaneva.Core.Hardware
         private Thread CommManagerThread;
         private Device device = null;
         private DeviceCapabilities capabilities = null;
-
+        private CurrentRange LastCR;
 
         public PS_PalmSens(LogHelper log)
             : base(log)
@@ -473,7 +473,7 @@ namespace Scaneva.Core.Hardware
         {
             channels = new List<TransducerChannel>();
             channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));            
+            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
             channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
 
@@ -522,7 +522,7 @@ namespace Scaneva.Core.Hardware
 
                         case "Current Bi-Pot":
                             t = new Task<float>(() => { return (float)(Comm?.ReadBiPotCurrent).GetValueOrDefault(double.NaN); });
-                            break;                   
+                            break;
 
                         case "Current Range Bi-pot":
                             t = new Task<float>(() => { return ((float?)Comm?.BiPotCurrentRange?.CRbyte).GetValueOrDefault(float.NaN); });
@@ -556,7 +556,7 @@ namespace Scaneva.Core.Hardware
         {
             return channel.Averaging;
         }
-        
+
         public double GetAveragedValue(TransducerChannel channel)
         {
             double value = 0;
@@ -611,13 +611,14 @@ namespace Scaneva.Core.Hardware
                         break;
 
 
-                    case "Bi-pot current Range":
+                    case "Current Range Bi-Pot":
                         try
                         {
                             sbyte sbRange = Convert.ToSByte(_value);
                             CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
                             if (cr != null)
                             {
+                                LastCR = cr;
                                 Comm.BiPotCurrentRange = cr;
                             }
                         }
@@ -626,10 +627,12 @@ namespace Scaneva.Core.Hardware
                         }
                         break;
 
-
-                    case "Cell On Bi-pot":
+                    case "Cell On Bi-Pot":
                         if (_value == 0) Comm.SetBipotOff();
-                        // ???  else Comm.SetBipotOnAndCurrentRange();
+                        else
+                        {
+                            if (LastCR != null) Comm.SetBipotOnAndCurrentRange(LastCR);
+                        }
                         break;
 
                     default:
