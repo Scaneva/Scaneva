@@ -43,6 +43,13 @@ namespace Scaneva.Core
         Position safetyLimits;
         public PIDControllerSettings PIDController { get; set; } = new PIDControllerSettings();
 
+        public enum enuFeedbackMode
+        {
+            Absolute = 0,
+            Relative = 1,
+            Normalized = 2,
+        }
+
         [Browsable(false)]
         [XmlIgnore]
         public Dictionary<string, TransducerChannel> TransducerChannels
@@ -55,41 +62,23 @@ namespace Scaneva.Core
             }
         }
 
-        private Dictionary<string, IPositioner> positioners = new Dictionary<string, IPositioner>();
-
         [Browsable(false)]
         [XmlIgnore]
-        public Dictionary<string, IPositioner> Positioners { get => positioners; set => positioners = value; }
-        string positioner = null;
+        public Dictionary<string, IPositioner> Positioners { get; set; } = new Dictionary<string, IPositioner>();
 
         //User interface
         [Category("1. Hardware")]
         [DisplayName("Select positioner")]
         [TypeConverter(typeof(DropdownListConverter))]
         [DropdownList("Positioners")]
-        public string Positioner { get => positioner; set => positioner = value; }
+        public string Positioner { get; set; } = null;
 
         [Category("1. Hardware")]
         [DisplayName("Positioner speeds [µm/s]")]
         [Description("Specify the positioner speed in [µm/s].")]
         public Position Speeds { get; set; }
 
-        private void updateDisplayNames()
-        {
-            string units = "";
-
-            if ((channel != null) && (transducerChannels.ContainsKey(channel)))
-            {
-                if (transducerChannels[channel].Prefix != enuPrefix.none)
-                {
-                    units += transducerChannels[channel].Prefix;
-                }
-                units += transducerChannels[channel].Unit;
-            }
-
-            SetDisplayName("Min Setpoint", "Min Setpoint (" + units + ")");
-            SetDisplayName("Max Setpoint", "Max Setpoint (" + units + ")");
-        }
+       
 
         public override string ToString()
         {
@@ -116,6 +105,11 @@ namespace Scaneva.Core
         [Description("Specify the number of sample being averaged for the selected transducer.")]
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(1, int.MaxValue)]
         public int Averaging { get; set; } = 1;
+
+        [Category("2. Feedback controller")]
+        [DisplayName("Feedback controller mode")]
+        [Description("Feedback controller mode.")]
+        public enuFeedbackMode ControllerMode { get; set; } = enuFeedbackMode.Absolute;
 
         [Category("2. Feedback controller")]
         [DisplayName("Minimum setpoint")]
@@ -200,5 +194,22 @@ namespace Scaneva.Core
         // [TypeConverter(typeof(NumericUpDownTypeConverter))]
         // [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 1, 0.1)]
         public double? MaxPositionerSafetyLimit { get; set; } = null;
+
+        private void updateDisplayNames()
+        {
+            string units = "";
+
+            if ((channel != null) && (transducerChannels.ContainsKey(channel)))
+            {
+                if (transducerChannels[channel].Prefix != enuPrefix.none)
+                {
+                    units += transducerChannels[channel].Prefix;
+                }
+                units += transducerChannels[channel].Unit;
+            }
+
+            SetDisplayName("Min Setpoint", "Min Setpoint (" + units + ")");
+            SetDisplayName("Max Setpoint", "Max Setpoint (" + units + ")");
+        }
     }
 }

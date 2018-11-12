@@ -395,7 +395,7 @@ namespace Scaneva.Core
             }
 
             Position Correction = new Position();
-            Correction.Z = -PID.SimpleCorrection(signal);
+            Correction.Z = PID.SimpleCorrection(signal);
 
             if (!mPositioner.RelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
             {
