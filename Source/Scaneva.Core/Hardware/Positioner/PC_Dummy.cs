@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-
+using System.Threading;
 using Scaneva.Core.Settings;
 using Scaneva.Tools;
 
@@ -36,18 +36,15 @@ namespace Scaneva.Core.Hardware
     [Category("Dummy HW")]
     class PC_Dummy : ParametrizableObject, IHWManager, IPositioner, ITransducer
     {
-        Position pos = new Position();
-        Position speeds = new Position();
-        enuHWStatus hwStatus = enuHWStatus.NotInitialized;
+        Position mPos = new Position();
+        Position mSpeeds = new Position();
         public bool IsEnabled { get; set; }
-
-        enuPositionerStatus posStatus = enuPositionerStatus.NotInitialized;
         public List<TransducerChannel> channels = new List<TransducerChannel>();
 
         public PC_Dummy(LogHelper log) : base(log)
         {
             log.Add("Instantiating dummy positioner");
-            settings = new PC_Dummy_Settings();               
+            settings = new PC_Dummy_Settings();
         }
 
         public PC_Dummy_Settings Settings
@@ -62,201 +59,110 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        //Transducer
-        private void InitTransducerChannels()
-        {
-            channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "X-Axis", "m", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Y-Axis", "m", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Z-Axis", "m", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-        }
-
-        public enuTransducerType TransducerType => enuTransducerType.Potentiostat;
-
-        public List<TransducerChannel> Channels { get => channels; }
-
-        public double GetValue(TransducerChannel channel)
-        {
-            switch (channel.Name)
-            {
-                case "X-Axis":
-                    return pos.X;
-                case "Y-Axis":
-                    return pos.Y;
-                case "Z-Axis":
-                    return pos.Z;
-                default:
-                    return 0;
-            }
-        }
-
-
-        //Transducer
-
-        public void SetValue(TransducerChannel channel, double _value)
-        {
-            //noop
-        }
-
-
-
-
-        public void SetAveraging(TransducerChannel channel, int _value)
-        {
-            channel.Averaging = _value;
-        }
-
-        public int GetAveraging(TransducerChannel channel)
-        {
-            return channel.Averaging;
-        }
-
-
-        public double GetAveragedValue(TransducerChannel channel)
-        {
-            double value = 0;
-            for (int i = 1; i <= channel.Averaging; i++)
-            {
-                value = +GetValue(channel);
-            }
-
-            return value / channel.Averaging;
-
-            //todo: make internal avaraging
-        }
-
-        public enuHWStatus HWStatus => hwStatus;
-
-        public enuPositionerStatus Status => posStatus;
-
-      
-
-        public enuHWStatus Connect()
-        {
-            hwStatus = enuHWStatus.Ready;
-            posStatus = enuPositionerStatus.Ready;
-            return hwStatus;
-        }
-
-        public enuHWStatus Initialize()
-        {
-            log.Add("Initializing dummy positioner");
-            InitTransducerChannels();
-            return enuHWStatus.Ready;
-        }
-
-        public void Release()
-        {
-
-        }
-
-       public Position AbsolutePosition()
-        {
-            return pos;
-        }
-
-        public enuPositionerStatus AbsolutePosition(Position _pos)
-        {
-            pos = _pos;
-            return enuPositionerStatus.Ready;
-        }
-
-
-        public double AxisAbsolutePosition(enuAxes _axis)
+        public enuPositionerStatus GetAxisSpeed(enuAxes _axis, ref double _speed)
         {
             switch (_axis)
             {
                 case enuAxes.XAxis:
-                    return pos.X;
-                case enuAxes.YAxis:
-                    return pos.Y;
-                case enuAxes.ZAxis:
-                    return pos.Z;
-                default: return 0; //todo: log an error event (implement a-axis as well?)
-            }
-        }
-
-        public double AxisMinIncrement(enuAxes _axis)
-        {
-            return 0;
-        }
-
-        public enuPositionerStatus MoveAbsolut(enuAxes _axis, double _position, double _speed)
-        {
-            switch (_axis)
-            {
-                case enuAxes.XAxis:
-                    pos.X = _position;
+                    _speed = mSpeeds.X;
                     break;
                 case enuAxes.YAxis:
-                    pos.Y = _position;
+                    _speed = mSpeeds.Y;
                     break;
                 case enuAxes.ZAxis:
-                    pos.Z = _position;
-                    break;
-                default: return 0; //todo: log an error event (implement a-axis as well?)
-            }
-            return enuPositionerStatus.Ready;
-        }
-
-        public enuPositionerStatus MoveRelativ(enuAxes _axis, double _increment, double _speed)
-        {
-            switch (_axis)
-            {
-                case enuAxes.XAxis:
-                    pos.X = pos.X + _increment;
-                    break;
-                case enuAxes.YAxis:
-                    pos.Y = pos.Y + _increment;
-                    break;
-                case enuAxes.ZAxis:
-                    pos.Z = pos.Z + _increment;
+                    _speed = mSpeeds.Z;
                     break;
             }
             return enuPositionerStatus.Ready;
         }
 
-        public double Speed(enuAxes _axis)
-        {
-
-            switch (_axis)
-            {
-                case enuAxes.XAxis:
-                    return speeds.X;
-                case enuAxes.YAxis:
-                    return speeds.Y;
-                case enuAxes.ZAxis:
-                    return speeds.Z;
-                default: return 0; //todo: log an error event (implement a-axis as well?)
-            }
-        }
-
-        public enuPositionerStatus Speed(enuAxes _axis, double _speed)
-        {
-            switch (_axis)
-            {
-                case enuAxes.XAxis:
-                    speeds.X = _speed;
-                    break;
-                case enuAxes.YAxis:
-                    speeds.Y = _speed;
-                    break;
-                case enuAxes.ZAxis:
-                    speeds.Z = _speed;
-                    break;
-                default: return 0; //todo: log an error event (implement a-axis as well?)
-            }
-            return enuPositionerStatus.Ready;
-        }
-
-        public enuPositionerStatus AxisStatus(enuAxes _axis)
+        public enuPositionerStatus ValidateAxisSpeed(enuAxes _axis, ref double _speed)
         {
             return enuPositionerStatus.Ready;
         }
 
-        public void AxisStatus(enuAxes _axis, enuPositionerStatus _stat)
+        public enuPositionerStatus SetAxisSpeed(enuAxes _axis, double _speed)
         {
-            //noop
+            switch (_axis)
+            {
+                case enuAxes.XAxis:
+                    mSpeeds.X = _speed;
+                    break;
+                case enuAxes.YAxis:
+                    mSpeeds.Y = _speed;
+                    break;
+                case enuAxes.ZAxis:
+                    mSpeeds.Z = _speed;
+                    break;
+            }
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus ValidateAxisRelativeMovement(enuAxes _axis, ref double _distance)
+        {
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus SetAxisRelativePosition(enuAxes _axis, double _increment)
+        {
+            switch (_axis)
+            {
+                case enuAxes.XAxis:
+                    mPos.X += _increment;
+                    Thread.Sleep((int)(_increment / mSpeeds.X));
+                    break;
+                case enuAxes.YAxis:
+                    mPos.Y += _increment;
+                    Thread.Sleep((int)(_increment / mSpeeds.Y));
+                    break;
+                case enuAxes.ZAxis:
+                    mPos.Z += _increment;
+                    Thread.Sleep((int)(_increment / mSpeeds.Z));
+                    break;
+            }
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus GetAxisAbsolutePosition(enuAxes _axis, ref double _pos)
+        {
+            switch (_axis)
+            {
+                case enuAxes.XAxis:
+                    _pos = mPos.X;
+                    break;
+                case enuAxes.YAxis:
+                    _pos = mPos.Y;
+                    break;
+                case enuAxes.ZAxis:
+                    _pos = mPos.Z;
+                    break;
+            }
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus ValidateAxisAbsolutePosition(enuAxes _axis, ref double _pos)
+        {
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus SetAxisAbsolutePosition(enuAxes _axis, double _position)
+        {
+            switch (_axis)
+            {
+                case enuAxes.XAxis:
+                    Thread.Sleep((int)((Math.Abs(mPos.X - _position) / mSpeeds.X)));
+                    mPos.X = _position;
+                    break;
+                case enuAxes.YAxis:
+                    Thread.Sleep((int)((Math.Abs(mPos.Y - _position) / mSpeeds.Y)));
+                    mPos.Y = _position;
+                    break;
+                case enuAxes.ZAxis:
+                    Thread.Sleep((int)((Math.Abs(mPos.Z - _position) / mSpeeds.Z)));
+                    mPos.Z = _position;
+                    break;
+            }
+            return enuPositionerStatus.Ready;
         }
 
         public enuPositionerStatus AxisStop(enuAxes _axis)
@@ -264,30 +170,49 @@ namespace Scaneva.Core.Hardware
             return enuPositionerStatus.Ready;
         }
 
-        public double ValidateDistance(enuAxes _axis, double _distance)
+        public enuPositionerStatus GetSpeeds(ref Position _speeds)
         {
-            return _distance;
-        }
-
-        public double ValidateSpeed(enuAxes _axis, double _speed)
-        {
-            return _speed;
-        }
-
-        public enuPositionerStatus RelativePosition(Position _pos)
-        {
-            pos = pos.Sum(_pos);
+            _speeds = mSpeeds;
             return enuPositionerStatus.Ready;
         }
 
-        public Position Speeds()
+        public enuPositionerStatus ValidateSpeeds(ref Position _speeds)
         {
-            return speeds;
+            return enuPositionerStatus.Ready;
         }
 
-        public enuPositionerStatus Speeds(Position _speed)
+        public enuPositionerStatus SetSpeeds(Position _speeds)
         {
-            speeds = _speed;
+            mSpeeds = _speeds;
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus ValidateRelativeMovement(ref Position _pos)
+        {
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus SetRelativePosition(Position _pos)
+        {
+            GetAbsolutePosition(ref _pos);
+            SetAbsolutePosition(_pos);
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus GetAbsolutePosition(ref Position _pos)
+        {
+            _pos = mPos;
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus ValidateAbsolutePosition(ref Position _pos)
+        {
+            return enuPositionerStatus.Ready;
+        }
+
+        public enuPositionerStatus SetAbsolutePosition(Position _pos)
+        {
+            mPos = _pos;
             return enuPositionerStatus.Ready;
         }
 
@@ -296,18 +221,125 @@ namespace Scaneva.Core.Hardware
             return enuPositionerStatus.Ready;
         }
 
-        public enuPositionerStatus ValidatePosition(ref Position _pos)
+        private int AxisIndex(enuAxes _axis)
         {
-            _pos = _pos;
-            return enuPositionerStatus.Ready;
+            switch (_axis)
+            {
+                case enuAxes.XAxis:
+                    return Settings.X.AxisNumber;
+                case enuAxes.YAxis:
+                    return Settings.Y.AxisNumber;
+                case enuAxes.ZAxis:
+                    return Settings.Z.AxisNumber;
+            }
+            return 0;
         }
 
-        public enuPositionerStatus ValidateSpeeds(ref Position _speed)
+
+        private void InitTransducerChannels()
         {
-            _speed = _speed;
-            return enuPositionerStatus.Ready;
+            channels = new List<TransducerChannel>();
+            channels.Add(new TransducerChannel(this, "X-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Y-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Z-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+        }
+
+        public enuTransducerType TransducerType => enuTransducerType.Positioner;
+        public List<TransducerChannel> Channels { get => channels; }
+
+        public enuPositionerStatus GetPositionerStatus => enuPositionerStatus.Ready;
+
+        enuHWStatus IHWManager.HWStatus => throw new NotImplementedException();
+
+        public double GetValue(TransducerChannel channel)
+        {
+            double res = double.NaN;
+            switch (channel.Name)
+            {
+                case "X-Axis":
+                    GetAxisAbsolutePosition(enuAxes.XAxis, ref res);
+                    break;
+                case "Y-Axis":
+                    GetAxisAbsolutePosition(enuAxes.YAxis, ref res);
+                    break;
+                case "Z-Axis":
+                    GetAxisAbsolutePosition(enuAxes.ZAxis, ref res);
+                    break;
+                case "A-Axis":
+                    GetAxisAbsolutePosition(enuAxes.AAxis, ref res);
+                    break;
+            }
+            return res;
+        }
+
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
+        {
+            channel.Averaging = _value;
+            return enuTChannelStatus.OK;
+        }
+
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value += GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+        }
+
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
+        {
+            switch (channel.Name)
+            {
+                case "X-Axis":
+                    if (SetAxisAbsolutePosition(enuAxes.XAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "Y-Axis":
+                    if (SetAxisAbsolutePosition(enuAxes.YAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "Z-Axis":
+                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "A-Axis":
+                    if (SetAxisAbsolutePosition(enuAxes.AAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                default:
+                    return enuTChannelStatus.Error;
+            }
+            return enuTChannelStatus.OK;
+        }
+
+        public enuHWStatus Connect()
+        {
+            return enuHWStatus.Ready;
         }
 
 
+
+        public enuHWStatus Initialize()
+        {
+            return enuHWStatus.Ready;
+        }
+
+        public void Release()
+        {
+        }
+
+        public enuHWStatus HWStatus()
+        {
+            return enuHWStatus.Ready;
+        }
+
+        public enuPositionerStatus GetAxisStatus(enuAxes _axis)
+        {
+            return enuPositionerStatus.Ready;
+        }
     }
 }

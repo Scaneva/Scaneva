@@ -40,7 +40,7 @@ namespace Scaneva.Core
         bool IsEnabled { get; set; }
         enuHWStatus Connect();
         enuHWStatus Initialize();
-        enuHWStatus HWStatus { get; }
+        enuHWStatus HWStatus { get;}
         void Release();      
     }
 }

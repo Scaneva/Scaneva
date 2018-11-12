@@ -43,13 +43,12 @@ namespace Scaneva.Core.Hardware
     [Category("Positioner")]
     class SMC_LStep_PCIe : ParametrizableObject, IHWManager, IPositioner, ITransducer
     {
-        private CClassLStep.LStep Positioner;
-        private enuHWStatus mHWStatus = enuHWStatus.NotInitialized;
-        private enuPositionerStatus mPosStatus = enuPositionerStatus.NotInitialized;
 
+        private CClassLStep.LStep Positioner;
+        private enuPositionerStatus mPosStatus = enuPositionerStatus.NotInitialized;
         public List<TransducerChannel> channels = new List<TransducerChannel>();
         Dictionary<long, String> ErrorList = new Dictionary<long, string>();
-
+        enuHWStatus mHWStatus = enuHWStatus.NotInitialized;
         public SMC_LStep_PCIe(LogHelper log) : base(log)
         {
             settings = new SMC_LStep_PCIe_Settings();
@@ -210,10 +209,10 @@ namespace Scaneva.Core.Hardware
         public enuHWStatus Connect()
         {
             Positioner = new CClassLStep.LStep();
-            mHWStatus |= LogError(Positioner.ConnectSimpleW(11, "COM" + Convert.ToString(Settings.COMPort), 115200, false));
-            mHWStatus |= LogError(Positioner.SetLanguageW("ENG"));
-            mHWStatus |= LogError(Positioner.FlushBuffer(0));
-            mHWStatus |= LogError(Positioner.EnableCommandRetry(false));
+            HWStatus |= LogError(Positioner.ConnectSimpleW(11, "COM" + Convert.ToString(Settings.COMPort), 115200, false));
+            HWStatus |= LogError(Positioner.SetLanguageW("ENG"));
+            HWStatus |= LogError(Positioner.FlushBuffer(0));
+            HWStatus |= LogError(Positioner.EnableCommandRetry(false));
 
             //string pcVers = "";
             //mHWStatus |= LogError(Positioner.GetAPIVersionW(out pcVers, 100));
@@ -226,8 +225,8 @@ namespace Scaneva.Core.Hardware
             {
                 if (File.Exists(Settings.Path))
                 {
-                    mHWStatus |= LogError(Positioner.LoadConfigW(Settings.Path)); // Lade Config Datei
-                    mHWStatus |= LogError(Positioner.SetControlPars()); // Setzen der Geladenen Parameter in Controller
+                    HWStatus |= LogError(Positioner.LoadConfigW(Settings.Path)); // Lade Config Datei
+                    HWStatus |= LogError(Positioner.SetControlPars()); // Setzen der Geladenen Parameter in Controller
                 }
                 log.Add("Configuration profile was not found. The run-time profile will be " +
                     "created based on user settings. It is advised to save the profile during next program run");
@@ -235,17 +234,17 @@ namespace Scaneva.Core.Hardware
             else
             {
                 //Beschreibung der Mechanik
-                mHWStatus |= LogError(Positioner.SetFactorMode(true, 1, 1, 1, 0));
-                mHWStatus |= LogError(Positioner.SetPitch(Settings.X.Pitch, Settings.Y.Pitch, Settings.Z.Pitch, 1));
-                mHWStatus |= LogError(Positioner.SetControllerSteps(Settings.X.FullSteps, Settings.Y.FullSteps, Settings.Z.FullSteps, 200));
+                HWStatus |= LogError(Positioner.SetFactorMode(true, 1, 1, 1, 0));
+                HWStatus |= LogError(Positioner.SetPitch(Settings.X.Pitch, Settings.Y.Pitch, Settings.Z.Pitch, 1));
+                HWStatus |= LogError(Positioner.SetControllerSteps(Settings.X.FullSteps, Settings.Y.FullSteps, Settings.Z.FullSteps, 200));
 
-                mHWStatus |= LogError(Positioner.ConfigMaxAxes(4));
+                HWStatus |= LogError(Positioner.ConfigMaxAxes(4));
 
                 //    SetGear()
-                mHWStatus |= LogError(Positioner.SetGear(Settings.X.MotorGear, Settings.Y.MotorGear, Settings.Z.MotorGear, Settings.A.MotorGear));
+                HWStatus |= LogError(Positioner.SetGear(Settings.X.MotorGear, Settings.Y.MotorGear, Settings.Z.MotorGear, Settings.A.MotorGear));
 
                 //    SetDimensions() - µm
-                mHWStatus |= LogError(Positioner.SetDimensions(1, 1, 1, 1));
+                HWStatus |= LogError(Positioner.SetDimensions(1, 1, 1, 1));
 
                 //    SetActiveAxis()
                 int e = 0;
@@ -253,52 +252,52 @@ namespace Scaneva.Core.Hardware
                 if (Settings.Y.Enabled) e = e + 2;
                 if (Settings.Z.Enabled) e = e + 4;
                 if (Settings.A.Enabled) e = e + 8;
-                mHWStatus |= LogError(Positioner.SetActiveAxes(e));
+                HWStatus |= LogError(Positioner.SetActiveAxes(e));
 
                 //    SetAxisDirection()
-                mHWStatus |= LogError(Positioner.SetAxisDirection(Math.Abs(Convert.ToInt16(!Settings.X.Sign)),
+                HWStatus |= LogError(Positioner.SetAxisDirection(Math.Abs(Convert.ToInt16(!Settings.X.Sign)),
                     Math.Abs(Convert.ToInt16(!Settings.Y.Sign)),
                     Math.Abs(Convert.ToInt16(!Settings.Z.Sign)), 1));
 
                 //    SetXYComp(),
-                mHWStatus |= LogError(Positioner.SetXYAxisComp(1));
+                HWStatus |= LogError(Positioner.SetXYAxisComp(1));
 
                 //Konfiguration der Endschalter
                 //    SetSwitchActive(),
-                mHWStatus |= LogError(Positioner.SetSwitchActive(5, 5, 5, 5));
+                HWStatus |= LogError(Positioner.SetSwitchActive(5, 5, 5, 5));
 
                 //    SetSwitchPolarity(),
-                mHWStatus |= LogError(Positioner.SetSwitchPolarity(5, 5, 5, 5));
+                HWStatus |= LogError(Positioner.SetSwitchPolarity(5, 5, 5, 5));
 
 
                 //  Configuration der Softwareendschalter
                 //SetLimit(),
-                mHWStatus |= LogError(Positioner.SetLimit(1, 0, Settings.X.Travel));
-                mHWStatus |= LogError(Positioner.SetLimit(2, 0, Settings.Y.Travel));
-                mHWStatus |= LogError(Positioner.SetLimit(3, 0, Settings.Z.Travel));
-                mHWStatus |= LogError(Positioner.SetLimit(4, 0, Settings.A.Travel));
+                HWStatus |= LogError(Positioner.SetLimit(1, 0, Settings.X.Travel));
+                HWStatus |= LogError(Positioner.SetLimit(2, 0, Settings.Y.Travel));
+                HWStatus |= LogError(Positioner.SetLimit(3, 0, Settings.Z.Travel));
+                HWStatus |= LogError(Positioner.SetLimit(4, 0, Settings.A.Travel));
 
                 //SetLimitControl(),
-                mHWStatus |= LogError(Positioner.SetLimitControl(1, true));
-                mHWStatus |= LogError(Positioner.SetLimitControl(2, true));
-                mHWStatus |= LogError(Positioner.SetLimitControl(3, true));
-                mHWStatus |= LogError(Positioner.SetLimitControl(4, true));
+                HWStatus |= LogError(Positioner.SetLimitControl(1, true));
+                HWStatus |= LogError(Positioner.SetLimitControl(2, true));
+                HWStatus |= LogError(Positioner.SetLimitControl(3, true));
+                HWStatus |= LogError(Positioner.SetLimitControl(4, true));
 
-                mHWStatus |= LogError(Positioner.SetLimitControlMode(1));
+                HWStatus |= LogError(Positioner.SetLimitControlMode(1));
                 //mHWStatus |= LogError(Positioner.SetAutoLimitAfterCalibRM(15);
 
                 //rotativer 2-Phasen Schrittmotor
-                mHWStatus |= LogError(Positioner.SetMotorType(0, 0, 0, 0));
+                HWStatus |= LogError(Positioner.SetMotorType(0, 0, 0, 0));
 
                 //RPM
-                mHWStatus |= LogError(Positioner.SetMotorMaxVel((60 * (Settings.X.MaxSpeed / 1000) / Settings.X.Pitch), (60 * (Settings.Y.MaxSpeed / 1000) / Settings.Y.Pitch),
+                HWStatus |= LogError(Positioner.SetMotorMaxVel((60 * (Settings.X.MaxSpeed / 1000) / Settings.X.Pitch), (60 * (Settings.Y.MaxSpeed / 1000) / Settings.Y.Pitch),
                     (60 * (Settings.Z.MaxSpeed / 1000) / Settings.Z.Pitch), (60 * (Settings.A.MaxSpeed / 1000) / Settings.A.Pitch)));
 
                 //SetCurrent()
-                mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrent, Settings.Y.MotorCurrent, Settings.Z.MotorCurrent, Settings.A.MotorCurrent));
+                HWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrent, Settings.Y.MotorCurrent, Settings.Z.MotorCurrent, Settings.A.MotorCurrent));
 
                 //SetReduction()
-                mHWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrentReduction, Settings.Y.MotorCurrentReduction,
+                HWStatus |= LogError(Positioner.SetMotorCurrent(Settings.X.MotorCurrentReduction, Settings.Y.MotorCurrentReduction,
                     Settings.Z.MotorCurrentReduction, Settings.A.MotorCurrentReduction));
 
                 //            Konfiguration der Encoder
@@ -323,35 +322,34 @@ namespace Scaneva.Core.Hardware
                 //SetSnapshotPar(),
                 //SetSnapshot(),
 
-                //SetAccel(),
-                mHWStatus |= LogError(Positioner.SetAccel(Settings.X.Acceleration, Settings.Y.Acceleration,
+
+                HWStatus |= LogError(Positioner.SetAccel(Settings.X.Acceleration, Settings.Y.Acceleration,
                         Settings.Z.Acceleration, Settings.A.Acceleration));
 
-                //SetVel()
-                mHWStatus |= LogError(Positioner.SetVel(1000, 1000, 100, 100)); // will be set at run time. Some initial values here
+                HWStatus |= LogError(Positioner.SetVel(Settings.X.FailSafeSpeed, Settings.Y.FailSafeSpeed,
+                    Settings.Z.FailSafeSpeed, Settings.A.FailSafeSpeed)); // will be set at run time. Some initial values here
 
                 //            Einstellen des TVR Modes
                 //SetTVRMode(),
-
-                mHWStatus |= LogError(Positioner.SetCommandTimeout(1000, 0, 0));
+                HWStatus |= LogError(Positioner.SetCommandTimeout(1000, 0, 0));
 
 
 
                 //mHWStatus |= LogError(Positioner.SetPos(0, 0, 0, 0));
 
             }
-            mHWStatus |= LogError(Positioner.SetPowerAmplifier(true)); //Schaltet die Endstufen der Steuerung Ein
+            HWStatus |= LogError(Positioner.SetPowerAmplifier(true)); //Schaltet die Endstufen der Steuerung Ein
 
 
             if (Settings.SaveConfigurationE)
             {
-                mHWStatus |= LogError(Positioner.LStepSave()); // Speichern in EEPROM
+                HWStatus |= LogError(Positioner.LStepSave()); // Speichern in EEPROM
                 Settings.SaveConfigurationE = false;
             }
 
             if (Settings.SaveConfigurationF)
             {
-                mHWStatus |= LogError(Positioner.SaveConfigW(Settings.Path));
+                HWStatus |= LogError(Positioner.SaveConfigW(Settings.Path));
                 Settings.SaveConfigurationF = false;
             }
 
@@ -368,7 +366,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("X-axis re-calibration was requested. Execute now?", "X-axis re-calibration", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= ReCalibrateAxes(1);
+                    HWStatus |= ReCalibrateAxes(1);
                 }
                 Settings.X.Recalibrate = false;
             }
@@ -377,7 +375,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("Y-axis re-calibration was requested. Execute now?", "Y-axis re-calibration", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= ReCalibrateAxes(2);
+                    HWStatus |= ReCalibrateAxes(2);
                 }
                 Settings.Y.Recalibrate = false;
             }
@@ -386,7 +384,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("Z-axis re-calibration was requested. Execute now?", "Z-axis re-calibration", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= ReCalibrateAxes(3);
+                    HWStatus |= ReCalibrateAxes(3);
                 }
                 Settings.Z.Recalibrate = false;
             }
@@ -395,7 +393,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("A-axis re-calibration was requested. Execute now?", "A-axis re-calibration", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= ReCalibrateAxes(4);
+                    HWStatus |= ReCalibrateAxes(4);
                 }
                 Settings.A.Recalibrate = false;
             }
@@ -405,7 +403,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("X-axis re-measurement was requested. Execute now?", "X-axis re-measurement", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= RemeasureAxes(1);
+                    HWStatus |= RemeasureAxes(1);
                 }
                 Settings.X.Remeasure = false;
             }
@@ -414,7 +412,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("Y-axis re-measurement was requested. Execute now?", "Y-axis re-measurement", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= RemeasureAxes(2);
+                    HWStatus |= RemeasureAxes(2);
                 }
                 Settings.Y.Remeasure = false;
             }
@@ -423,7 +421,7 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("Z-axis re-measurement was requested. Execute now?", "Z-axis re-measurement", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= RemeasureAxes(3);
+                    HWStatus |= RemeasureAxes(3);
                 }
                 Settings.Z.Remeasure = false;
             }
@@ -432,11 +430,11 @@ namespace Scaneva.Core.Hardware
                 DialogResult dialogResult = MessageBox.Show("A-axis re-measurement was requested. Execute now?", "A-axis re-measurement", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    mHWStatus |= RemeasureAxes(4);
+                    HWStatus |= RemeasureAxes(4);
                 }
                 Settings.A.Remeasure = false;
             }
-            return mHWStatus;
+            return HWStatus;
         }
 
 
@@ -486,27 +484,39 @@ namespace Scaneva.Core.Hardware
         */
         public enuHWStatus Initialize()
         {
-            return mHWStatus;
+            return HWStatus;
         }
 
         public void Release()
         {
-            mHWStatus |= LogError(Positioner.SetPowerAmplifier(false)); //Schaltet die Endstufen der Steuerung aus
+            HWStatus |= LogError(Positioner.SetPowerAmplifier(false)); //Schaltet die Endstufen der Steuerung aus
             if (Positioner.Disconnect() == 0)
             {
-                mHWStatus &= ~enuHWStatus.Ready;
-                mHWStatus = enuHWStatus.NotInitialized;
+                HWStatus &= ~enuHWStatus.Ready;
+                HWStatus = enuHWStatus.NotInitialized;
             }
             else
             {
-                mHWStatus = enuHWStatus.Error;
+                HWStatus = enuHWStatus.Error;
             }
         }
-        public enuHWStatus HWStatus => mHWStatus;
+        public enuHWStatus HWStatus
+        {
+            get
+            {
+                return mHWStatus;
+            }
+            set
+            {
+                mHWStatus = value;
+                if (mHWStatus == enuHWStatus.NotInitialized) mPosStatus = enuPositionerStatus.NotInitialized;
+                if (mHWStatus == enuHWStatus.Ready) mPosStatus = enuPositionerStatus.Ready;
+                if (mHWStatus.HasFlag(enuHWStatus.Error)) mPosStatus = enuPositionerStatus.Error;
+                if (mHWStatus.HasFlag(enuHWStatus.Busy)) mPosStatus |= enuPositionerStatus.Busy;
+            }
+        }
 
-        enuPositionerStatus IPositioner.Status => mPosStatus;
-
-        public enuPositionerStatus AxisStatus(enuAxes _axis)
+        public enuPositionerStatus GetAxisStatus(enuAxes _axis)
         {
             string strStatus = new String('\0', 256);
             enuPositionerStatus axisState = enuPositionerStatus.Error;
@@ -578,127 +588,232 @@ namespace Scaneva.Core.Hardware
             */
         }
 
-        public double ValidateDistance(enuAxes _axis, double _distance)
-        { //check, if the position can be reached including distance and precision
-            return _distance; //todo
-        }
-
-        public double ValidatePosition(enuAxes _axis, double _position)
-        { //check, if the position can be reached including distance and precision
-            return _position; //todo
-        }
-
-        public double ValidateSpeed(enuAxes _axis, double _speed)
-        {
-            switch (_axis)
-            {
-                case enuAxes.XAxis:
-                    if ((_speed <= Settings.X.MaxSpeed) && (_speed > 0))
-                    {
-                        return _speed;
-                    }
-                    else
-                    {
-                        return Settings.X.MaxSpeed;
-                    }
-
-                case enuAxes.YAxis:
-                    if ((_speed <= Settings.Y.MaxSpeed) && (_speed > 0))
-                    {
-                        return _speed;
-                    }
-                    else
-                    {
-                        return Settings.Y.MaxSpeed;
-                    }
-
-                case enuAxes.ZAxis:
-                    if ((_speed <= Settings.Z.MaxSpeed) && (_speed > 0))
-                    {
-                        return _speed;
-                    }
-                    else
-                    {
-                        return Settings.Z.MaxSpeed;
-                    }
-                default: return 0; //todo: log an error event (implement a-axis as well?)
-            }
-        }
-
-        public double AxisAbsolutePosition(enuAxes _axis)
+        public enuPositionerStatus GetAxisSpeed(enuAxes _axis, ref double _speed)
         {
             double X = 0, Y = 0, Z = 0, A = 0;
-            if (mHWStatus == enuHWStatus.Ready)
+            _speed = 0;
+            if (mPosStatus == enuPositionerStatus.Ready) HWStatus = LogError(Positioner.GetVel(ref X, ref Y, ref Z, ref A));
+            if (mPosStatus == enuPositionerStatus.Ready) // mPosStatus was modified by HWStatus already
             {
-                mHWStatus = LogError(Positioner.GetPos(ref X, ref Y, ref Z, ref A));
                 switch (_axis)
                 {
                     case enuAxes.XAxis:
-                        return X;
+                        _speed = X;
+                        break;
                     case enuAxes.YAxis:
-                        return Y;
+                        _speed = Y;
+                        break;
                     case enuAxes.ZAxis:
-                        return Z;
-                }
-            }
-            return 0;
-        }
-
-        public double Speed(enuAxes _axis)
-        {
-            double X = 0, Y = 0, Z = 0, a = 0;
-            if (mHWStatus == enuHWStatus.Ready)
-            {
-                mHWStatus = LogError(Positioner.GetVel(ref X, ref Y, ref Z, ref a));
-                switch (_axis)
-                {
-                    case enuAxes.XAxis:
-                        return X;
-                    case enuAxes.YAxis:
-                        return Y;
-                    case enuAxes.ZAxis:
-                        return Z;
-                    default: return 0;
-                }
-            }
-            return 0;
-        }
-
-        public enuPositionerStatus Speed(enuAxes _axis, double _speed)
-        {
-            if (mPosStatus == enuPositionerStatus.Ready)
-            {
-                _speed = ValidateSpeed(_axis, _speed);
-                mHWStatus = LogError(Positioner.SetVelSingleAxis(AxisIndex(_axis), _speed));
-            }
-            return mPosStatus;
-        }
-
-        public enuPositionerStatus MoveRelativ(enuAxes _axis, double _increment, double _speed)
-        {
-            if (mPosStatus == enuPositionerStatus.Ready)
-            {
-                mPosStatus = Speed(_axis, _speed);
-                if (mPosStatus == enuPositionerStatus.Ready)
-                {
-                    mHWStatus = LogError(Positioner.MoveRelSingleAxis(AxisIndex(_axis),
-                        ValidateDistance(_axis, _increment), true));
+                        _speed = Z;
+                        break;
+                    case enuAxes.AAxis:
+                        _speed = A;
+                        break;
+                    default:
+                        mPosStatus = enuPositionerStatus.Error;
+                        break;
                 }
             }
             return mPosStatus;
         }
 
-        public enuPositionerStatus MoveAbsolut(enuAxes _axis, double _position, double _speed)
+        public enuPositionerStatus ValidateAxisSpeed(enuAxes _axis, ref double _speed)
         {
             if (mPosStatus == enuPositionerStatus.Ready)
             {
-                mPosStatus = Speed(_axis, _speed);
-                if (mPosStatus == enuPositionerStatus.Ready)
+                switch (_axis)
                 {
-                    mHWStatus = LogError(Positioner.MoveAbsSingleAxis(AxisIndex(_axis),
-                        ValidatePosition(_axis, _position), true));
+                    case enuAxes.XAxis:
+                        if (_speed > Settings.X.MaxSpeed) _speed = Settings.X.MaxSpeed;
+                        if (_speed <= 0) _speed = Settings.X.FailSafeSpeed;
+                        break;
+                    case enuAxes.YAxis:
+                        if (_speed > Settings.Y.MaxSpeed) _speed = Settings.Y.MaxSpeed;
+                        if (_speed <= 0) _speed = Settings.Y.FailSafeSpeed;
+                        break;
+                    case enuAxes.ZAxis:
+                        if (_speed > Settings.Z.MaxSpeed) _speed = Settings.Z.MaxSpeed;
+                        if (_speed <= 0) _speed = Settings.Z.FailSafeSpeed;
+                        break;
+                    case enuAxes.AAxis:
+                        if (_speed > Settings.A.MaxSpeed) _speed = Settings.A.MaxSpeed;
+                        if (_speed <= 0) _speed = Settings.A.FailSafeSpeed;
+                        break;
+                    default:
+                        mPosStatus = enuPositionerStatus.Error;
+                        break;
                 }
             }
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus SetAxisSpeed(enuAxes _axis, double _speed)
+        {
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                if (Settings.AutoValidateParam) if (ValidateAxisSpeed(_axis, ref _speed) != enuPositionerStatus.Ready) return mPosStatus; // mPosStatus was modified by ValidateAxisSpeed already
+                HWStatus = LogError(Positioner.SetVelSingleAxis(AxisIndex(_axis), _speed));
+            }
+            return mPosStatus;  // mPosStatus was modified by HWStatus already
+        }
+
+        public enuPositionerStatus ValidateAxisRelativeMovement(enuAxes _axis, ref double _distance)
+        { //check, if the position can be reached including distance and precision
+            return mPosStatus; //todo, log error
+        }
+
+        public enuPositionerStatus SetAxisRelativePosition(enuAxes _axis, double _increment)
+        {
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                if (Settings.AutoValidateParam)
+                {
+                    if (ValidateAxisRelativeMovement(_axis, ref _increment) != enuPositionerStatus.Ready) return mPosStatus;// mPosStatus was modified by ValidateAxisRelativeMovement already
+                    double mSpeed = 0;
+                    if (GetAxisSpeed(_axis, ref mSpeed) != enuPositionerStatus.Ready) return mPosStatus; // mPosStatus was modified by GetAxisSpeed already
+                    if (ValidateAxisSpeed(_axis, ref mSpeed) != enuPositionerStatus.Ready) return mPosStatus;// mPosStatus was modified by ValidateAxisSpeed already
+                }
+                HWStatus = LogError(Positioner.MoveRelSingleAxis(AxisIndex(_axis), _increment, true));
+            }
+            return mPosStatus;  // mPosStatus was evtl. modified by HWStatus already
+        }
+
+        public  enuPositionerStatus GetAxisAbsolutePosition(enuAxes _axis, ref double _pos)
+        {
+            if (mPosStatus == enuPositionerStatus.Ready) HWStatus = LogError(Positioner.GetPosSingleAxis(AxisIndex(_axis), ref _pos));
+            return mPosStatus;// mPosStatus was modified by HWStatus already 
+        }
+
+        public enuPositionerStatus ValidateAxisAbsolutePosition(enuAxes _axis, ref double _pos)
+        {
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus SetAxisAbsolutePosition(enuAxes _axis, double _position)
+        {
+            if (Settings.AutoValidateParam)
+            {
+                if (ValidateAxisAbsolutePosition(_axis, ref _position) != enuPositionerStatus.Ready)
+                {
+                    return mPosStatus;
+                }
+
+                double mSpeed = 0;
+                if (GetAxisSpeed(_axis, ref mSpeed) != enuPositionerStatus.Ready)
+                {
+                    return mPosStatus;
+                }
+
+                if (ValidateAxisSpeed(_axis, ref mSpeed) != enuPositionerStatus.Ready)
+                {
+                    return mPosStatus;
+                }
+            }
+
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                HWStatus = LogError(Positioner.MoveAbsSingleAxis(AxisIndex(_axis), _position, true));
+                if (HWStatus == enuHWStatus.Ready) mPosStatus = enuPositionerStatus.Ready;
+            }
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus AxisStop(enuAxes _axis)
+        {
+            // mHWStatus = LogError(Positioner.SetAbortFlag());
+            HWStatus = LogError(Positioner.StopAxes());
+            return mPosStatus;
+        }
+
+
+
+        public enuPositionerStatus GetSpeeds(ref Position _speeds)
+        {
+            double X = 0, Y = 0, Z = 0, A = 0;
+            if (mPosStatus == enuPositionerStatus.Ready) HWStatus = LogError(Positioner.GetVel(ref X, ref Y, ref Z, ref A));
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                _speeds = new Position(X, Y, Z, A);
+            }
+            return mPosStatus;// mPosStatus was modified by HWStatus already 
+        }
+
+        public enuPositionerStatus ValidateSpeeds(ref Position _speeds)
+        { //check, if the position can be reached including distance and precision
+            return mPosStatus; //todo
+        }
+
+        public enuPositionerStatus SetSpeeds(Position _speeds)
+        {
+            if (mPosStatus == enuPositionerStatus.Ready) HWStatus = LogError(Positioner.SetVel(_speeds.X, _speeds.Y, _speeds.Z, 0));
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus ValidateRelativeMovement(ref Position _pos)
+        {
+            return mPosStatus; //todo
+        }
+
+        public enuPositionerStatus SetRelativePosition(Position _pos)
+        {
+            if (GetAbsolutePosition(ref _pos) != enuPositionerStatus.Ready) return mPosStatus;
+            return (SetAbsolutePosition(_pos));
+        }
+
+        public enuPositionerStatus GetAbsolutePosition(ref Position _pos)
+        {
+            double X = 0, Y = 0, Z = 0, A = 0;
+            if (mPosStatus == enuPositionerStatus.Ready) HWStatus = LogError(Positioner.GetPos(ref X, ref Y, ref Z, ref A));
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                _pos.X = X;
+                _pos.Y = Y;
+                _pos.Z = Z;
+                _pos.A = A;
+            }
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus ValidateAbsolutePosition(ref Position _pos)
+        {
+            return mPosStatus; //todo
+        }
+
+        public enuPositionerStatus SetAbsolutePosition(Position _pos)
+        {
+            if (mPosStatus == enuPositionerStatus.Ready)
+            {
+                if (Settings.AutoValidateParam)
+                {
+                    if (ValidateAbsolutePosition(ref _pos) != enuPositionerStatus.Ready) return mPosStatus;// mPosStatus was modified by ValidateAbsolutePosition already
+                    Position nspeeds = new Position();
+                    if (GetSpeeds(ref nspeeds) != enuPositionerStatus.Ready) return mPosStatus; // mPosStatus was modified by GetSpeeds already
+                    if (ValidateSpeeds(ref nspeeds) != enuPositionerStatus.Ready) return mPosStatus;// mPosStatus was modified by ValidateSpeeds already
+                    if (SetSpeeds(nspeeds) != enuPositionerStatus.Ready) return mPosStatus;// mPosStatus was modified by SetSpeeds already
+                }
+
+                // if new Z-Position is higher retract z first
+                double nZ = double.NaN;
+                double mZ = _pos.Z; // remeber the desired z-coordinate
+                if (GetAxisAbsolutePosition(enuAxes.ZAxis, ref nZ) != enuPositionerStatus.Ready) return mPosStatus; // mPosStatus was modified by GetAxisAbsolutePosition already
+                if (mZ <= nZ)
+                {
+                    _pos.Z = nZ; //write the current Z-coordinate in the position to move
+                    if (SetAbsolutePosition(_pos) != enuPositionerStatus.Ready) return mPosStatus; // move XY while not changing Z 
+                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, mZ) != enuPositionerStatus.Ready) return mPosStatus; //and move Z 
+                }
+                else
+                {
+                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, mZ) != enuPositionerStatus.Ready) return mPosStatus; //move Z first
+                    if (SetAbsolutePosition(_pos) != enuPositionerStatus.Ready) return mPosStatus; // move XY as Z is already reached
+                }
+            }
+            return mPosStatus;
+        }
+
+        public enuPositionerStatus StopMovement()
+        {
+            HWStatus = LogError(Positioner.StopAxes());
             return mPosStatus;
         }
 
@@ -717,94 +832,7 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public enuPositionerStatus AxisStop(enuAxes _axis)
-        {
-           // mHWStatus = LogError(Positioner.SetAbortFlag());
-            mHWStatus = LogError(Positioner.StopAxes());
-            return mPosStatus;
-        }
-
-        public enuPositionerStatus PositionerStatus()
-        {
-            return mPosStatus;
-        }
-
-        public enuPositionerStatus ValidatePosition(ref Position _pos)
-        {
-            _pos = _pos;
-            return enuPositionerStatus.Ready;
-        }
-
-        public enuPositionerStatus ValidateSpeeds(ref Position _speed)
-        {
-            _speed = _speed;
-            return enuPositionerStatus.Ready;
-        }
-
-        public Position Speeds()
-        {
-            double X = 0, Y = 0, Z = 0, a = 0;
-            mHWStatus = LogError(Positioner.GetVel(ref X, ref Y, ref Z, ref a));
-            Position nspeed = new Position(X, Y, Z);
-            return nspeed;
-        }
-
-        public enuPositionerStatus Speeds(Position _speed)
-        {
-            if (mPosStatus == enuPositionerStatus.Ready)
-            {
-                double X = 0, Y = 0, Z = 0, a = 0;
-                X = _speed.X;
-                Y = _speed.Y;
-                Z = _speed.Z;
-                mHWStatus = LogError(Positioner.SetVel(X, Y, Z, a));
-            }
-            return mPosStatus;
-        }
-
-        public Position AbsolutePosition()
-        {
-            double X = 0, Y = 0, Z = 0, a = 0;
-            mHWStatus = LogError(Positioner.GetPos(ref X, ref Y, ref Z, ref a));
-            Position npos = new Position(X, Y, Z);
-            return npos;
-        }
-
-        public enuPositionerStatus AbsolutePosition(Position _pos)
-        {//TODO: validate and set speeds and distances!
-            if (mPosStatus == enuPositionerStatus.Ready)
-            {
-                // if new Z-Position is higher retract z first
-                if (_pos.Z < AbsolutePosition().Z)
-                {
-                    mHWStatus = LogError(Positioner.MoveAbsSingleAxis(3, _pos.Z, true));
-                    if (mPosStatus == enuPositionerStatus.Ready)
-                    {
-                        mHWStatus = LogError(Positioner.MoveAbs(_pos.X, _pos.Y, _pos.Z, 0, true));
-                    }
-                }
-                else
-                {
-                    mHWStatus = LogError(Positioner.MoveAbs(_pos.X, _pos.Y, AbsolutePosition().Z, 0, true));
-                    if (mPosStatus == enuPositionerStatus.Ready)
-                    {
-                        mHWStatus = LogError(Positioner.MoveAbsSingleAxis(3, _pos.Z, true));
-                    }
-                }
-            }
-            return mPosStatus;
-        }
-
-        public enuPositionerStatus RelativePosition(Position _pos)
-        {
-            return AbsolutePosition(AbsolutePosition().Sum(_pos));
-        }
-
-        public enuPositionerStatus StopMovement()
-        {
-            mHWStatus = LogError(Positioner.StopAxes());
-            return mPosStatus;
-        }
+        
 
         private enuHWStatus LogError(long _lngErrCode)
         {
@@ -840,29 +868,41 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "X-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Y-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Z-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "X-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Y-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Z-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
         }
+
         public enuTransducerType TransducerType => enuTransducerType.Positioner;
         public List<TransducerChannel> Channels { get => channels; }
+
+        public enuPositionerStatus GetPositionerStatus => mPosStatus ;
+
         public double GetValue(TransducerChannel channel)
         {
+            double res = double.NaN;
             switch (channel.Name)
             {
                 case "X-Axis":
-                    return AxisAbsolutePosition(enuAxes.XAxis);
+                    GetAxisAbsolutePosition(enuAxes.XAxis, ref res);
+                    break;
                 case "Y-Axis":
-                    return AxisAbsolutePosition(enuAxes.YAxis);
+                    GetAxisAbsolutePosition(enuAxes.YAxis, ref res);
+                    break;
                 case "Z-Axis":
-                    return AxisAbsolutePosition(enuAxes.ZAxis);
-                default:
-                    return 0;
+                    GetAxisAbsolutePosition(enuAxes.ZAxis, ref res);
+                    break;
+                case "A-Axis":
+                    GetAxisAbsolutePosition(enuAxes.AAxis, ref res);
+                    break;
             }
+            return res;
         }
-        public void SetAveraging(TransducerChannel channel, int _value)
+
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
             channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
         public int GetAveraging(TransducerChannel channel)
@@ -870,37 +910,37 @@ namespace Scaneva.Core.Hardware
             return channel.Averaging;
         }
 
-
         public double GetAveragedValue(TransducerChannel channel)
         {
             double value = 0;
             for (int i = 1; i <= channel.Averaging; i++)
             {
-                value = +GetValue(channel);
+                value += GetValue(channel);
             }
 
             return value / channel.Averaging;
-
-            //todo: make internal avaraging
         }
 
-        public void SetValue(TransducerChannel channel, double _value)
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             switch (channel.Name)
             {
                 case "X-Axis":
-                    MoveAbsolut(enuAxes.XAxis, _value, 1000);
+                    if (SetAxisAbsolutePosition(enuAxes.XAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
                     break;
                 case "Y-Axis":
-                    MoveAbsolut(enuAxes.YAxis, _value, 1000);
+                    if (SetAxisAbsolutePosition(enuAxes.YAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
                     break;
                 case "Z-Axis":
-                    MoveAbsolut(enuAxes.ZAxis, _value, 1000);
+                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "A-Axis":
+                    if (SetAxisAbsolutePosition(enuAxes.AAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
                     break;
                 default:
-                    break;
+                    return enuTChannelStatus.Error;
             }
+            return enuTChannelStatus.OK;
         }
-        //Transducer
     }
 }

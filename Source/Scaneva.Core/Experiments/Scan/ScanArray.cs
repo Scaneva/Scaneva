@@ -138,7 +138,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 scanData.setScanDimensions(Scanner.NumScanPoints[0], Scanner.NumScanPoints[1]);
 
                 // Current Positioner pos
-                Position startPos = pos.AbsolutePosition();
+                Position startPos = new Position();
+                if(pos.GetAbsolutePosition(ref startPos) != enuPositionerStatus.Ready) return enExperimentStatus.Error;
 
                 // set scanData dimensions
                 scanData.X0 = Math.Min(startPos.X, (Scanner.NumScanPoints[0] - 1) * Settings.Increments.X);
@@ -169,9 +170,10 @@ namespace Scaneva.Core.Experiments.ScanEva
         /// Return current Scanner Position relative to scan start
         /// </summary>
         /// <returns></returns>
-        public override Position Position()
+
+        public enuPositionerStatus Position(ref Position _pos)
         {
-            return Scanner.Position();
+            return Scanner.Position(ref _pos);
         }
 
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)

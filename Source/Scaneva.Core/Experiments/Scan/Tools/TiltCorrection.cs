@@ -119,7 +119,7 @@ namespace Scaneva.Core
             pos.Z = CalculateDeltaZ(apos);
 
             //perform Z-axis re-positioneng
-            if (mPositioner.RelativePosition(pos) != enuPositionerStatus.Ready)
+            if (mPositioner.SetRelativePosition(pos) != enuPositionerStatus.Ready)
             {
                 //log error, stop scan
                 return enuPositionerStatus.Error;

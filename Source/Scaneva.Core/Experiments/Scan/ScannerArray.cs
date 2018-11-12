@@ -91,18 +91,13 @@ namespace Scaneva.Core.Experiments
             mStatus = 0;
             mScanPointIndex = new int[] { 0, 0, 0 };
 
-            //todo: check parameters, reflect correctness in the status flag
             //store current absolute position as starting position and calculate end position
-            mStartPosition = mPositioner.AbsolutePosition();
+            if (mPositioner.GetAbsolutePosition(ref mStartPosition) != enuPositionerStatus.Error) return enuScannerErrors.Error; // todo: log the error?
             mEndPosition = mStartPosition.Sum(mLengths);
-            if (mPositioner.ValidatePosition(ref mEndPosition) == enuPositionerStatus.Ready)
-            {
-                if (mPositioner.ValidateSpeeds(ref mSpeeds) == enuPositionerStatus.Ready)
-                {
-                    mStatus = enuScannerErrors.Initialized;
-                    mStatus |= enuScannerErrors.Ready;
-                }
-            }
+            if (mPositioner.ValidateAbsolutePosition(ref mEndPosition) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error?
+            if (mPositioner.ValidateSpeeds(ref mSpeeds) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error?
+            mStatus = enuScannerErrors.Initialized;
+            mStatus |= enuScannerErrors.Ready;
             return mStatus;
         }
 
@@ -121,14 +116,11 @@ namespace Scaneva.Core.Experiments
             }
 
             //premovement hook: usually move away from surface to avoid damage of the tip
-            if (mPositioner.RelativePosition(mPreMove) != enuPositionerStatus.Ready)
-            {
-                mStatus = enuScannerErrors.Error;
-                return mStatus;
-            }
+            if (mPositioner.SetRelativePosition(mPreMove) != enuPositionerStatus.Ready) return enuScannerErrors.Error; //todo either validate the position, or use automatic parameters validation by positioner
 
-            Position oldpos = new Position();
-            oldpos = mPositioner.AbsolutePosition();  //this is the current absolute position
+            Position oldpos = new Position(); //this will be the current absolute position
+            if (mPositioner.GetAbsolutePosition(ref oldpos) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error? 
+
             Position Dest = CalculateNextAbsolutePosition(oldpos);// here we get a new absolute position to go as next, also the delay is considered there
             if (Dest == null)
             {//no next position, scan finished
@@ -145,28 +137,17 @@ namespace Scaneva.Core.Experiments
             // if Scan Mode is Comb we do the X-Movement first
             if (Mode == ScanArraySettings.ScanMode.Comb)
             {
-                if (mPositioner.MoveAbsolut(enuAxes.XAxis, Dest.X, mPositioner.Speed(enuAxes.XAxis)) != enuPositionerStatus.Ready)
-                {
-                    mStatus = enuScannerErrors.Error;
-                    return mStatus;
-                }
+                //set speeds first, otherwise motors fail-safes will be used
+                if (mPositioner.SetSpeeds(mSpeeds) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error? 
+                if (mPositioner.SetAxisAbsolutePosition(enuAxes.XAxis, Dest.X) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error? 
             }
             // move to dest position
-            if (mPositioner.AbsolutePosition(Dest) != enuPositionerStatus.Ready)
-            {
-                mStatus = enuScannerErrors.Error;
-                return mStatus;
-            }
-
+            if (mPositioner.SetAbsolutePosition(Dest) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error? 
             log.AddStatusUpdate(0, Dest);
 
             //postmovement hook: usually move down to surface to reduce travel distance for FBC.
             //The hook is less, then the premovement. Not really meaningful while using tilt correction
-            if (mPositioner.RelativePosition(mPostMove) != enuPositionerStatus.Ready)
-            {
-                mStatus = enuScannerErrors.Error;
-                return mStatus;
-            }
+           if (mPositioner.SetRelativePosition(mPostMove) != enuPositionerStatus.Ready) return enuScannerErrors.Error; //todo either validate the position, or use automatic parameters validation by positioner
 
             // All movements are done => now do the apropriate delay
             Thread.Sleep((int)XDelay);  // Allways do the X Delay
@@ -194,7 +175,7 @@ namespace Scaneva.Core.Experiments
             Position Dest = mStartPosition.Copy;
 
             //and move to the next position 
-            mPositioner.AbsolutePosition(Dest);//todo: error check
+            if (mPositioner.SetAbsolutePosition(Dest) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error? 
             log.AddStatusUpdate(0, Dest);
             //before the next scan a call to Prepare() is enforced by this. This ensures that the start
             //position is set properly for each scan.
@@ -316,9 +297,9 @@ namespace Scaneva.Core.Experiments
             }
         }
 
-        public Position Position()
+        public enuPositionerStatus Position(ref Position _pos)
         {// Position relativ zur Startposition
-            return mPositioner.AbsolutePosition().Delta(mStartPosition);
+            return (mPositioner.GetAbsolutePosition(ref _pos));
         }
 
     }

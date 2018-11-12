@@ -629,6 +629,8 @@ namespace Scaneva.Core.Hardware
 
         public enuPositionerStatus Status => posStatus;
 
+        public enuPositionerStatus GetPositionerStatus => throw new NotImplementedException();
+
         public enuHWStatus Connect()
         {
             return HWStatus;
@@ -719,42 +721,47 @@ namespace Scaneva.Core.Hardware
             return enuPositionerStatus.Error; //TODO: evaluate iError and return correct enuPositionerStatus
         }
 
-        public double AxisAbsolutePosition(enuAxes _axis)
+        public enuPositionerStatus GetAxisStatus(enuAxes _axis)
         {
             throw new NotImplementedException();
         }
 
-        public double AxisMinIncrement(enuAxes _axis)
+        public enuPositionerStatus GetAxisSpeed(enuAxes _axis, ref double _speed)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus MoveAbsolut(enuAxes _axis, double _position, double _speed)
+        public enuPositionerStatus ValidateAxisSpeed(enuAxes _axis, ref double _speed)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus MoveRelativ(enuAxes _axis, double _increment, double _speed)
+        public enuPositionerStatus SetAxisSpeed(enuAxes _axis, double _speed)
         {
             throw new NotImplementedException();
         }
 
-        public double Speed(enuAxes _axis)
+        public enuPositionerStatus ValidateAxisRelativeMovement(enuAxes _axis, ref double _pos)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus Speed(enuAxes _axis, double _speed)
+        public enuPositionerStatus SetAxisRelativePosition(enuAxes _axis, double _increment)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus AxisStatus(enuAxes _axis)
+        public enuPositionerStatus GetAxisAbsolutePosition(enuAxes _axis, ref double _pos)
         {
             throw new NotImplementedException();
         }
 
-        public void AxisStatus(enuAxes _axis, enuPositionerStatus _stat)
+        public enuPositionerStatus ValidateAxisAbsolutePosition(enuAxes _axis, ref double _pos)
+        {
+            throw new NotImplementedException();
+        }
+
+        public enuPositionerStatus SetAxisAbsolutePosition(enuAxes _axis, double _position)
         {
             throw new NotImplementedException();
         }
@@ -764,48 +771,49 @@ namespace Scaneva.Core.Hardware
             throw new NotImplementedException();
         }
 
-        public double ValidateDistance(enuAxes _axis, double _distance)
+        public enuPositionerStatus GetSpeeds(ref Position _speeds)
         {
             throw new NotImplementedException();
         }
 
-        public double ValidateSpeed(enuAxes _axis, double _speed)
+        public enuPositionerStatus ValidateSpeeds(ref Position _speeds)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus RelativePosition(Position _pos)
+        public enuPositionerStatus SetSpeeds(Position _speed)
         {
             throw new NotImplementedException();
         }
 
-        public Position Speeds()
+        public enuPositionerStatus ValidateRelativeMovement(ref Position _pos)
         {
             throw new NotImplementedException();
         }
 
-        public enuPositionerStatus Speeds(Position _speed)
+        public enuPositionerStatus SetRelativePosition(Position _pos)
+        {
+            throw new NotImplementedException();
+        }
+
+        public enuPositionerStatus GetAbsolutePosition(ref Position _pos)
+        {
+            throw new NotImplementedException();
+        }
+
+        public enuPositionerStatus ValidateAbsolutePosition(ref Position _pos)
+        {
+            throw new NotImplementedException();
+        }
+
+        public enuPositionerStatus SetAbsolutePosition(Position _pos)
         {
             throw new NotImplementedException();
         }
 
         public enuPositionerStatus StopMovement()
         {
-
             throw new NotImplementedException();
         }
-
-        public enuPositionerStatus ValidatePosition(ref Position _pos)
-        {
-            _pos = _pos;
-            return enuPositionerStatus.Ready;
-        }
-
-        public enuPositionerStatus ValidateSpeeds(ref Position _speed)
-        {
-            _speed = _speed;
-            return enuPositionerStatus.Ready;
-        }
-
     }
 }

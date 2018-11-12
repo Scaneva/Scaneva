@@ -1108,53 +1108,57 @@ namespace Scaneva
                     switch ((sender as Button).Name)
                     {
                         case "btnMoveLeft":
-                            pstat = positioner.MoveRelativ(enuAxes.XAxis, -Math.Abs(Convert.ToDouble(txtXIncrement.Text)), Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.XAxis, Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.XAxis, -Math.Abs(Convert.ToDouble(txtXIncrement.Text)));
                             break;
                         case "btnMoveRight":
-                            positioner.MoveRelativ(enuAxes.XAxis, Math.Abs(Convert.ToDouble(txtXIncrement.Text)), Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.XAxis, Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.XAxis, Math.Abs(Convert.ToDouble(txtXIncrement.Text)));
                             break;
                         case "btnMoveBackward":
-                            positioner.MoveRelativ(enuAxes.YAxis, -Math.Abs(Convert.ToDouble(txtYIncrement.Text)), Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.YAxis, Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.YAxis, -Math.Abs(Convert.ToDouble(txtYIncrement.Text)));
                             break;
                         case "btnMoveForward":
-                            positioner.MoveRelativ(enuAxes.YAxis, Math.Abs(Convert.ToDouble(txtYIncrement.Text)), Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.YAxis, Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.YAxis, Math.Abs(Convert.ToDouble(txtYIncrement.Text)));
                             break;
                         case "btnMoveUp":
-                            positioner.MoveRelativ(enuAxes.ZAxis, Math.Abs(Convert.ToDouble(txtZIncrement.Text)), Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.ZAxis, Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.ZAxis, Math.Abs(Convert.ToDouble(txtZIncrement.Text)));
                             break;
                         case "btnMoveDown":
-                            positioner.MoveRelativ(enuAxes.ZAxis, -Math.Abs(Convert.ToDouble(txtZIncrement.Text)), Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.ZAxis, Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.ZAxis, -Math.Abs(Convert.ToDouble(txtZIncrement.Text)));
                             break;
                         case "btnMoveRelative":
                             Position increments = new Position(Convert.ToDouble(txtXIncrement.Text), Convert.ToDouble(txtYIncrement.Text), Convert.ToDouble(txtZIncrement.Text));
                             Position rspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
-                            pstat = positioner.Speeds(rspeeds);
+                            pstat = positioner.SetSpeeds(rspeeds);
                             if (pstat == enuPositionerStatus.Ready)
                             {
-                                pstat = positioner.RelativePosition(increments);
+                                pstat = positioner.SetRelativePosition(increments);
                             }
                             break;
                         case "btnMoveAbsolute":
                             Position pos = new Position(Convert.ToDouble(txtXIncrement.Text), Convert.ToDouble(txtYIncrement.Text), Convert.ToDouble(txtZIncrement.Text));
                             Position aspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
-                            pstat = positioner.Speeds(aspeeds);
+                            pstat = positioner.SetSpeeds(aspeeds);
                             if (pstat == enuPositionerStatus.Ready)
                             {
-                                pstat = positioner.AbsolutePosition(pos);
+                                pstat = positioner.SetAbsolutePosition(pos);
                             }
                             break;
                         case "btnStopMovement":
-                            pstat = positioner.StopMovement();
+                            pstat = positioner.StopMovement();//todo: stop during the movement - extra thread?
                             break;
                         default:
                             break;
                     }
+                    UpdatePosDisplay(core.positionStore.CurrentAbsolutePosition());
                 }
-                else
-                {
-                    //log and indicate an error
-                }
-                UpdatePosDisplay(core.positionStore.CurrentAbsolutePosition());
+                //todo: if (pstat != enuPositionerStatus.Ready) 
+                
             }
         }
 
@@ -1196,10 +1200,10 @@ namespace Scaneva
                     {
                         Position aspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
 
-                        enuPositionerStatus pstat = positioner.Speeds(aspeeds);
+                        enuPositionerStatus pstat = positioner.SetSpeeds(aspeeds);
                         if (pstat == enuPositionerStatus.Ready)
                         {
-                            pstat = positioner.AbsolutePosition(newPos);
+                            pstat = positioner.SetAbsolutePosition(newPos);
                         }
                     }
                 }

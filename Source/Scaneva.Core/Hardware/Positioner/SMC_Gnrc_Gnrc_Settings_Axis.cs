@@ -66,6 +66,11 @@ namespace Scaneva.Core.Settings
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 10000, 1)]
         public double MaxSpeed { get; set; } = 5000;
 
+        [DisplayName("Fail safe speed [µm/s]")]
+        [Description("Fail safe speed for the mechanics in µm/s")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 10000, 1)]
+        public double FailSafeSpeed { get; set; } = 100; 
+
         [DisplayName("Acceleration [µm/s2]")]
         [Description("Accelerarion for the mechanics in µm/s2")]
         [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, 100, 1)]

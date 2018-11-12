@@ -34,26 +34,28 @@ namespace Scaneva.Core
     public class Position
     {
         //positions
-        private double mdblX, mdblY, mdblZ;
 
         public Position()
         {
 
         }
 
-        public Position(double x, double y, double z)
+        public Position(double x, double y, double z, double a = 0)
         {
-            mdblX = x;
-            mdblY = y;
-            mdblZ = z;
+            X = x;
+            Y = y;
+            Z = z;
+            A = a;
         }
 
         [DisplayName("X")]
-        public double X { get => mdblX; set => mdblX = value; }
+        public double X { get; set; }
         [DisplayName("Y")]
-        public double Y { get => mdblY; set => mdblY = value; }
+        public double Y { get; set; }
         [DisplayName("Z")]
-        public double Z { get => mdblZ; set => mdblZ = value; }
+        public double Z { get; set; }
+        [DisplayName("A")]
+        public double A { get; set; }
 
         [Browsable(false)]
         [XmlIgnore]
@@ -63,32 +65,34 @@ namespace Scaneva.Core
             get
             {
                 Position c = new Position();
-                c.X = this.X;
-                c.Y = this.Y;
-                c.Z = this.Z;
+                c.X = X;
+                c.Y = Y;
+                c.Z = Z;
+                c.A = A;
                 return c;
             }
         }
 
         [Browsable(false)]
-          public Position Delta(Position _minuend)
-        //calculates a position containing the differences between this and minuend
+          public Position Delta(Position _delta)
         {
             Position d = new Position();
-            d.X = this.X - _minuend.X;
-            d.Y = this.Y - _minuend.Y;
-            d.Z = this.Z - _minuend.Z;
+            d.X = X - _delta.X;
+            d.Y = Y - _delta.Y;
+            d.Z = Z - _delta.Z;
+            d.A = A - _delta.A;
             return d;
         }
 
         [Browsable(false)]
-        public Position Sum(Position _summand)
+        public Position Sum(Position _sum)
         //calculates the sum of this and Summand
         {
             Position s = new Position();
-            s.X = this.X + _summand.X;
-            s.Y = this.Y + _summand.Y;
-            s.Z = this.Z + _summand.Z;
+            s.X = X + _sum.X;
+            s.Y = Y + _sum.Y;
+            s.Z = Z + _sum.Z;
+            s.A = A + _sum.A;
             return s;
         }
 
@@ -99,17 +103,17 @@ namespace Scaneva.Core
         {
             get
             {
-                string[] arr = new string[3];
+                string[] arr = new string[4];
                 //todo: check format options
                 arr[0] = Convert.ToString(this.X);
                 arr[1] = Convert.ToString(this.Y);
                 arr[2] = Convert.ToString(this.Z);
+                arr[3] = Convert.ToString(this.A);
                 return "(" + String.Join(";", arr) + ")";
             }
 
             set
             {
-                //string[] arr = new string[2];
                 if (value != "")
                 {
                     //todo: remove brackets!!
@@ -117,9 +121,11 @@ namespace Scaneva.Core
                     double.TryParse(arr[0], out double _X);//todo: implement error check and handling
                     double.TryParse(arr[1], out double _Y);
                     double.TryParse(arr[2], out double _Z);
-                    this.X = _X;
-                    this.Y = _Y;
-                    this.Z = _Z;
+                    double.TryParse(arr[3], out double _A);
+                    X = _X;
+                    Y = _Y;
+                    Z = _Z;
+                    A = _A;
                 }
             }
         }
@@ -133,10 +139,11 @@ namespace Scaneva.Core
         [Browsable(false)]
         public string HumanReadable()//[byte mode])
         {
-            string[] arr = new string[3];
-            arr[0] = "X: " + Convert.ToString(Math.Round(this.X, 2)) + " µm";
-            arr[1] = "Y: " + Convert.ToString(Math.Round(this.Y, 2)) + " µm";
-            arr[2] = "Z: " + Convert.ToString(Math.Round(this.Z, 2)) + " µm";
+            string[] arr = new string[4];
+            arr[0] = "X: " + Convert.ToString(Math.Round(X, 2)) + " µm";
+            arr[1] = "Y: " + Convert.ToString(Math.Round(Y, 2)) + " µm";
+            arr[2] = "Z: " + Convert.ToString(Math.Round(Z, 2)) + " µm";
+            arr[3] = "A: " + Convert.ToString(Math.Round(A, 2)) + " µm";
             return String.Join(", ", arr);
         }
 

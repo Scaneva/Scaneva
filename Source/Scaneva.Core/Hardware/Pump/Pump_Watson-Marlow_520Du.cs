@@ -156,11 +156,11 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Counter", "l", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Flowrate", "l/s", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Speed", "rpm", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Run", "", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK)); // 1 - run, 0, stop
-            channels.Add(new TransducerChannel(this, "Direction", "", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK)); //1 - CW, 0 - CCW
+            channels.Add(new TransducerChannel(this, "Counter", "l", enuPrefix.µ, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Flowrate", "l/s", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Speed", "rpm", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Run", "", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK)); // 1 - run, 0, stop
+            channels.Add(new TransducerChannel(this, "Direction", "", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK)); //1 - CW, 0 - CCW
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Pump;
@@ -186,9 +186,10 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public void SetAveraging(TransducerChannel channel, int _value)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
             channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
         public int GetAveraging(TransducerChannel channel)
@@ -210,7 +211,7 @@ namespace Scaneva.Core.Hardware
             //todo: make internal avaraging
         }
 
-        public void SetValue(TransducerChannel channel, double _value)
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             switch (channel.Name)
             {
@@ -223,7 +224,7 @@ namespace Scaneva.Core.Hardware
                     {
                         Run &= ~enuPumpStatus.Running;
                     }
-                    return;
+                    break;
 
                 case "Direction":
                     if (_value > 0)
@@ -234,23 +235,21 @@ namespace Scaneva.Core.Hardware
                     {
                         Direction &= ~enuPumpStatus.Direction;
                     }
-                    return;
+                    break;
 
                 case "Speed":
                     Speed = _value;
-                    return;
+                    break;
 
                 case "Flowrate":
                     Flowrate = _value;
-                    return;
+                    break;
 
                 case "Counter":
                     Counter = 0;
-                    return;
-
-                default:
-                    return;
+                    break;
             }
+            return enuTChannelStatus.OK;
         }
 
         //IPump
@@ -330,7 +329,7 @@ namespace Scaneva.Core.Hardware
                     {
                         log.Error(e.ToString());
                         return double.NaN;
-                    }                    
+                    }
                 }
             }
             set

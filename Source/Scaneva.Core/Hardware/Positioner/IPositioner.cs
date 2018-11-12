@@ -50,26 +50,37 @@ namespace Scaneva.Core
 
     public interface IPositioner
     {
+        enuPositionerStatus GetPositionerStatus { get; }
+
         //functions for single axes.
-        enuPositionerStatus AxisStatus(enuAxes _axis);
-        double ValidateDistance(enuAxes _axis, double _distance);
-        double ValidateSpeed(enuAxes _axis, double _speed);
-        double Speed(enuAxes _axis);
-        enuPositionerStatus Speed(enuAxes _axis, double _speed);
-        double AxisAbsolutePosition(enuAxes _axis);
-        enuPositionerStatus MoveRelativ(enuAxes _axis, double _increment, double _speed);
-        enuPositionerStatus MoveAbsolut(enuAxes _axis, double _position, double _speed);
+        enuPositionerStatus GetAxisStatus(enuAxes _axis);
+
+        enuPositionerStatus GetAxisSpeed(enuAxes _axis, ref double _speed);
+        enuPositionerStatus ValidateAxisSpeed(enuAxes _axis, ref double _speed);
+        enuPositionerStatus SetAxisSpeed(enuAxes _axis, double _speed);
+
+        enuPositionerStatus ValidateAxisRelativeMovement(enuAxes _axis, ref double _pos);
+        enuPositionerStatus SetAxisRelativePosition(enuAxes _axis, double _increment);
+
+        enuPositionerStatus GetAxisAbsolutePosition(enuAxes _axis, ref double _pos);
+        enuPositionerStatus ValidateAxisAbsolutePosition(enuAxes _axis, ref double _pos);
+        enuPositionerStatus SetAxisAbsolutePosition(enuAxes _axis, double _position);
+
         enuPositionerStatus AxisStop(enuAxes _axis);
 
         //function and properties for all axises.
-        enuPositionerStatus Status { get; }
-        enuPositionerStatus  ValidatePosition(ref Position _pos);
-        enuPositionerStatus ValidateSpeeds(ref Position _speed);
-        Position Speeds();
-        enuPositionerStatus Speeds(Position _speed);
-        Position AbsolutePosition();
-        enuPositionerStatus AbsolutePosition(Position _pos);
-        enuPositionerStatus RelativePosition(Position _pos);
+
+        enuPositionerStatus GetSpeeds(ref Position _speeds);
+        enuPositionerStatus ValidateSpeeds(ref Position _speeds);
+        enuPositionerStatus SetSpeeds(Position _speed);
+
+        enuPositionerStatus ValidateRelativeMovement(ref Position _pos);
+        enuPositionerStatus SetRelativePosition(Position _pos);
+
+        enuPositionerStatus GetAbsolutePosition(ref Position _pos);
+        enuPositionerStatus ValidateAbsolutePosition(ref Position _pos);
+        enuPositionerStatus SetAbsolutePosition(Position _pos);
+
         enuPositionerStatus StopMovement();
     }
 }
