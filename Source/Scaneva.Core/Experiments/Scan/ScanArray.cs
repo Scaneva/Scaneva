@@ -234,10 +234,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 res = Scanner.NextPosition();
             }
 
-            if (!abortExperiment)
-            {
-                Scanner.BackToStart();
-            }
+            //if (!abortExperiment)
+            Scanner.BackToStart();
 
             // Signal Experiment end
             if (abortExperiment)

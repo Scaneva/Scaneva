@@ -228,11 +228,9 @@ namespace Scaneva.Core.Experiments.ScanEva
                 currentYPos = currentPos.Y;
             }
 
-            if (!abortExperiment)
-            {
-                Scanner.BackToStart();
-            }
-
+            //if (!abortExperiment)
+            Scanner.BackToStart();
+            
             // Signal Experiment end
             if (abortExperiment)
             {               
