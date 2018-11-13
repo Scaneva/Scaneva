@@ -92,7 +92,7 @@ namespace Scaneva.Core.Experiments
             mScanPointIndex = new int[] { 0, 0, 0 };
 
             //store current absolute position as starting position and calculate end position
-            if (mPositioner.GetAbsolutePosition(ref mStartPosition) != enuPositionerStatus.Error) return enuScannerErrors.Error; // todo: log the error?
+            if (mPositioner.GetAbsolutePosition(ref mStartPosition) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error?
             mEndPosition = mStartPosition.Sum(mLengths);
             if (mPositioner.ValidateAbsolutePosition(ref mEndPosition) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error?
             if (mPositioner.ValidateSpeeds(ref mSpeeds) != enuPositionerStatus.Ready) return enuScannerErrors.Error; // todo: log the error?
@@ -147,7 +147,7 @@ namespace Scaneva.Core.Experiments
 
             //postmovement hook: usually move down to surface to reduce travel distance for FBC.
             //The hook is less, then the premovement. Not really meaningful while using tilt correction
-           if (mPositioner.SetRelativePosition(mPostMove) != enuPositionerStatus.Ready) return enuScannerErrors.Error; //todo either validate the position, or use automatic parameters validation by positioner
+            if (mPositioner.SetRelativePosition(mPostMove) != enuPositionerStatus.Ready) return enuScannerErrors.Error; //todo either validate the position, or use automatic parameters validation by positioner
 
             // All movements are done => now do the apropriate delay
             Thread.Sleep((int)XDelay);  // Allways do the X Delay

@@ -194,8 +194,7 @@ namespace Scaneva.Core.Hardware
 
         public enuPositionerStatus SetRelativePosition(Position _pos)
         {
-            GetAbsolutePosition(ref _pos);
-            SetAbsolutePosition(_pos);
+            mPos = mPos.Sum(_pos);
             return enuPositionerStatus.Ready;
         }
 
