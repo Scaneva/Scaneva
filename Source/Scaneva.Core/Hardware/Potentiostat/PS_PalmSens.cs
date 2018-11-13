@@ -571,74 +571,88 @@ namespace Scaneva.Core.Hardware
         {
             if ((Comm != null) && Comm.Active && (channel != null))
             {
+                Task<bool> t = null;
                 switch (channel.Name)
                 {
                     case "Potential":
-                        Comm.Potential = (float)_value;
+                        t = new Task<bool>(() => { Comm.Potential = (float)_value; return true; });
                         break;
 
                     case "Current":
-                        Comm.Current = (float)_value;
+                        t = new Task<bool>(() => { Comm.Current = (float)_value; return true; });
                         break;
 
                     case "Current Range":
-                        try
-                        {
-                            sbyte sbRange = Convert.ToSByte(_value);
-                            CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
-                            if (cr != null)
+                        t = new Task<bool>(() => {
+                            try
                             {
-                                Comm.CurrentRange = cr;
+                                sbyte sbRange = Convert.ToSByte(_value);
+                                CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
+                                if (cr != null)
+                                {
+                                    Comm.CurrentRange = cr;
+                                }
                             }
-                        }
-                        catch
-                        {
-                        }
+                            catch
+                            {
+                            }
+                            return true;
+                        });
                         break;
 
                     case "Cell On":
-                        Comm.CellOn = (_value != 0.0);  // 0 is off, everything else on
+                        t = new Task<bool>(() => { Comm.CellOn = (_value != 0.0); return true; });  // 0 is off, everything else on
                         break;
 
                     case "Potential Bi-Pot":
-                        setPotentialBiPot = (float)_value;
-                        Comm.BiPotPotential = (float)_value;
+                        t = new Task<bool>(() => {
+                            setPotentialBiPot = (float)_value;
+                            Comm.BiPotPotential = (float)_value;
+                            return true;
+                        });
                         break;
 
                     case "Current Range Bi-Pot":
-                        try
-                        {
-                            sbyte sbRange = Convert.ToSByte(_value);
-                            CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
-                            if (cr != null)
+                        t = new Task<bool>(() => {
+                            try
                             {
-                                Comm.BiPotCurrentRange = cr;
-                                currentRangeBiPot = cr;
+                                sbyte sbRange = Convert.ToSByte(_value);
+                                CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
+                                if (cr != null)
+                                {
+                                    Comm.BiPotCurrentRange = cr;
+                                    currentRangeBiPot = cr;
+                                }
                             }
-                        }
-                        catch
-                        {
-                        }
+                            catch
+                            {
+                            }
+                            return true;
+                        });
                         break;
 
                     case "Cell On Bi-Pot":
-                        if (_value == 0)
-                        {
-                            Comm.SetBipotOff();
-                        }
-                        else
-                        {
-                            if (currentRangeBiPot != null)
+                        t = new Task<bool>(() => {
+                            if (_value == 0)
                             {
-                                Comm.SetBipotOnAndCurrentRange(currentRangeBiPot);
+                                Comm.SetBipotOff();
                             }
                             else
                             {
-                                Comm.SetBipotOnAndCurrentRange(SupportedRanges.Last());
+                                if (currentRangeBiPot != null)
+                                {
+                                    Comm.SetBipotOnAndCurrentRange(currentRangeBiPot);
+                                }
+                                else
+                                {
+                                    Comm.SetBipotOnAndCurrentRange(SupportedRanges.Last());
+                                }
                             }
-                        }
+                            return true;
+                        });        
                         break;
                 }
+                Comm.ClientConnection.Run(t).Wait();
                 return enuTChannelStatus.OK;
             }
             return enuTChannelStatus.Error;
