@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.ComponentModel;
-
-using PalmSens;
-using PalmSens.Comm;
-using static PalmSens.Comm.CommManager;
-#region Copyright (C)
+﻿#region Copyright (C)
 // ---------------------------------------------------------------------------------------------------------------
 //  <copyright file="PS_PalmSens.cs" company="Scaneva">
 // 
@@ -35,15 +23,24 @@ using static PalmSens.Comm.CommManager;
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.ComponentModel;
+
+using PalmSens;
+using PalmSens.Comm;
+using static PalmSens.Comm.CommManager;
 using PalmSens.Devices;
 using PalmSens.Plottables;
-using PalmSens.Techniques;
 using PalmSens.Windows;
 using PalmSens.Windows.Devices;
 
 using Scaneva.Core.Settings;
 using Scaneva.Tools;
-
 
 namespace Scaneva.Core.Hardware
 {
@@ -292,14 +289,14 @@ namespace Scaneva.Core.Hardware
             Comm.EndMeasurement -= Comm_EndMeasurement;
             Comm.StateChanged -= Comm_StateChanged;
             Comm.UnknownDataEvent -= Comm_UnknownDataEvent;
-            Comm.CommErrorOccorred -= Comm_CommErrorOccorred;
+            Comm.CommErrorOccurred -= Comm_CommErrorOccurred;
 
             //Add Comm events
             Comm.ReceiveStatus += Comm_ReceiveStatus;
             Comm.EndMeasurement += Comm_EndMeasurement;
             Comm.StateChanged += Comm_StateChanged;
             Comm.UnknownDataEvent += Comm_UnknownDataEvent;
-            Comm.CommErrorOccorred += Comm_CommErrorOccorred;
+            Comm.CommErrorOccurred += Comm_CommErrorOccurred;
 
             capabilities = Comm.Capabilities;
 
@@ -362,7 +359,7 @@ namespace Scaneva.Core.Hardware
             log.Add("PamSensHW " + Name + " - UnknownDataEvent [" + e.Data + "]", "Error");
         }
 
-        private void Comm_CommErrorOccorred(Exception e)
+        private void Comm_CommErrorOccurred(Exception e)
         {
             log.Add("PamSensHW " + Name + " - CommErrorOccorred [" + e.ToString() + "]", "Error");
         }

@@ -4,52 +4,112 @@
     <name>PalmSens.Core</name>
   </assembly>
   <members>
-    <member name="T:PalmSens.EnumExtraValue">
+    <member name="T:PalmSens.ExtraValueMask">
       <summary>
-            All available extra value types
+            All available extra value types as a bitmask
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.None">
+    <member name="F:PalmSens.ExtraValueMask.None">
       <summary>
             No auxiliary channel
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.Current">
+    <member name="F:PalmSens.ExtraValueMask.Current">
       <summary>
             Current
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.Potential">
+    <member name="F:PalmSens.ExtraValueMask.Potential">
       <summary>
             Potential
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.WE2">
+    <member name="F:PalmSens.ExtraValueMask.BipotWE">
       <summary>
-            Second working electrode on PalmSens
+             Second working electrode
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.AuxInput">
+    <member name="F:PalmSens.ExtraValueMask.PolyStatWE">
       <summary>
-            MiniDIN pin
+             Multiple working electrodes (1 to 32)
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.Reverse">
+    <member name="F:PalmSens.ExtraValueMask.AuxInput">
+      <summary>
+            Measure analog input on aux port
+            </summary>
+    </member>
+    <member name="F:PalmSens.ExtraValueMask.Forward">
       <summary>
             Reverse Current as used by SquareWave
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.PolyStatWE">
+    <member name="F:PalmSens.ExtraValueMask.Reverse">
       <summary>
-            Additional WE used with PolyPotentiostat
+            Reverse Current as used by SquareWave
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.DCcurrent">
+    <member name="F:PalmSens.ExtraValueMask.IForwardReverse">
+      <summary>
+            Reverse Current as used by SquareWave
+            </summary>
+    </member>
+    <member name="F:PalmSens.ExtraValueMask.DCcurrent">
       <summary>
             Record DC current with AC voltammetry
             </summary>
     </member>
-    <member name="F:PalmSens.EnumExtraValue.CEPotential">
+    <member name="F:PalmSens.ExtraValueMask.CEPotential">
+      <summary>
+            The CE potential (PalmSens4 only)
+            </summary>
+    </member>
+    <member name="T:PalmSens.EnumExtraValueOld">
+      <summary>
+            All available extra value types. Legacy type used only for loading old saves.
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.None">
+      <summary>
+            No auxiliary channel
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.Current">
+      <summary>
+            Current
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.Potential">
+      <summary>
+            Potential
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.WE2">
+      <summary>
+            Second working electrode on PalmSens
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.AuxInput">
+      <summary>
+            MiniDIN pin
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.Reverse">
+      <summary>
+            Reverse Current as used by SquareWave
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.PolyStatWE">
+      <summary>
+            Additional WE used with PolyPotentiostat
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.DCcurrent">
+      <summary>
+            Record DC current with AC voltammetry
+            </summary>
+    </member>
+    <member name="F:PalmSens.EnumExtraValueOld.CEPotential">
       <summary>
             The CE potential (PalmSens4 only)
             </summary>
@@ -65,6 +125,70 @@
       <returns>
       </returns>
       <example>TODO: add baseline curve directly after changing the windowsize or the amount of sweeps, and before pressing the do baseline correction button</example>
+    </member>
+    <member name="T:PalmSens.Analysis.CFALevelList">
+      <summary>
+            Describes a list of levels
+            </summary>
+    </member>
+    <member name="T:PalmSens.Analysis.CFALevelList.Level">
+      <summary>
+            Level information
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.LeftX">
+      <summary>
+            X coordinate of the valley on the left side of the level.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.RightX">
+      <summary>
+            X coordinate of the valley on the right side of the level.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.LeftY">
+      <summary>
+            Y coordinate of the valley on the left side of the level.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.RightY">
+      <summary>
+            Y coordinate of the valley on the right side of the level.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.LevelX">
+      <summary>
+            X coordinate of the level
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Level.LevelY">
+      <summary>
+            Y coordinate of the level
+            </summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.Item(System.Int32)">
+      <summary>Returns the peaks found in this curve as an array.</summary>
+    </member>
+    <member name="P:PalmSens.Analysis.CFALevelList.nLevels">
+      <summary>Returns the number of peaks found in this curve.</summary>
+    </member>
+    <member name="F:PalmSens.Analysis.CFALevelList.Curve">
+      <summary>
+            Curve these peaks belong to
+            </summary>
+    </member>
+    <member name="M:PalmSens.Analysis.CFALevelList.#ctor(PalmSens.Plottables.Curve,System.Double,System.Double)">
+      <summary>
+            Create a new levellist, looking for levels in the specified curve between Start and End
+            </summary>
+      <param name="c">curve to use</param>
+      <param name="pxmin">minimum level width</param>
+      <param name="pymin">minimum level height</param>
+    </member>
+    <member name="M:PalmSens.Analysis.CFALevelList.Clear">
+      <summary>
+            Clear peaklist
+            </summary>
     </member>
     <member name="T:PalmSens.Analysis.PeakList">
       <summary>
@@ -116,7 +240,7 @@
       <param name="MinPeakWidth">minimum width before considering something a peak (in Axis.Unit)</param>
       <param name="MinPeakHeight">minimum height before considering something a peak (in Axis.Unit)</param>
     </member>
-    <member name="M:PalmSens.Analysis.PeakList.#ctor(PalmSens.Plottables.Curve,System.Single,System.Single,PalmSens.Data.EnumDirection,System.Boolean)">
+    <member name="M:PalmSens.Analysis.PeakList.#ctor(PalmSens.Plottables.Curve,System.Single,System.Single,PalmSens.Data.EnumDirection,System.Boolean,System.Boolean)">
       <summary>
             Create a new peaklist, looking for peaks in the specified curve
             </summary>
@@ -125,7 +249,7 @@
       <param name="MinPeakHeight">minimum height before considering something a peak (in Axis.Unit)</param>
       <param name="peakdir">direction in which to seek for peaks</param>
     </member>
-    <member name="M:PalmSens.Analysis.PeakList.#ctor(PalmSens.Plottables.Curve,System.Single,System.Single,System.Int32,System.Int32,System.Boolean)">
+    <member name="M:PalmSens.Analysis.PeakList.#ctor(PalmSens.Plottables.Curve,System.Single,System.Single,System.Int32,System.Int32,System.Boolean,System.Boolean)">
       <summary>
             Create a new peaklist, looking for peaks in the specified curve between Start and End
             </summary>
@@ -673,13 +797,336 @@
             Smoothes the data using the Savitzky-Golay filter: 
             https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter 
             </summary>
-      <param name="smoothLevel">The smooth level. 0, 1, 2, 3 or 4</param>
+      <param name="smoothLevel">The smooth level. -1, 0, 1, 2, 3 or 4</param>
       <param name="yvalues">The yvalues.</param>
       <exception cref="T:System.Exception">
             Invalid smoothlevel  + SmoothLevel.ToString()
             or
             Invalid smoothlevel  + SmoothLevel.ToString()
             </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.#ctor(System.Int32,System.Int32)">
+      <summary>
+            Initializes a new instance of the <see cref="T:PalmSens.Calculations.MatrixObj`1" /> class.
+            </summary>
+      <param name="nRows">The number of rows in the Matrix.</param>
+      <param name="nColumns">The number of columns in the Matrix.</param>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+            nRows
+            or
+            nColumns
+            </exception>
+    </member>
+    <member name="F:PalmSens.Calculations.MatrixObj`1.NRows">
+      <summary>
+            The number of rows in the Matrix
+            </summary>
+    </member>
+    <member name="F:PalmSens.Calculations.MatrixObj`1.NColumns">
+      <summary>
+            The number of columns in the Matrix
+            </summary>
+    </member>
+    <member name="F:PalmSens.Calculations.MatrixObj`1.TypeOf">
+      <summary>
+            The type of the values in the matrix
+            </summary>
+    </member>
+    <member name="P:PalmSens.Calculations.MatrixObj`1.Item(System.Int32,System.Int32)">
+      <summary>
+            Gets or sets the element at the specified location
+            </summary>
+      <param name="row">
+      </param>
+      <param name="column">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.At(System.Int32,System.Int32)">
+      <summary>
+            Retrieves the element at the location.
+            </summary>
+      <param name="row">The row.</param>
+      <param name="column">The column.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.At(System.Int32,System.Int32,`0)">
+      <summary>
+            Sets the element without range checking.
+            </summary>
+      <param name="row"> The row of the element. </param>
+      <param name="column"> The column of the element. </param>
+      <param name="value"> The value to set the element to. </param>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.CopyTo(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Copies to the matrix to the target matrix.
+            </summary>
+      <param name="target">The target.</param>
+      <exception cref="T:System.ArgumentNullException">
+            target matrix is null
+            or
+            matrix types do not match
+            </exception>
+      <exception cref="T:System.ArgumentException">Matrix dimensions do not agree</exception>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.AppendToRight(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Concatenates this matrix to the right side of the given matrix.
+            </summary>
+      <param name="right">The matrix to concatenate.</param>
+      <returns>The combined matrix.</returns>
+      <seealso cref="!:Stack(Matrix&lt;T&gt;)" />
+      <seealso cref="!:DiagonalStack(Matrix&lt;T&gt;)" />
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.AppendToBottom(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Concatenates this matrix to the right side of the given matrix.
+            </summary>
+      <param name="right">The matrix to concatenate.</param>
+      <returns>The combined matrix.</returns>
+      <seealso cref="!:Stack(Matrix&lt;T&gt;)" />
+      <seealso cref="!:DiagonalStack(Matrix&lt;T&gt;)" />
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.AppendMatrixToRight(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Concatenates this matrix to the right side of the given matrix.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.AppendMatrixToBottom(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Concatenates this matrix to the bottom side of the given matrix.
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.CopyTo(PalmSens.Calculations.MatrixObj{`0},System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Copies to the specified range of this matrix to the target matrix.
+            </summary>
+      <param name="target">The target.</param>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="targetRowIndex">Index of the target row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="targetColumnIndex">Index of the target column.</param>
+      <param name="columnCount">The column count.</param>
+      <exception cref="T:System.ArgumentNullException">target</exception>
+      <exception cref="T:System.NotSupportedException">
+      </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.CopyToMatrix(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Abstract copy function different for different types of matrices (dense / sparse).
+            </summary>
+      <param name="target">The target.</param>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.CopyToMatrix(PalmSens.Calculations.MatrixObj{`0},System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Abstract copy function different for different types of submatrices (dense / sparse).
+            </summary>
+      <param name="target">The target.</param>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="targetRowIndex">Index of the target row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="targetColumnIndex">Index of the target column.</param>
+      <param name="columnCount">The column count.</param>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.SubMatrix(System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Returns a copy of the specified submatrix.
+            </summary>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="columnCount">The column count.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.ValidateRange(System.Int32,System.Int32)">
+      <summary>
+            Validates whether the specified element is within Matrix's range.
+            </summary>
+      <param name="row">The row.</param>
+      <param name="column">The column.</param>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+            row
+            or
+            column
+            </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.ValidateSubMatrixRange``1(PalmSens.Calculations.MatrixObj{``0},System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Validates whether the specified submatrix is valid and within this Matrix's range.
+            </summary>
+      <typeparam name="TU">The type of the matrix.</typeparam>
+      <param name="target">The target matrix.</param>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="targetRowIndex">Index of the target row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="targetColumnIndex">Index of the target column.</param>
+      <param name="columnCount">The column count.</param>
+      <exception cref="T:System.ArgumentOutOfRangeException">
+            rowCount
+            or
+            columnCount
+            or
+            sourceRowIndex
+            or
+            sourceColumnIndex
+            or
+            rowCount
+            or
+            columnCount
+            or
+            targetRowIndex
+            or
+            targetColumnIndex
+            or
+            rowCount
+            or
+            columnCount
+            </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.MatrixObj`1.Equals(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+      <param name="other">An object to compare with this object.</param>
+      <returns>
+            true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+            </returns>
+    </member>
+    <member name="T:PalmSens.Calculations.SparseMatrix`1">
+      <summary>
+            Sparse Matrix of type T in CRS format, https://medium.com/@jmaxg3/101-ways-to-store-a-sparse-matrix-c7f2bf15a229
+            Check for speed of At and Find otherwise implement this in seperate class for each type
+            </summary>
+      <typeparam name="T">
+      </typeparam>
+      <seealso cref="T:PalmSens.Calculations.MatrixObj`1" />
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.#ctor(System.Int32,System.Int32)">
+      <summary>
+            Initializes a new instance of the <see cref="T:PalmSens.Calculations.SparseMatrix`1" /> class.
+            </summary>
+      <param name="nRows">The number of rows in the Matrix.</param>
+      <param name="nColumns">The number of columns in the Matrix.</param>
+    </member>
+    <member name="F:PalmSens.Calculations.SparseMatrix`1.RowPointers">
+      <summary>
+            The CRS row pointers, array of row offsets
+            </summary>
+    </member>
+    <member name="F:PalmSens.Calculations.SparseMatrix`1.ColumnIndices">
+      <summary>
+            The CRS column indices, array pointing to the non-zero values of each row 
+            </summary>
+    </member>
+    <member name="F:PalmSens.Calculations.SparseMatrix`1.Values">
+      <summary>
+            The non-zero values
+            </summary>
+    </member>
+    <member name="P:PalmSens.Calculations.SparseMatrix`1.ValueCount">
+      <summary>
+            Gets the number of non zero elements in the matrix.
+            </summary>
+      <value>The number of non zero elements.</value>
+    </member>
+    <member name="F:PalmSens.Calculations.SparseMatrix`1.Zero">
+      <summary>
+            The type specific zero value
+            </summary>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.At(System.Int32,System.Int32)">
+      <summary>
+            Retrieves the element at the location.
+            </summary>
+      <param name="row">The row.</param>
+      <param name="column">The column.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.At(System.Int32,System.Int32,`0)">
+      <summary>
+            Sets the element without range checking.
+            </summary>
+      <param name="row">The row of the element.</param>
+      <param name="column">The column of the element.</param>
+      <param name="value">The value to set the element to.</param>
+      <exception cref="T:System.NotImplementedException">
+      </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.AppendMatrixToRight(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Matrixes the object.
+            </summary>
+      <param name="right">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.AppendMatrixToBottom(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Concatenates this matrix to the bottom side of the given matrix.
+            </summary>
+      <param name="bottom">
+      </param>
+      <returns>
+      </returns>
+      <exception cref="T:System.NotImplementedException">
+      </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.CopyToMatrix(PalmSens.Calculations.MatrixObj{`0})">
+      <summary>
+            Abstract copy function different for different types of matrices (dense / sparse).
+            </summary>
+      <param name="target">The target.</param>
+      <exception cref="T:System.ArgumentNullException">target matrix is null</exception>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.CopyToMatrix(PalmSens.Calculations.MatrixObj{`0},System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Abstract copy function different for different types of submatrices (dense / sparse).
+            </summary>
+      <param name="target">The target.</param>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="targetRowIndex">Index of the target row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="targetColumnIndex">Index of the target column.</param>
+      <param name="columnCount">The column count.</param>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.SubMatrix(System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Returns a copy of the specified submatrix.
+            </summary>
+      <param name="sourceRowIndex">Index of the source row.</param>
+      <param name="rowCount">The row count.</param>
+      <param name="sourceColumnIndex">Index of the source column.</param>
+      <param name="columnCount">The column count.</param>
+      <returns>
+      </returns>
+      <exception cref="T:System.NotImplementedException">
+      </exception>
+    </member>
+    <member name="M:PalmSens.Calculations.SparseMatrix`1.FindItem(System.Int32,System.Int32)">
+      <summary>
+            Find index of non-zero value
+            </summary>
+      <param name="row">Matrix row index</param>
+      <param name="column">Matrix column index</param>
+      <returns>Index of non-zero value, -1 if not found</returns>
     </member>
     <member name="T:PalmSens.Calculations.MathFunctions">
       <summary>
@@ -848,6 +1295,19 @@
       <param name="phaseshift">The phaseshift.</param>
       <param name="Zfactor">The zfactor.</param>
     </member>
+    <member name="M:PalmSens.Calculations.MathFunctions.SavitzkyGolay(System.Int32,System.Double[]@)">
+      <summary>
+            Smoothes the data using the Savitzky-Golay filter: 
+            https://en.wikipedia.org/wiki/Savitzky%E2%80%93Golay_filter 
+            </summary>
+      <param name="smoothLevel">The smooth level. -1, 0, 1, 2, 3 or 4</param>
+      <param name="yvalues">The yvalues.</param>
+      <exception cref="T:System.Exception">
+            Invalid smoothlevel  + SmoothLevel.ToString()
+            or
+            Invalid smoothlevel  + SmoothLevel.ToString()
+            </exception>
+    </member>
     <member name="F:PalmSens.Calculations.PolyCurve.CurveGenerated">
       <summary>
             The curve generated by GetPolyCurve
@@ -864,6 +1324,16 @@
       </returns>
     </member>
     <member name="M:PalmSens.Calculations.PolyCurve.GetPolyCurve(System.Single,System.Single,System.Single)">
+      <summary>
+            Gets the poly curve with custom stepsize
+            </summary>
+      <param name="x1">The left X.</param>
+      <param name="x2">The right X.</param>
+      <param name="nPoints">The n points.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Calculations.PolyCurve.GetPolyCurve(PalmSens.Data.DataArray)">
       <summary>
             Gets the poly curve with custom stepsize
             </summary>
@@ -1411,7 +1881,8 @@
     </member>
     <member name="T:PalmSens.Comm.OfflineBuffer">
       <summary>
-            Buffer for the Client Connection.
+            Buffer for the Client Connection, contains data that has been fetched previously, does not communicate with device.
+            Warning: Only the next 4096 characters of the buffer are accessible, waiting for a character more than 4096 chars in the future will never complete.
             </summary>
     </member>
     <member name="M:PalmSens.Comm.OfflineBuffer.#ctor(System.String)">
@@ -1489,24 +1960,6 @@
             Current of the second working electrode in units of CR
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnection.ReadBiPotCurrentStatus">
-      <summary>
-            Status of the current of the second working electrode
-            </summary>
-    </member>
-    <member name="M:PalmSens.Comm.ClientConnection.ReadBiPotCurrentStatusAsync">
-      <summary>
-            Status of the current of the second working electrode
-            </summary>
-    </member>
-    <member name="M:PalmSens.Comm.ClientConnection.GetCurrentStatus(System.Double)">
-      <summary>
-            Returns the current status for a given current.
-            </summary>
-      <param name="current">The current in its current range.</param>
-      <returns>
-      </returns>
-    </member>
     <member name="M:PalmSens.Comm.ClientConnection.SetPSBiPotMode(PalmSens.Method.EnumPalmSensBipotMode)">
       <summary>
             Sets the PalmSens3 bipot mode.
@@ -1567,6 +2020,22 @@
             This value is used for synchronizing mixed measurements (like multistepping) on a nWE system
             </summary>
     </member>
+    <member name="M:PalmSens.Comm.ClientConnection.GetCurrentStatus(System.Double)">
+      <summary>
+            Returns the current status for a given current.
+            </summary>
+      <param name="current">The current in its current range.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="P:PalmSens.Comm.ClientConnection.State">
+      <summary>
+            Gets or sets the current device state
+            </summary>
+      <value>
+            The state.
+            </value>
+    </member>
     <member name="T:PalmSens.Comm.ClientConnection.MessageEventHandler">
       <summary>
             Delegate that is used for status messages during measurements.
@@ -1588,6 +2057,11 @@
             This event returns the potential, current, noise and temperature of PalmSens.
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.ClientConnection.ReceiveStatusAsync">
+      <summary>
+            This event returns the potential, current, noise and temperature of PalmSens.
+            </summary>
+    </member>
     <member name="E:PalmSens.Comm.ClientConnection.DebugInformation">
       <summary>
             Raised when debug information is received from the PalmSens.
@@ -1596,6 +2070,36 @@
     <member name="E:PalmSens.Comm.ClientConnection.DeviceReset">
       <summary>
             Occurs when the connected device was reset for unknown reasons
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.DeviceResetAsync">
+      <summary>
+            Occurs when the connected device was reset for unknown reasons
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.DeterminingVersusOCP">
+      <summary>
+            Raised when a versus OCP measurement starts determining the OCP.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.BeginMeasurement">
+      <summary>
+            This event is raised whenever PalmSens starts sending new measurement data
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.BeginMeasurementAsync">
+      <summary>
+            This event is raised whenever PalmSens starts sending new measurement data
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.StateChanged">
+      <summary>
+            This event is raised when the State is changed.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.ClientConnection.StateChangedAsync">
+      <summary>
+            This event is raised when the State is changed.
             </summary>
     </member>
     <member name="M:PalmSens.Comm.ClientConnection.#ctor">
@@ -1658,6 +2162,13 @@
             Generate description of connection
             </summary>
       <returns>string describing the stream currently in use</returns>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnection.ClearBufferAsync">
+      <summary>
+            Clears the ClientConnection buffer asynchronously.
+            </summary>
+      <returns>
+      </returns>
     </member>
     <member name="P:PalmSens.Comm.ClientConnection.QCount">
       <summary>
@@ -1832,6 +2343,11 @@
             Read the current in the active current range
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.ClientConnection.PotentialOrCurrentChanged">
+      <summary>
+            This event is raised when the set current is changed.
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.ClientConnection.SetCurrent(System.Double)">
       <summary>
             Current in actual current range. If the PalmSens is not yet in Galvanostatic mode, it will be 
@@ -1882,7 +2398,7 @@
             Run measurement with the specified method
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnection.Measure(PalmSens.Method,System.Int32)">
+    <member name="M:PalmSens.Comm.ClientConnection.Measure(PalmSens.Method,System.Int32,PalmSens.MeasType)">
       <overloads>
             Measurement the specified method at the specified mux channel (ranging from 0 to 7)
             </overloads>
@@ -1900,7 +2416,7 @@
             At the end of the measurement, a ReceiveCurve() event will be raised.
             </remarks>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnection.MeasureAsync(PalmSens.Method,System.Int32)">
+    <member name="M:PalmSens.Comm.ClientConnection.MeasureAsync(PalmSens.Method,System.Int32,PalmSens.MeasType,PalmSens.TaskBarrier)">
       <overloads>
             Measurement the specified method at the specified mux channel (ranging from 0 to 7)
             </overloads>
@@ -1945,6 +2461,16 @@
       <summary>
             Set the multiplexer channel starting at 0
             If 32 channel multiplexer is available by means of 2x16 channel and val &gt; 15, the DAC is set to full range to enable the second connected MUX16's
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnection.SetDigitalOutput(System.Int32)">
+      <summary>
+            Set the Digital Output
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnection.SetDigitalOutputAsync(System.Int32)">
+      <summary>
+            Set the Digital Output 
             </summary>
     </member>
     <member name="M:PalmSens.Comm.ClientConnection.ReadMuxInfo">
@@ -2055,7 +2581,7 @@
             Use this value with <c>AuxInputSelected.ConvertAuxValue(float value)</c> to get the value for the selected aux input type.
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnection.SendModeCR(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.ClientConnection.SendModeCR(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
@@ -2063,7 +2589,7 @@
       <param name="CellOn">whether the cell should be on</param>
       <param name="cr">new current range</param>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnection.SendModeCRAsync(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.ClientConnection.SendModeCRAsync(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
@@ -2204,6 +2730,11 @@
             Converts a platform independant UInt32 representation readable by PalmSens devices into a float.
             </summary>
     </member>
+    <member name="M:PalmSens.Comm.ClientConnection.CountFlags(System.Type,System.Enum)">
+      <summary>
+            Count set flags in an enum mask
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.ClientConnection.FindDeviceType(System.String)">
       <summary>
             Finds the type of the device.
@@ -2337,17 +2868,13 @@
     </member>
     <member name="M:PalmSens.Comm.ClientConnectionPS4.ReloadData">
       <summary>
-            Reads from the specified address in the device eeprom.
+            Reloads the data from EEPROM
             </summary>
-      <param name="address">The address.</param>
-      <returns>The value.</returns>
     </member>
     <member name="M:PalmSens.Comm.ClientConnectionPS4.ReloadDataAsync">
       <summary>
-            Reads from the specified address in the device eeprom.
+            Reloads the data from EEPROM
             </summary>
-      <param name="address">The address.</param>
-      <returns>The value.</returns>
     </member>
     <member name="M:PalmSens.Comm.ClientConnectionPS4.EnterDownloadMode">
       <summary>
@@ -2400,6 +2927,11 @@
     <member name="M:PalmSens.Comm.ClientConnectionPS4.SetMuxChannel(System.Int32)">
       <summary>
             Set the multiplexer channel starting at 0
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetDigitalOutput(System.Int32)">
+      <summary>
+            Set the digital output
             </summary>
     </member>
     <member name="M:PalmSens.Comm.ClientConnectionPS4.ReadMuxInfo">
@@ -2466,7 +2998,7 @@
             Read aux port digital bits
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnectionPS4.SendModeCR(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SendModeCR(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
@@ -2474,7 +3006,7 @@
       <param name="CellOn">whether the cell should be on</param>
       <param name="cr">new current range</param>
     </member>
-    <member name="M:PalmSens.Comm.ClientConnectionPS4.SendModeCRAsync(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SendModeCRAsync(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
@@ -2505,6 +3037,75 @@
             Sets the cell type (internal test sensor or external).
             </summary>
       <param name="ct">The cell type id.</param>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.ConvertMeasurementVersion(System.Double,PalmSens.Comm.Buffer)">
+      <summary>
+            Converts measurements performed by previous versions of the firmware to the currentmost version.
+            </summary>
+      <param name="fwVersion">
+      </param>
+      <param name="buff">
+      </param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotPotential(System.Single)">
+      <summary>
+            Potential of the second working electrode. 
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotPotentialAsync(System.Single)">
+      <summary>
+            Potential of the second working electrode. 
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotOff">
+      <summary>
+            Disable the PalmSens BiPotentiostat module
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotOffAsync">
+      <summary>
+            Disable the PalmSens BiPotentiostat module
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotOnAndCR(PalmSens.CurrentRange)">
+      <summary>
+            Set the current range of the second working electrode. 
+            This will enable the PalmSens BiPotentiostat module
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetBiPotOnAndCRAsync(PalmSens.CurrentRange)">
+      <summary>
+            Set the current range of the second working electrode. 
+            This will enable the PalmSens BiPotentiostat module
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.ReadBiPotCurrent">
+      <summary>
+            Current of the second working electrode in units of CR
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.ReadBiPotCurrentAsync">
+      <summary>
+            Current of the second working electrode in units of CR
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetPSBiPotMode(PalmSens.Method.EnumPalmSensBipotMode)">
+      <summary>
+            Sets the PalmSens3 bipot mode.
+            0 = WE at independent potential
+            1 = WE at offset from WE1
+            </summary>
+      <param name="mode">The mode.</param>
+    </member>
+    <member name="M:PalmSens.Comm.ClientConnectionPS4.SetPSBiPotModeAsync(PalmSens.Method.EnumPalmSensBipotMode)">
+      <summary>
+            Sets the PalmSens3 bipot mode.
+            0 = WE at independent potential
+            1 = WE at offset from WE1
+            </summary>
+      <param name="mode">The mode.</param>
     </member>
     <member name="T:PalmSens.Comm.enumDeviceType">
       <summary>
@@ -2597,17 +3198,17 @@
             Not charging, battery status ok.
             </summary>
     </member>
-    <member name="T:PalmSens.Comm.Mode">
+    <member name="T:PalmSens.Comm.EnumMode">
       <summary>
             Mode of measurement at PalmSens
             </summary>
     </member>
-    <member name="F:PalmSens.Comm.Mode.Galvanostatic">
+    <member name="F:PalmSens.Comm.EnumMode.Galvanostatic">
       <summary>
             Measurement against current. Not supported by the Emstat
             </summary>
     </member>
-    <member name="F:PalmSens.Comm.Mode.Potentiostatic">
+    <member name="F:PalmSens.Comm.EnumMode.Potentiostatic">
       <summary>
             Measurement against potential
             </summary>
@@ -2683,6 +3284,110 @@
             Exception that is thrown whenever the PalmSens doesn't respond
             </summary>
     </member>
+    <member name="F:PalmSens.Comm.MeasureVersusOCP.ProceedAfterError">
+      <summary>
+            The proceed after error or abort measurement
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.MeasureVersusOCP.CurrentPhase">
+      <summary>
+            The current phase of the measurement procedure
+            </summary>
+    </member>
+    <member name="P:PalmSens.Comm.MeasureVersusOCP.OCP">
+      <summary>
+            The Eoc result in V
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.MeasureVersusOCP.NewEvalues">
+      <summary>
+            The original E values + OCP value
+            [0] = E begin or E vtx1
+            [1] = E end or E vtx2
+            [2] = E start
+            </summary>
+    </member>
+    <member name="P:PalmSens.Comm.MeasureVersusOCP.IsRunning">
+      <summary>
+            Gets a value indicating whether this instance is running.
+            </summary>
+      <value>
+        <c>true</c> if this instance is running; otherwise, <c>false</c>.
+            </value>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.PretreatmentProgressUpdated">
+      <summary>
+            Occurs when [progress updated].
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+    </member>
+    <member name="T:PalmSens.Comm.MeasureVersusOCP.VersusOCPProgressHandler">
+      <summary>
+            Delegate that passes progress of vs OCP measurement step
+            </summary>
+      <param name="sender">The sender.</param>
+      <param name="vsOCPProgress">The vs ocp progress.</param>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.VersusOCPProgressUpdated">
+      <summary>
+            Occurs when [versus ocp progress updated].
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.PhaseStarted">
+      <summary>
+            Occurs when [phase started].
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+    </member>
+    <member name="T:PalmSens.Comm.MeasureVersusOCP.VersusOCPErrorHandler">
+      <summary>
+            Delegate that passes errors during vs OCP measurement step
+            </summary>
+      <param name="sender">The sender.</param>
+      <param name="vsOCPerror">The vs oc perror.</param>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.VersusOCPErrorOccurred">
+      <summary>
+            Occurs when [versus ocp error occurred].
+            Do not begin invoke, thread must await result
+            </summary>
+    </member>
+    <member name="T:PalmSens.Comm.MeasureVersusOCP.VersusOCPResultHandler">
+      <summary>
+            Delegate that passes the results of the vs OCP measurement step
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+      <param name="sender">The sender.</param>
+      <param name="vsOCPResult">The vs ocp result.</param>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.VersusOCPEnded">
+      <summary>
+            Occurs when [versus ocp ended].        
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.MeasureVersusOCP.VersusOCPEndedAsync">
+      <summary>
+            Occurs when [versus ocp ended].        
+            BeginInvoke only to avoid deadlock on main thread
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.MeasureVersusOCP.Start">
+      <summary>
+            Starts the OCP measurement, this locks the CommManagers parse timer temporarily
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.MeasureVersusOCP.StartAsync">
+      <summary>
+            Starts the OCP measurement, this locks the CommManagers parse timer temporarily
+            </summary>
+    </member>
+    <member name="P:PalmSens.Comm.ActiveMeasurement.Conn">
+      <summary>
+            Comm object in use.
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.ActiveMeasurement.OnMeasurementEnded">
       <summary>
             Force the measurement to end, in case of an unexpected device reset.
@@ -2691,6 +3396,31 @@
     <member name="M:PalmSens.Comm.ActiveMeasurement.OnMeasurementEndedAsync">
       <summary>
             Force the measurement to end, in case of an unexpected device reset.
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.ActiveMeasurement.DefaultMuxChannel">
+      <summary>
+            the default muxChannel that is measured on specified in CommManager.Measure(Method,MuxChannel)
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.ActiveMeasurement.MeasType">
+      <summary>
+            The meas type used to set curve properties for the analytical mode
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.ActiveMeasurement.OCP">
+      <summary>
+            The ocp
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.ActiveMeasurement.TaskBarrier">
+      <summary>
+            The task barrier used in simultanaeous mode
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.ActiveMeasurement.VsOCP">
+      <summary>
+            The vs ocp class
             </summary>
     </member>
     <member name="P:PalmSens.Comm.ActiveMeasurement.Phase">
@@ -2770,6 +3500,11 @@
             </summary>
       <returns>whether the measurement is finished</returns>
     </member>
+    <member name="M:PalmSens.Comm.ActiveMeasurement.GeneralInit">
+      <summary>
+            Prevent sleep and raise event that the measurement has begun
+            </summary>
+    </member>
     <member name="T:PalmSens.Comm.GenericCommMeasurement">
       <summary>
             Parsing data of a generic measurement used for most techniques.
@@ -2811,11 +3546,6 @@
       <value>
         <c>true</c> if this instance is offline; otherwise, <c>false</c>.
             </value>
-    </member>
-    <member name="P:PalmSens.Comm.CommMeasurement.Conn">
-      <summary>
-            Comm object used for communication.
-            </summary>
     </member>
     <member name="F:PalmSens.Comm.CommMeasurement.SendDataDuringMeasurement">
       <summary>
@@ -2989,12 +3719,22 @@
             Occurs when [disconnected].
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.CommManager.AfterDisconnected">
+      <summary>
+            Occurs after the [disconnected] event.
+            </summary>
+    </member>
     <member name="T:PalmSens.Comm.CommManager.StatusChangedEventHandler">
       <summary>
             Delegate for StateChanged
             </summary>
     </member>
     <member name="E:PalmSens.Comm.CommManager.StateChanged">
+      <summary>
+            This event is raised when the State is changed.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.CommManager.StateChangedAsync">
       <summary>
             This event is raised when the State is changed.
             </summary>
@@ -3019,15 +3759,43 @@
             This event is raised whenever PalmSens starts sending new measurement data
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.CommManager.BeginMeasurementAsync">
+      <summary>
+            This event is raised whenever PalmSens starts sending new measurement data
+            </summary>
+    </member>
     <member name="E:PalmSens.Comm.CommManager.EndMeasurement">
       <summary>
             This event is raised after a measurement has ended. When this event is 
             raised, the Comm object is already back in "Idle" mode.
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.CommManager.EndMeasurementAsync">
+      <summary>
+            This event is raised after a measurement has ended. When this event is 
+            raised, the Comm object is already back in "Idle" mode.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.CommManager.AfterEndMeasurement">
+      <summary>
+            This event is raised after a measurement has ended. When this event is 
+            raised, the Comm object is already back in "Idle" mode. This event is raised after the EndMeasurement.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.CommManager.AfterEndMeasurementAsync">
+      <summary>
+            This event is raised after a measurement has ended. When this event is 
+            raised, the Comm object is already back in "Idle" mode. This event is raised after the EndMeasurement.
+            </summary>
+    </member>
     <member name="E:PalmSens.Comm.CommManager.MeasurementStarted">
       <summary>
             Occurs as soon as measure is called, before the actual measurement has started
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.OnMeasurementStarted">
+      <summary>
+            Raises the Measurement Started event, only use from outside the CommManager when measuring on a different thread
             </summary>
     </member>
     <member name="E:PalmSens.Comm.CommManager.BeginReceiveCurve">
@@ -3046,6 +3814,11 @@
             </summary>
     </member>
     <member name="E:PalmSens.Comm.CommManager.ReceiveStatus">
+      <summary>
+            This event returns the potential, current, noise and temperature of the device.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Comm.CommManager.ReceiveStatusAsync">
       <summary>
             This event returns the potential, current, noise and temperature of the device.
             </summary>
@@ -3086,6 +3859,18 @@
             Delegate for handlers of the UnknownData event
             </summary>
     </member>
+    <member name="T:PalmSens.Comm.CommManager.VersusOCPEventHandler">
+      <summary>
+            Delegate that passes on the versus OCP measurement that contains the info and progres of the versus OCP measurement step
+            </summary>
+      <param name="sender">The sender.</param>
+      <param name="vsOCP">The versus OCP object containing the status.</param>
+    </member>
+    <member name="E:PalmSens.Comm.CommManager.DeterminingVersusOCP">
+      <summary>
+            Raised when a versus OCP measurement starts determining the OCP.
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.CommManager.#ctor(PalmSens.Devices.Device,System.Int32)">
       <summary>
             Create a new connection with a PalmSens over the given stream
@@ -3109,6 +3894,11 @@
             Gets or sets the timer period in ms.
             </summary>
     </member>
+    <member name="P:PalmSens.Comm.CommManager.TimerPeriodAsync">
+      <summary>
+            Gets or sets the timer period in ms.
+            </summary>
+    </member>
     <member name="P:PalmSens.Comm.CommManager.Device">
       <summary>
             The connected device
@@ -3117,12 +3907,6 @@
     <member name="P:PalmSens.Comm.CommManager.Capabilities">
       <summary>
             Gets the capab of the connected device
-            </summary>
-    </member>
-    <member name="F:PalmSens.Comm.CommManager.ResultLastMeasurement">
-      <summary>
-            This collection contains the result of the last measurement
-            Contains curves or EIS data
             </summary>
     </member>
     <member name="P:PalmSens.Comm.CommManager.CurrentCurve">
@@ -3183,6 +3967,16 @@
             Pauses the parsing of incoming packages.
             </summary>
     </member>
+    <member name="M:PalmSens.Comm.CommManager.HoldEvents">
+      <summary>
+            Holds a selection of clientconnections events.
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.ResumeEvents">
+      <summary>
+            Resumes a selection of clientconnections events.
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.CommManager.Finalize">
       <summary>
             Destroy the current Comm object. 
@@ -3220,14 +4014,6 @@
       <summary>
             Reflects the last known state of the connected device
             </summary>
-    </member>
-    <member name="P:PalmSens.Comm.CommManager.State">
-      <summary>
-            Gets or sets the current device state
-            </summary>
-      <value>
-            The state.
-            </value>
     </member>
     <member name="M:PalmSens.Comm.CommManager.GetStateAsync">
       <summary>
@@ -3363,6 +4149,16 @@
             The current range of the second working electrode
             </summary>
     </member>
+    <member name="M:PalmSens.Comm.CommManager.GetBiPotCurrentRange">
+      <summary>
+            The current range of the second working electrode
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.GetBiPotCurrent">
+      <summary>
+            The current of the second working electrode as value in the selected current range
+            </summary>
+    </member>
     <member name="M:PalmSens.Comm.CommManager.SetBiPotCurrentRangeAsync(PalmSens.CurrentRange)">
       <summary>
             The current range of the second working electrode
@@ -3388,16 +4184,6 @@
             Current of the second working electrode in units of BiPot CR
             </summary>
     </member>
-    <member name="P:PalmSens.Comm.CommManager.BiPotReadingStatus">
-      <summary>
-            Status of the current of the second working electrode
-            </summary>
-    </member>
-    <member name="M:PalmSens.Comm.CommManager.GetBiPotReadingStatusAsync">
-      <summary>
-            Status of the current of the second working electrode
-            </summary>
-    </member>
     <member name="P:PalmSens.Comm.CommManager.ExternalOutput">
       <summary>
             Set external analog output in Volt (pin 8 of PalmSens miniDIN connector).
@@ -3416,10 +4202,6 @@
             The external output in V.
             </value>
     </member>
-    <!-- Badly formed XML comment ignored for member "M:PalmSens.Comm.CommManager.GetMeasureStartOnWorkerThread(PalmSens.Method,PalmSens.MeasType)" -->
-    <!-- Badly formed XML comment ignored for member "M:PalmSens.Comm.CommManager.GetMeasureStartOnWorkerThreadAsync(PalmSens.Method,PalmSens.MeasType)" -->
-    <!-- Badly formed XML comment ignored for member "M:PalmSens.Comm.CommManager.GetMeasureStartTask(PalmSens.Method,PalmSens.MeasType)" -->
-    <!-- Badly formed XML comment ignored for member "M:PalmSens.Comm.CommManager.GetMeasureStartTaskAsync(PalmSens.Method,PalmSens.MeasType)" -->
     <member name="M:PalmSens.Comm.CommManager.Measure(PalmSens.Method)">
       <summary>
             Run measurement with the specified method
@@ -3429,7 +4211,7 @@
       <param name="m">The method.</param>
       <returns>Any error messages, otherwise String.Empty</returns>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method)">
+    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method,PalmSens.TaskBarrier)">
       <summary>
             Run measurement with the specified method
             If multiplexer settings are enabled, they're used.
@@ -3446,7 +4228,7 @@
       <param name="muxchannel">The multiplexer channel.</param>
       <returns>Any error messages, otherwise String.Empty</returns>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method,System.Int32)">
+    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method,System.Int32,PalmSens.TaskBarrier)">
       <summary>
             Run measurement with the specified method on a multiplexer channel
             </summary>
@@ -3463,7 +4245,7 @@
       <param name="measType">Type of the measurement.</param>
       <returns>Any error messages, otherwise String.Empty</returns>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method,PalmSens.MeasType)">
+    <member name="M:PalmSens.Comm.CommManager.MeasureAsync(PalmSens.Method,PalmSens.MeasType,PalmSens.TaskBarrier)">
       <summary>
             Run measurement with the specified method on a multiplexer channel
             If multiplexer settings are enabled, they're used.
@@ -3571,6 +4353,26 @@
             The active multiplexer channel (0-7 in case of 8 channel device)
             </summary>
     </member>
+    <member name="P:PalmSens.Comm.CommManager.CurrentDigitalOutput">
+      <summary>
+            The active Digital output pin
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.GetCurrentDigitalOutputAsync">
+      <summary>
+            The active Digital output pin
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.SetCurrentDigitalOutputAsync(System.Int32)">
+      <summary>
+            The active Digital output pin
+            </summary>
+    </member>
+    <member name="M:PalmSens.Comm.CommManager.ReadAnalogInputAsync">
+      <summary>
+            Read the Analog Input
+            </summary>
+    </member>
     <member name="P:PalmSens.Comm.CommManager.Stirrer">
       <summary>
             Whether the Stirrer should be used.
@@ -3651,6 +4453,11 @@
             Read auxilary analog input signal in selected unit
             </summary>
     </member>
+    <member name="E:PalmSens.Comm.CommManager.ModeChanged">
+      <summary>
+            This event is raised when the property Mode of this class is set to true or false
+            </summary>
+    </member>
     <member name="P:PalmSens.Comm.CommManager.Mode">
       <summary>
             Current mode of measurement at the PalmSens device
@@ -3661,12 +4468,12 @@
             Current mode of measurement at the PalmSens device
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.SetModeAsync(PalmSens.Comm.Mode)">
+    <member name="M:PalmSens.Comm.CommManager.SetModeAsync(PalmSens.Comm.EnumMode)">
       <summary>
             Current mode of measurement at the PalmSens device
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.SendModeCR(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.CommManager.SendModeCR(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
@@ -3674,12 +4481,12 @@
       <param name="CellOn">whether the cell should be on</param>
       <param name="cr">new current range</param>
     </member>
-    <member name="M:PalmSens.Comm.CommManager.SendModeCRAsync(PalmSens.Comm.Mode,System.Boolean,PalmSens.CurrentRange)">
+    <member name="M:PalmSens.Comm.CommManager.SendModeCRAsync(PalmSens.Comm.EnumMode,System.Boolean,PalmSens.CurrentRange)">
       <summary>
             Set the mode, current range and whether the cell should be on. 
             </summary>
       <param name="mode">mode</param>
-      <param name="CellOn">whether the cell should be on</param>
+      <param name="cellOn">whether the cell should be on</param>
       <param name="cr">new current range</param>
     </member>
     <member name="P:PalmSens.Comm.CommManager.CellOn">
@@ -3894,13 +4701,14 @@
             Contains the status information of a PalmSens at a certain moment. Used for parsing measurement packages.
             </summary>
     </member>
-    <member name="M:PalmSens.Comm.Status.#ctor(PalmSens.Data.VoltageReading,PalmSens.Data.CurrentReading,System.Int32,System.Double,PalmSens.Comm.Status.EnumPretreatmentPhase,PalmSens.Devices.DeviceCapabilities,System.Collections.Generic.List{PalmSens.Data.GenericValue})">
+    <member name="M:PalmSens.Comm.Status.#ctor(PalmSens.Data.VoltageReading,PalmSens.Data.CurrentReading,PalmSens.Data.CurrentReading,System.Int32,System.Double,PalmSens.Comm.Status.EnumPretreatmentPhase,PalmSens.Devices.DeviceCapabilities,System.Collections.Generic.List{PalmSens.Data.GenericValue})">
       <summary>
             Initializes a new instance of the <see cref="T:PalmSens.Comm.Status" /> class.
             </summary>
       <param name="potentialReading">The potential reading.</param>
       <param name="currentReading">The current reading.</param>
-      <param name="extraValue">Extra value. Is the raw auxiliary value as received</param>
+      <param name="currentReadingWE2">The WE2 current reading. Will be null if no bipot is available. </param>
+      <param name="auxInput">The raw auxiliary input value as received</param>
       <param name="noise">The noise level.</param>
       <param name="pretPhase">The pretreatment phase.</param>
       <param name="capabilities">The device capabilities.</param>
@@ -3937,14 +4745,14 @@
             Measured current with range and status information.
             </summary>
     </member>
-    <member name="F:PalmSens.Comm.Status.ExtraValue">
+    <member name="F:PalmSens.Comm.Status.CurrentReadingWE2">
       <summary>
-            Extra raw optional value sent with the package.
-            Can be: 
-            -WE2 current value
-            -Aux. input voltage, 
-            -DC current for ACV, 
-            -Reverse current for SquareWave voltammetry
+            Measured current with range and status information.
+            </summary>
+    </member>
+    <member name="F:PalmSens.Comm.Status.AuxInput">
+      <summary>
+            Extra raw AuxInput value sent with the package.
             </summary>
     </member>
     <member name="M:PalmSens.Comm.Status.ToString">
@@ -3989,17 +4797,12 @@
             CurrentRange 
             </summary>
     </member>
-    <member name="P:PalmSens.CustomMeasurement.Conn">
-      <summary>
-            Comm object in use.
-            </summary>
-    </member>
     <member name="F:PalmSens.CustomMeasurement.MeasurementStarted">
       <summary>
              The moment the measurement was started
             </summary>
     </member>
-    <member name="M:PalmSens.CustomMeasurement.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method)">
+    <member name="M:PalmSens.CustomMeasurement.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method,System.Int32,PalmSens.MeasType)">
       <summary>
             Create a new CustomMeasurement.
             </summary>
@@ -4256,10 +5059,40 @@
       <summary>
       </summary>
     </member>
-    <member name="F:PalmSens.Devices.DeviceCapabilities.SpecialFirmwareDescription">
+    <member name="F:PalmSens.Devices.DeviceCapabilities.FirmwareTimeStamp">
       <summary>
             This string contains the build date for newer firmware versions (since May 2017).
-            For special (custom) firmware builds it contains a brief description.
+            </summary>
+    </member>
+    <member name="F:PalmSens.Devices.DeviceCapabilities.FirmwareIsBeta">
+      <summary>
+            Indicates whether this is a release or beta build.
+            </summary>
+    </member>
+    <member name="F:PalmSens.Devices.DeviceCapabilities.FirmwareVersion">
+      <summary>
+            Firmware version of connected Device
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.MinFirmwareVersionRequired">
+      <summary>
+            Gets the minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+      <value>
+            The minimum firmware version.
+            </value>
+    </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.MinFirmwareDateRequired">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
+      <value>
+            The minimum firmware date required.
+            </value>
+    </member>
+    <member name="F:PalmSens.Devices.DeviceCapabilities.SpecialFirmwareDescription">
+      <summary>
+            For special (custom) firmware builds it contains a brief description. Empty for normal versions
             </summary>
     </member>
     <member name="P:PalmSens.Devices.DeviceCapabilities.MaxVAux">
@@ -4321,6 +5154,16 @@
     <member name="F:PalmSens.Devices.DeviceCapabilities.BiPotCalibration">
       <summary>
             Contains PalmSens BiPot calibration information
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
             </summary>
     </member>
     <member name="P:PalmSens.Devices.DeviceCapabilities.MaxEISFrequency">
@@ -4405,7 +5248,7 @@
     </member>
     <member name="F:PalmSens.Devices.DeviceCapabilities.NumMuxChannels">
       <summary>
-            Number of actually available mux channels (if known, otherwise equal to MaxMuxChannels).
+            Number of actually available MUX channels available if known or read from the MUX8-R2 upon connecting. Otherwise equal to MaxMuxChannels.
             </summary>
     </member>
     <member name="F:PalmSens.Devices.DeviceCapabilities.MuxType">
@@ -4519,6 +5362,11 @@
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
     </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.DeviceCapabilities.MaxFrequencyACV">
       <summary>
             The maximum frequency for acV
@@ -4596,6 +5444,11 @@
             The default baud rate.
             </value>
     </member>
+    <member name="P:PalmSens.Devices.DeviceCapabilities.SupportsIRDropComp">
+      <summary>
+            Whether the device supports IR Drop compensation
+            </summary>
+    </member>
     <member name="T:PalmSens.Devices.DefaultCapabilities">
       <summary>
             Describes default capabilities to use when nothing is connected
@@ -4608,6 +5461,11 @@
       <value>
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
+    </member>
+    <member name="P:PalmSens.Devices.DefaultCapabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.DefaultCapabilities.MaxFrequencyACV">
       <summary>
@@ -4663,6 +5521,21 @@
     <member name="P:PalmSens.Devices.DefaultCapabilities.SupportsBiPotInIdleStatusPackage">
       <summary>
             Whether or not BiPot values are send in T packages and calibration data can be stored in EEPROM
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DefaultCapabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DefaultCapabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.DefaultCapabilities.SupportedAltMUXTechniques">
+      <summary>
+            Techniques that support alternating MUX measurements
             </summary>
     </member>
     <member name="P:PalmSens.Devices.DefaultCapabilities.MaxEISFrequency">
@@ -5085,6 +5958,11 @@
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
     </member>
+    <member name="P:PalmSens.Devices.EmstatCapabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.EmstatCapabilities.MaxFrequencyACV">
       <summary>
             The maximum frequency for acV. 
@@ -5140,6 +6018,16 @@
     <member name="P:PalmSens.Devices.EmstatCapabilities.SupportsBiPotInIdleStatusPackage">
       <summary>
             Whether or not BiPot values are send in T packages and calibration data can be stored in EEPROM
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.EmstatCapabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.EmstatCapabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
             </summary>
     </member>
     <member name="P:PalmSens.Devices.EmstatCapabilities.MaxEISFrequency">
@@ -5231,13 +6119,25 @@
             Gets a value indicating whether the device supports starting at a specific current range rather than the default maximum range selected.
             </summary>
     </member>
+    <member name="F:PalmSens.Devices.EmstatCapabilities.MIN_FIRMWARE_REQUIRED">
+      <summary>
+            The minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.EmstatCapabilities.MinFirmwareVersionRequired">
       <summary>
             Gets the minimum firmware version required for use with this version of PalmSens.Core.
             </summary>
-      <value>
-            The minimum firmware version.
-            </value>
+    </member>
+    <member name="F:PalmSens.Devices.EmstatCapabilities.MIN_FIRMWARE_DATE">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.EmstatCapabilities.MinFirmwareDateRequired">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.EmstatCapabilities.DefaultBaudRate">
       <summary>
@@ -5270,13 +6170,15 @@
             list of current ranges supported by this particular EmStat version
             </summary>
     </member>
+    <member name="F:PalmSens.Devices.Emstat2Capabilities.MIN_FIRMWARE_REQUIRED">
+      <summary>
+            The minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.Emstat2Capabilities.MinFirmwareVersionRequired">
       <summary>
             Gets the minimum firmware version required for use with this version of PalmSens.Core.
             </summary>
-      <value>
-            The minimum firmware version.
-            </value>
     </member>
     <member name="T:PalmSens.Devices.Emstat3Capabilities">
       <summary>
@@ -5359,6 +6261,11 @@
     <member name="T:PalmSens.Devices.Emstat3BPCapabilities">
       <summary>
             Describes EmStat3 in BiPot mode (part of PolyEmStat)
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.Emstat3BPCapabilities.DeviceType">
+      <summary>
+            The deviceType type for this capab
             </summary>
     </member>
     <member name="M:PalmSens.Devices.Emstat3BPCapabilities.#ctor">
@@ -5475,6 +6382,11 @@
       <value>
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSensCapabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSensCapabilities.MaxFrequencyACV">
       <summary>
@@ -5597,6 +6509,16 @@
             Whether or not BiPot values are sent in T packages and calibration data can be stored in EEPROM
             </summary>
     </member>
+    <member name="P:PalmSens.Devices.PalmSensCapabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSensCapabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.PalmSensCapabilities.MaxEISFrequency">
       <summary>
             Gets the maximum EIS frequency.
@@ -5605,13 +6527,25 @@
             The maximum EIS frequency.
             </value>
     </member>
+    <member name="F:PalmSens.Devices.PalmSensCapabilities.MIN_FIRMWARE_REQUIRED">
+      <summary>
+            The minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.PalmSensCapabilities.MinFirmwareVersionRequired">
       <summary>
             Gets the minimum firmware version required for use with this version of PalmSens.Core.
             </summary>
-      <value>
-            The minimum firmware version.
-            </value>
+    </member>
+    <member name="F:PalmSens.Devices.PalmSensCapabilities.MIN_FIRMWARE_DATE">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSensCapabilities.MinFirmwareDateRequired">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSensCapabilities.DefaultBaudRate">
       <summary>
@@ -5675,6 +6609,16 @@
     <member name="P:PalmSens.Devices.PalmSens3Capabilities.SupportsBiPotInIdleStatusPackage">
       <summary>
             Whether or not BiPot values are send in T packages and calibration data can be stored in EEPROM
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens3Capabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens3Capabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
             </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens3Capabilities.MaxEISFrequency">
@@ -5755,6 +6699,11 @@
       <value>
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens3Capabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens3Capabilities.MaxFrequencyACV">
       <summary>
@@ -5929,13 +6878,25 @@
             The AnalogComponent for reading the bipot current.
             </value>
     </member>
+    <member name="F:PalmSens.Devices.PalmSens3Capabilities.MIN_FIRMWARE_REQUIRED">
+      <summary>
+            The minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.PalmSens3Capabilities.MinFirmwareVersionRequired">
       <summary>
             Gets the minimum firmware version required for use with this version of PalmSens.Core.
             </summary>
-      <value>
-            The minimum firmware version.
-            </value>
+    </member>
+    <member name="F:PalmSens.Devices.PalmSens3Capabilities.MIN_FIRMWARE_DATE">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens3Capabilities.MinFirmwareDateRequired">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens3Capabilities.DefaultBaudRate">
       <summary>
@@ -5950,6 +6911,11 @@
             Describes PalmSens4 capabilities.
             </summary>
       <seealso cref="T:PalmSens.Devices.DeviceCapabilities" />
+    </member>
+    <member name="F:PalmSens.Devices.PalmSens4Capabilities.PS4BipotGain">
+      <summary>
+            Default value is 2 for a applied E on WE2 range of -5 to 5V. Set to PS4BipotGain=1 for range of -2 to 2V.
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.MaxVAux">
       <summary>
@@ -5975,6 +6941,16 @@
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.SupportsBiPotInIdleStatusPackage">
       <summary>
             Whether or not BiPot values are send in T packages and calibration data can be stored in EEPROM
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens4Capabilities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens4Capabilities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
             </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.MaxEISFrequency">
@@ -6024,6 +7000,11 @@
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.SupportedAppliedRanges">
       <summary>
             list of current ranges supported for applying current by this particular deviceType.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens4Capabilities.SupportedBipotRanges">
+      <summary>
+            list of current ranges for the BiPot module supported by this particular deviceType.
             </summary>
     </member>
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.SupportedModes">
@@ -6079,6 +7060,11 @@
         <c>true</c> if [supports record CE potential]; otherwise, <c>false</c>.
             </value>
     </member>
+    <member name="P:PalmSens.Devices.PalmSens4Capabilities.SupportsMultipleExtraValues">
+      <summary>
+            Whether the device supports the use of the RecordValueMask in the ToHex
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.MaxFrequencyACV">
       <summary>
             The maximum frequency for acV
@@ -6120,47 +7106,6 @@
             Used for test internal sensors.
             </summary>
     </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.EReadOffset">
-      <summary>
-            Where E read offset is stored
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.HardwareSettings">
-      <summary>
-            Where hardware settings are stored
-            Value corresponds with enumHardwareSettings
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.EISCalibrationAddress">
-      <summary>
-            The starting address where EIS calibration values are stored
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.BiPotOffsetADC">
-      <summary>
-            The address where the correction offset for BiPot ADC is stored
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.BiPotFactorDAC">
-      <summary>
-            The address where the correction factor for the BiPot DAC is stored
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EEPROM.BiPotOffsetDAC">
-      <summary>
-            The address where the correction offset for the BiPot DAC is stored
-            </summary>
-    </member>
-    <member name="P:PalmSens.Devices.PalmSens4Capabilities.EEPROM.BiPotFactorADC">
-      <summary>
-            The address where the correction factor for BiPot ADC is stored
-            </summary>
-    </member>
-    <member name="F:PalmSens.Devices.PalmSens4Capabilities.EnumHardwareSettings.BiPotInstalled">
-      <summary>
-            Use to read value stored in address EEPROM.HardwareSettings
-            </summary>
-    </member>
     <member name="M:PalmSens.Devices.PalmSens4Capabilities.SetHardwareSettings(PalmSens.Devices.PalmSens4Capabilities.EnumHardwareSettings)">
       <summary>
             Value using enumEEPROMHardwareSettings to set hardware settings, like if a BiPot is installed.
@@ -6172,13 +7117,6 @@
             Returns the hardware settings as read from EEPROM.
             </summary>
       <returns>Hardware settings</returns>
-    </member>
-    <member name="M:PalmSens.Devices.PalmSens4Capabilities.BipotInstalled">
-      <summary>
-            Reads if BiPot is installed from the EEPROM hw settings.
-            </summary>
-      <returns>
-        <c>true</c> if BiPot installed.</returns>
     </member>
     <member name="M:PalmSens.Devices.PalmSens4Capabilities.GetCutoffFrequency(PalmSens.CurrentRange,System.Int32)">
       <summary>
@@ -6268,13 +7206,25 @@
             The default baud rate.
             </value>
     </member>
+    <member name="F:PalmSens.Devices.PalmSens4Capabilities.MIN_FIRMWARE_REQUIRED">
+      <summary>
+            The minimum firmware version required for use with this version of PalmSens.Core.
+            </summary>
+    </member>
     <member name="P:PalmSens.Devices.PalmSens4Capabilities.MinFirmwareVersionRequired">
       <summary>
             Gets the minimum firmware version required for use with this version of PalmSens.Core.
             </summary>
-      <value>
-            The minimum firmware version.
-            </value>
+    </member>
+    <member name="F:PalmSens.Devices.PalmSens4Capabilities.MIN_FIRMWARE_DATE">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.PalmSens4Capabilities.MinFirmwareDateRequired">
+      <summary>
+            The minimum firmware date (all same or newer files with the same firmware version are OK)
+            </summary>
     </member>
     <member name="P:PalmSens.Devices.EISSettingsPS4.MinEquilSines">
       <summary>
@@ -6569,6 +7519,16 @@
     <member name="P:PalmSens.Devices.EISSettingsPS3.CalibFilterCFFreq0Defaults">
       <summary>
             Default values to check calibration results on
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.SambaProgramPortCabalities.MinPotentialBipot">
+      <summary>
+            Minimum potential that can be read/applied with the bipot
+            </summary>
+    </member>
+    <member name="P:PalmSens.Devices.SambaProgramPortCabalities.MaxPotentialBipot">
+      <summary>
+            Maximum potential that can be read/applied with the bipot
             </summary>
     </member>
     <member name="F:PalmSens.CorrosionTechniques.Galvanostatic.Name">
@@ -6907,11 +7867,12 @@
             The FileDialog filter string for loading and saving method file dialog
             </summary>
     </member>
-    <member name="M:PalmSens.DataFiles.CSVDataFile.SaveCurves(System.IO.Stream,PalmSens.Plottables.Curve[])">
+    <member name="M:PalmSens.DataFiles.CSVDataFile.SaveCurves(System.IO.Stream,System.String,System.Collections.Generic.Dictionary{PalmSens.Plottables.Curve,PalmSens.Measurement})">
       <summary>
             Saves the specified filename in comma-separated values (CSV) format.
             </summary>
       <param name="fileStream">The file stream.</param>
+      <param name="notes">The notes. Enters will be replaced with the | character to make sure the notes take a single line</param>
       <param name="curves">The curve(s).</param>
     </member>
     <member name="F:PalmSens.DataFiles.CSVDataFile.EnumEISDataColumns.Freq">
@@ -6955,6 +7916,9 @@
     </member>
     <member name="F:PalmSens.DataFiles.CSVDataFile.EnumEISDataColumns.CR">
       <summary>Current Range values</summary>
+    </member>
+    <member name="F:PalmSens.DataFiles.CSVDataFile.EnumEISDataColumns.Time">
+      <summary>Time values</summary>
     </member>
     <member name="T:PalmSens.DataFiles.CurveFile">
       <summary>
@@ -7782,6 +8746,22 @@
       <returns>
       </returns>
     </member>
+    <member name="P:PalmSens.Data.DataArray.MaxValue">
+      <summary>
+            Gets the maximum value.
+            </summary>
+      <value>
+            The maximum value, returns 0 if there is no data in the array.
+            </value>
+    </member>
+    <member name="P:PalmSens.Data.DataArray.MinValue">
+      <summary>
+            Gets the minimum value.
+            </summary>
+      <value>
+            The minimum value, returns 0 if there is no data in the array.
+            </value>
+    </member>
     <member name="M:PalmSens.Data.DataArray.GetDirection(System.Int32)">
       <summary>
             Gets the direction of the data in the array at the specified index (compared to preceeding value).
@@ -7935,11 +8915,6 @@
             Triggers NewDataAdded event for all related DataArrays
             </summary>
     </member>
-    <member name="M:PalmSens.Data.DataSet.OnNewDataAddedAsync(System.Int32)">
-      <summary>
-            Triggers NewDataAdded event for all related DataArrays
-            </summary>
-    </member>
     <member name="M:PalmSens.Data.DataSet.OnNewDataAdded(System.Int32,System.Collections.Generic.List{PalmSens.Data.DataArray})">
       <summary>
             Triggers NewDataAdded event for the specified DataArrays
@@ -7980,6 +8955,13 @@
             Contains values for Time, Potential and Current
             </summary>
       <seealso cref="T:PalmSens.Data.DataSet" />
+    </member>
+    <member name="M:PalmSens.Data.DataSetCommon.Clone">
+      <summary>
+            Clones this instance.
+            </summary>
+      <returns>
+      </returns>
     </member>
     <member name="T:PalmSens.Data.DataSetEIS">
       <summary>
@@ -8068,7 +9050,7 @@
             Collection of all available EISData in all measurements in this SessionManager
             </summary>
     </member>
-    <member name="F:PalmSens.Data.SessionManager.AnalyticalMode">
+    <member name="F:PalmSens.Data.SessionManager.PSTraceMode">
       <summary>
             If <c>true</c> the peak search uses the ScanMethod.PeakWindow value for peak detection
             </summary>
@@ -8128,19 +9110,20 @@
       <param name="filepath">The filename with full path which will be used to set the <c>SavedToFile</c> property of Measurements, Curves and EISData classes.</param>
       <param name="add">if set to <c>true</c> do not clear collection before load.</param>
     </member>
-    <member name="M:PalmSens.Data.SessionManager.AddMeasurement(PalmSens.Measurement)">
+    <member name="M:PalmSens.Data.SessionManager.AddMeasurement(PalmSens.Measurement,System.Boolean,System.Boolean)">
       <summary>
             Adds the measurement to the collection. Raises MeasurementsAdded.
             </summary>
       <param name="m">The Measurement.</param>
-      <returns>The added measurement</returns>
+      <param name="silent">if set to <c>true</c> [silent].</param>
+      <param name="noPeaks">if set to <c>true</c> [no peaks].</param>
     </member>
-    <member name="M:PalmSens.Data.SessionManager.FindPeaksOrLevelsInAllMeasurements">
+    <member name="M:PalmSens.Data.SessionManager.FindPeaksOrLevelsInAllMeasurements(System.Boolean)">
       <summary>
             Finds the peaks or levels in all curves in all Measurements in this SessionManager using parameters from corresponding Measurement.Method.
             </summary>
     </member>
-    <member name="M:PalmSens.Data.SessionManager.FindPeaksOrLevelsInSelectedCurve">
+    <member name="M:PalmSens.Data.SessionManager.FindPeaksOrLevelsInSelectedCurve(System.Boolean)">
       <summary>
             Finds the peaks or levels in SelectedCurve using the Method parameters from the corresponding Measurement.Method.
             </summary>
@@ -8533,6 +9516,14 @@
       <summary>
              Option
             </summary>
+      <summary>
+            Specific to Pulsed Amperometric Detection
+            </summary>
+    </member>
+    <member name="F:PalmSens.EncodedMethodV1.Options.RecordExtraValue">
+      <summary>
+            For LSV, CV and AD
+            </summary>
     </member>
     <member name="F:PalmSens.EncodedMethodV1.Options.UseLimitMin">
       <summary>
@@ -8550,6 +9541,11 @@
             used for multistep amp and pot
             </summary>
     </member>
+    <member name="F:PalmSens.EncodedMethodV1.Options.MeasureIForwardReverse">
+      <summary>
+            Specific to Square Wave
+            </summary>
+    </member>
     <member name="F:PalmSens.EncodedMethodV1.Options.UseTriggerOnEquil">
       <summary>
             Whether to set a digital trigger at the start of the equilibration period
@@ -8563,6 +9559,11 @@
     <member name="F:PalmSens.EncodedMethodV1.Options.UseTriggerOnDelay">
       <summary>
             Whether to set a digital trigger after a certain delay after the start of the measurment
+            </summary>
+    </member>
+    <member name="F:PalmSens.EncodedMethodV1.Options.UseIRComp">
+      <summary>
+            Use IR drop compensation.
             </summary>
     </member>
     <member name="M:PalmSens.EncodedMethodV1.SetDelay(System.String,System.Double)">
@@ -8622,14 +9623,21 @@
             The value
             </returns>
     </member>
-    <member name="M:PalmSens.EncodedMethodV1.SetInt32(System.String,System.UInt32)">
+    <member name="M:PalmSens.EncodedMethodV1.SetUInt32(System.String,System.UInt32)">
       <summary>
             Set 2-byte integer parameter.
             </summary>
       <param name="name">name of parameter</param>
       <param name="b">byte</param>
     </member>
-    <member name="M:PalmSens.EncodedMethodV1.GetInt32(System.String,System.UInt32)">
+    <member name="M:PalmSens.EncodedMethodV1.SetInt32(System.String,System.Int32)">
+      <summary>
+            Set 2-byte integer parameter.
+            </summary>
+      <param name="name">name of parameter</param>
+      <param name="b">byte</param>
+    </member>
+    <member name="M:PalmSens.EncodedMethodV1.GetUInt32(System.String,System.UInt32)">
       <summary>
             Get 4-byte integer parameter.
             </summary>
@@ -8756,6 +9764,13 @@
             </summary>
       <param name="m">The method.</param>
     </member>
+    <member name="M:PalmSens.Measurement.Clone">
+      <summary>
+            Clones this instance (clone will only contain copy of the method and the dataset).
+            </summary>
+      <returns>
+      </returns>
+    </member>
     <member name="T:PalmSens.Measurement.SingleCurveChangedEventHandler">
       <summary>
             Delegate for the MeasurementChanged Event
@@ -8788,7 +9803,27 @@
             This event is raised after a measurement has ended
             </summary>
     </member>
+    <member name="E:PalmSens.Measurement.EndMeasurementAsync">
+      <summary>
+            This event is raised after a measurement has ended
+            </summary>
+    </member>
+    <member name="E:PalmSens.Measurement.AfterEndMeasurement">
+      <summary>
+            This event is raised after a measurement has ended, this event is fired after EndMeasurement to give us some more control over when events happen.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Measurement.AfterEndMeasurementAsync">
+      <summary>
+            This event is raised after a measurement has ended, this event is fired after EndMeasurement to give us some more control over when events happen.
+            </summary>
+    </member>
     <member name="E:PalmSens.Measurement.Pretreating">
+      <summary>
+            Raised when pretreatment is started.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Measurement.PretreatingAsync">
       <summary>
             Raised when pretreatment is started.
             </summary>
@@ -8803,7 +9838,20 @@
             Indicate measurement is finished.
             </summary>
     </member>
+    <member name="P:PalmSens.Measurement.IsFinished">
+      <summary>
+            Property indicating whether the measurement is finished
+            </summary>
+      <value>
+        <c>true</c> if this measurement is finished; otherwise, <c>false</c>.
+            </value>
+    </member>
     <member name="M:PalmSens.Measurement.PretreatmentStarted">
+      <summary>
+            Indicates pretreatment is started.
+            </summary>
+    </member>
+    <member name="M:PalmSens.Measurement.PretreatmentStartedAsync">
       <summary>
             Indicates pretreatment is started.
             </summary>
@@ -8813,7 +9861,17 @@
             Indicates the measurement is started.
             </summary>
     </member>
+    <member name="M:PalmSens.Measurement.MeasuringStartedAsync">
+      <summary>
+            Indicates the measurement is started.
+            </summary>
+    </member>
     <member name="E:PalmSens.Measurement.Measuring">
+      <summary>
+            Raised when the measurement is activated.
+            </summary>
+    </member>
+    <member name="E:PalmSens.Measurement.MeasuringAsync">
       <summary>
             Raised when the measurement is activated.
             </summary>
@@ -8927,7 +9985,7 @@
             </summary>
       <returns>array of EIS data</returns>
     </member>
-    <member name="M:PalmSens.Measurement.FindPeaks(System.Boolean)">
+    <member name="M:PalmSens.Measurement.FindPeaks(System.Boolean,System.Boolean)">
       <summary>
             Find the peaks for each curve in this measurement
             </summary>
@@ -9018,7 +10076,7 @@
             The Blank curve.
             </value>
     </member>
-    <member name="M:PalmSens.Measurement.AddEISdata(PalmSens.Plottables.EISData)">
+    <member name="M:PalmSens.Measurement.AddEISdata(PalmSens.Plottables.EISData,System.Boolean)">
       <summary>Adds a Curve to the collection.</summary>
     </member>
     <member name="M:PalmSens.Measurement.RemoveEISdata(PalmSens.Plottables.EISData)">
@@ -9120,12 +10178,18 @@
       <returns>
       </returns>
     </member>
-    <member name="P:PalmSens.Method.SupportsAuxInput">
+    <member name="P:PalmSens.Method.SupportsExtraValueMask">
       <summary>
-            Gets a value indicating whether this method supports aux input.
+            Gets a value indicating whether this method supports changing the recorded values with the RecordValueMask field.
+            This allows multiple value types to be selected, and does not use channel.
+            </summary>
+    </member>
+    <member name="P:PalmSens.Method.SupportedExtraValues">
+      <summary>
+            Gets the supported extra values for this technique.
             </summary>
       <value>
-        <c>true</c> if [supports aux input]; otherwise, <c>false</c>.
+            The supported extra values.
             </value>
     </member>
     <member name="P:PalmSens.Method.SupportsBipot">
@@ -9246,8 +10310,18 @@
             Y Direction
             </summary>
     </member>
-    <member name="P:PalmSens.Method.RecordExtraValue">
-      <summary>Auxiliary channel to record</summary>
+    <member name="P:PalmSens.Method.UseIRDropComp">
+      <summary>
+            Use IR drop compensation
+            </summary>
+    </member>
+    <member name="P:PalmSens.Method.IRDropCompRes">
+      <summary>
+            Resistance to compensate for with the IR Drop Compensator
+            </summary>
+    </member>
+    <member name="P:PalmSens.Method.ExtraValueMsk">
+      <summary>Values to record in measurement</summary>
     </member>
     <member name="P:PalmSens.Method.RecordAuxInputIsUsed">
       <summary>
@@ -9302,6 +10376,9 @@
     </member>
     <member name="P:PalmSens.Method.SupportsCorrosion">
       <summary>Is true if the method can be used for corrosion measurements.</summary>
+    </member>
+    <member name="P:PalmSens.Method.SupportsIRDropComp">
+      <summary>Is true if the method can be used for IR Drop Compensation measurements.</summary>
     </member>
     <member name="P:PalmSens.Method.ConditioningPotential">
       <summary>
@@ -9367,7 +10444,7 @@
       <value>The number of multiplexer cycles.</value>
     </member>
     <member name="F:PalmSens.Method.UseMuxChannel">
-      <summary>Specifies channels used for this method.</summary>
+      <summary>Specifies channels used for this method (max is 64 channels).</summary>
     </member>
     <member name="P:PalmSens.Method.MaxMuxChannelSelected">
       <summary>
@@ -9380,7 +10457,7 @@
     <member name="T:PalmSens.Method.EnumPalmSensBipotMode">
       <summary>
             BiPot mode for PalmSens Bipot boards
-            Currently only supported by PalmSens3
+            Currently only supported by PalmSens3 and PalmSens4
             </summary>
     </member>
     <member name="P:PalmSens.Method.BiPotPotential">
@@ -9704,6 +10781,31 @@
             Enable OCP mode
             </summary>
     </member>
+    <member name="M:PalmSens.Method.MuxSettings.ToString">
+      <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+      <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            Returned value can be deserialized to MuxSettings class using the FromString(Method, string) function.
+            </returns>
+    </member>
+    <member name="M:PalmSens.Method.MuxSettings.FromString(System.String)">
+      <summary>
+            Returns MuxSettings WITH OCPMode=FALSE (!) from the given string.
+            </summary>
+      <param name="muxSettings">The muxSettings.ToString() contents.</param>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Method.MuxSettings.ParseString(PalmSens.Method.MuxSettings,System.String)">
+      <summary>
+            Parses the string into the MuxSettings.
+            Does not affect OCPMode setting.
+            </summary>
+      <param name="settings">The MuXSettings object.</param>
+      <param name="muxSettings">The mux settings as string.</param>
+    </member>
     <member name="F:PalmSens.Method.MuxSett">
       <summary>
             Settings for an attached mux, ignored if no configurable mux is found. (Rev 1 mux is not configurable by software)
@@ -9804,6 +10906,9 @@
     <member name="P:PalmSens.Method.nScans">
       <summary>The number of scans for CV.</summary>
     </member>
+    <member name="P:PalmSens.Method.nAvgScans">
+      <summary>The number of averaged scans for CV.</summary>
+    </member>
     <member name="F:PalmSens.Method.PolyEmStat">
       <summary>
             Method extension for PolyEmStat, containing calibration and bipot values
@@ -9837,7 +10942,7 @@
             </summary>
       <param name="contents">The contents to read from.</param>
     </member>
-    <member name="M:PalmSens.Method.ReceiveMeasurement(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Method.ReceiveMeasurement(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer)">
       <summary>
             Generate a receive measurement event
             </summary>
@@ -9846,7 +10951,7 @@
       <returns>
       </returns>
     </member>
-    <member name="M:PalmSens.Method.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Method.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer,PalmSens.TaskBarrier)">
       <summary>
             Generate a receive measurement event
             </summary>
@@ -9908,6 +11013,11 @@
     <member name="P:PalmSens.INPointsMethod.nPoints">
       <summary>Returns the expected number of measured points to be returned.</summary>
     </member>
+    <member name="T:PalmSens.MuxModel">
+      <summary>
+            Type of multiplexer used
+            </summary>
+    </member>
     <member name="T:PalmSens.MuxMethod">
       <summary>
             Type of mux measurement
@@ -9927,18 +11037,6 @@
       <summary>
             No multiplexer
             </summary>
-    </member>
-    <member name="T:PalmSens.Auxiliary">
-      <summary>
-            Helper functions for Auxiliary input
-            </summary>
-    </member>
-    <member name="M:PalmSens.Auxiliary.GetUnit(PalmSens.EnumExtraValue)">
-      <summary>
-            Returns the Unit corresponding to the Auxiliary Channel
-            </summary>
-      <param name="extraValueType">Type of the channel.</param>
-      <returns>The corresponding unit</returns>
     </member>
     <member name="T:PalmSens.Plottables.Blank">
       <summary>
@@ -10003,7 +11101,7 @@
       <param name="bag">The bag.</param>
       <param name="coreVersion">The core version.</param>
     </member>
-    <member name="M:PalmSens.Plottables.Curve.#ctor(PalmSens.Data.DataArray,PalmSens.Data.DataArray,System.String)">
+    <member name="M:PalmSens.Plottables.Curve.#ctor(PalmSens.Data.DataArray,PalmSens.Data.DataArray,System.String,System.Boolean)">
       <summary>
             Initializes a new instance of the <see cref="T:PalmSens.Plottables.Curve" /> class.
             Default title = "Curve"
@@ -10261,7 +11359,7 @@
             </summary>
       <param name="axisFunction">The axes function.</param>
     </member>
-    <member name="M:PalmSens.Plottables.Curve.FindPeaks(System.Double,System.Double,System.Boolean)">
+    <member name="M:PalmSens.Plottables.Curve.FindPeaks(System.Double,System.Double,System.Boolean,System.Boolean)">
       <summary>
             Find peaks in a curve in all directions; CV can have 1 or 2 direction changes
             </summary>
@@ -10357,7 +11455,7 @@
       <param name="from">begin index</param>
       <param name="to">end index</param>
     </member>
-    <member name="M:PalmSens.Plottables.Curve.Finish">
+    <member name="M:PalmSens.Plottables.Curve.Finish(System.Boolean)">
       <summary>
             Finishes the curve. This stops from raising the NewDataAdded event.
             This is automatically called at the end of a measurement.
@@ -10368,22 +11466,6 @@
             Returns an empty Curve
             </summary>
       <returns>an empty Curve</returns>
-    </member>
-    <member name="P:PalmSens.Plottables.Curve.SelectionStart">
-      <summary>
-            Gets or sets the first index of the selection of points. Default is -1 meaning all points are selected
-            </summary>
-      <value>
-            The selection start.
-            </value>
-    </member>
-    <member name="P:PalmSens.Plottables.Curve.SelectionEnd">
-      <summary>
-            Gets or sets the last index of the selection of points. Default is -1 meaning all points are selected
-            </summary>
-      <value>
-            The selection end.
-            </value>
     </member>
     <member name="T:PalmSens.Plottables.CurveEventHandler">
       <summary>
@@ -10893,70 +11975,6 @@
       <param name="c">curve to calculate concentration for</param>
       <returns>concentration</returns>
     </member>
-    <member name="T:PalmSens.CFALevelList">
-      <summary>
-            Describes a list of levels
-            </summary>
-    </member>
-    <member name="T:PalmSens.CFALevelList.Level">
-      <summary>
-            Level information
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.LeftX">
-      <summary>
-            X coordinate of the valley on the left side of the level.
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.RightX">
-      <summary>
-            X coordinate of the valley on the right side of the level.
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.LeftY">
-      <summary>
-            Y coordinate of the valley on the left side of the level.
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.RightY">
-      <summary>
-            Y coordinate of the valley on the right side of the level.
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.LevelX">
-      <summary>
-            X coordinate of the level
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Level.LevelY">
-      <summary>
-            Y coordinate of the level
-            </summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.Item(System.Int32)">
-      <summary>Returns the peaks found in this curve as an array.</summary>
-    </member>
-    <member name="P:PalmSens.CFALevelList.nLevels">
-      <summary>Returns the number of peaks found in this curve.</summary>
-    </member>
-    <member name="F:PalmSens.CFALevelList.Curve">
-      <summary>
-            Curve these peaks belong to
-            </summary>
-    </member>
-    <member name="M:PalmSens.CFALevelList.#ctor(PalmSens.Plottables.Curve,System.Double,System.Double)">
-      <summary>
-            Create a new levellist, looking for levels in the specified curve between Start and End
-            </summary>
-      <param name="c">curve to use</param>
-      <param name="pxmin">minimum level width</param>
-      <param name="pymin">minimum level height</param>
-    </member>
-    <member name="M:PalmSens.CFALevelList.Clear">
-      <summary>
-            Clear peaklist
-            </summary>
-    </member>
     <member name="T:PalmSens.SineCurve">
       <summary>
             The sine curve returned during impedemetric measurements
@@ -11021,6 +12039,7 @@
             Gets or sets a value indicating whether this instance is in plot.
             This property is maintained by the plot if part of the Plot.CurveCollection
             This setting is not related to the Curve.Visible property.
+            Note: When a curve is in multiple plots this value may be incorrect
             </summary>
       <value>
         <c>true</c> if this instance is in plot; otherwise, <c>false</c>.
@@ -11055,6 +12074,11 @@
             This value is set when saving and loading this plottable to a Session file.
             </summary>
     </member>
+    <member name="E:PalmSens.Plottable.Disposing">
+      <summary>
+            Called when this curve is being disposed.
+            </summary>
+    </member>
     <member name="E:PalmSens.Plottable.Finished">
       <summary>
             Occurs when this curve is finished (end of measurement)
@@ -11066,7 +12090,7 @@
     <member name="P:PalmSens.Plottable.Error">
       <summary>Error(s) that occured during measurement.</summary>
     </member>
-    <member name="M:PalmSens.Plottable.OnFinished">
+    <member name="M:PalmSens.Plottable.OnFinished(System.Boolean)">
       <summary>
             Called when this plottable is finished (end of measurement)
             </summary>
@@ -11184,9 +12208,21 @@
             Reflects start potential if CV.</summary>
       <remarks>Resolution is 1 mV.</remarks>
     </member>
+    <member name="P:PalmSens.PotentialMethod.VersusOCPBeginPotential">
+      <summary>
+            The versus ocp Begin potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
+    </member>
     <member name="P:PalmSens.PotentialMethod.EndPotential">
       <summary>Potential in V where measurement stops (Except for CV).</summary>
       <remarks>Resolution is 1 mV.</remarks>
+    </member>
+    <member name="P:PalmSens.PotentialMethod.VersusOCPEndPotential">
+      <summary>
+            The versus ocp End potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
     </member>
     <member name="P:PalmSens.PotentialMethod.StepPotential">
       <summary>Step potential in V.</summary>
@@ -12239,6 +13275,37 @@
     <member name="M:PalmSens.SingleThreadSyncContext.Complete">
       <summary>Notifies the context that no more work will arrive.</summary>
     </member>
+    <member name="T:PalmSens.SynchronizationContextRemover">
+      <summary>
+            Removes the synchronization context for all subsequent await calls in the method.
+            This allows the current context to continue with other tasks. 
+            At the end of the method the context is returned.
+            Alternative to configuring await to false for each subsequent await in method.
+            https://blogs.msdn.microsoft.com/benwilli/2017/02/09/an-alternative-to-configureawaitfalse-everywhere/
+            </summary>
+      <seealso cref="T:System.Runtime.CompilerServices.INotifyCompletion" />
+    </member>
+    <member name="M:PalmSens.SynchronizationContextRemover.Init(System.Int32)">
+      <summary>
+            Initializes the specified maximum amount of concurrent threads the tasks are allowed to run on.
+            </summary>
+      <param name="nThreads">The maximum number of concurrent threads.</param>
+    </member>
+    <member name="T:PalmSens.TaskBarrier">
+      <summary>
+            An alternative to the Barrier class, but instead of locking 
+            the thread untill it is signalled n amount of times it 
+            asynchronously awaits for the task to continue untill it has been signalled
+            n amount of times.
+            </summary>
+      <seealso cref="T:System.Runtime.CompilerServices.INotifyCompletion" />
+    </member>
+    <member name="M:PalmSens.TaskBarrier.#ctor(System.Int32)">
+      <summary>
+            Initializes a new instance of the <see cref="T:PalmSens.TaskBarrier" /> class.
+            </summary>
+      <param name="n">The amount of signals to await before continuing.</param>
+    </member>
     <member name="T:PalmSens.Techniques.ACVoltammetry">
       <summary>Contains all method parameters for technique acVoltammetry.</summary>
     </member>
@@ -12288,6 +13355,11 @@
     <member name="P:PalmSens.Techniques.ACVoltammetry.MeasureDCcurrent">
       <summary>
             Measurement the DC current
+            </summary>
+    </member>
+    <member name="P:PalmSens.Techniques.ACVoltammetry.SupportsExtraValueMask">
+      <summary>
+            Gets a value indicating whether this method supports aux input.
             </summary>
     </member>
     <member name="M:PalmSens.Techniques.ACVoltammetry.Validate(PalmSens.Devices.DeviceCapabilities)">
@@ -12376,10 +13448,18 @@
             Create a new Amperometric Detection method
             </summary>
     </member>
-    <member name="P:PalmSens.Techniques.AmperometricDetection.SupportsAuxInput">
+    <member name="P:PalmSens.Techniques.AmperometricDetection.SupportsExtraValueMask">
       <summary>
             Gets a value indicating whether this method supports aux input.
             </summary>
+    </member>
+    <member name="P:PalmSens.Techniques.AmperometricDetection.SupportedExtraValues">
+      <summary>
+            Gets the supported extra values.
+            </summary>
+      <value>
+            The supported extra values.
+            </value>
     </member>
     <member name="P:PalmSens.Techniques.AmperometricDetection.SupportsHoldDuringMeasurement">
       <summary>
@@ -12645,10 +13725,18 @@
             Create a new Cyclic Voltammetry method
             </summary>
     </member>
-    <member name="P:PalmSens.Techniques.CyclicVoltammetry.SupportsAuxInput">
+    <member name="P:PalmSens.Techniques.CyclicVoltammetry.SupportsExtraValueMask">
       <summary>
             Gets a value indicating whether this method supports aux input.
             </summary>
+    </member>
+    <member name="P:PalmSens.Techniques.CyclicVoltammetry.SupportedExtraValues">
+      <summary>
+            Gets the supported extra values for this technique.
+            </summary>
+      <value>
+            The supported extra values.
+            </value>
     </member>
     <member name="P:PalmSens.Techniques.CyclicVoltammetry.SupportsHoldDuringMeasurement">
       <summary>
@@ -12682,6 +13770,9 @@
     <member name="P:PalmSens.Techniques.CyclicVoltammetry.nScans">
       <summary>The number of scans for CV.</summary>
     </member>
+    <member name="P:PalmSens.Techniques.CyclicVoltammetry.nAvgScans">
+      <summary>The number of scans to avg for CV.</summary>
+    </member>
     <member name="P:PalmSens.Techniques.CyclicVoltammetry.nEqScans">
       <summary>The number of equilibration scans.</summary>
                     ///<summary>The applied scan rate.</summary><remarks>The applicable range depends on the value of E step</remarks></member>
@@ -12698,6 +13789,12 @@
             The VTX1 potential.
             </value>
     </member>
+    <member name="P:PalmSens.Techniques.CyclicVoltammetry.VersusOCPVtx1Potential">
+      <summary>
+            The versus ocp VTX1 potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
+    </member>
     <member name="P:PalmSens.Techniques.CyclicVoltammetry.Vtx2Potential">
       <summary>
             Gets or sets the VTX2 potential.
@@ -12705,6 +13802,12 @@
       <value>
             The VTX2 potential.
             </value>
+    </member>
+    <member name="P:PalmSens.Techniques.CyclicVoltammetry.VersusOCPVtx2Potential">
+      <summary>
+            The versus ocp VTX2 potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
     </member>
     <member name="P:PalmSens.Techniques.CyclicVoltammetry.XLeft">
       <summary>
@@ -12717,6 +13820,12 @@
             </summary>
     </member>
     <member name="M:PalmSens.Techniques.CyclicVoltammetry.Validate(PalmSens.Devices.DeviceCapabilities)">
+      <summary>
+            Validate this method
+            </summary>
+      <returns>error string or null if there were no errors</returns>
+    </member>
+    <member name="M:PalmSens.Techniques.CyclicVoltammetry.ValidateBase(PalmSens.Devices.DeviceCapabilities)">
       <summary>
             Validate this method
             </summary>
@@ -12800,6 +13909,30 @@
             Returns the abbreviation of the technique
             </summary>
       <returns>"CV"</returns>
+    </member>
+    <member name="F:PalmSens.Techniques.FastCyclicVoltammetry.Name">
+      <summary>
+            The readable name of this technique
+            </summary>
+    </member>
+    <member name="F:PalmSens.Techniques.FastCyclicVoltammetry.MethodID">
+      <summary>
+            The abbreviation for this technique
+            </summary>
+    </member>
+    <member name="M:PalmSens.Techniques.FastCyclicVoltammetry.GetMethodID">
+      <summary>
+            Gets a unique identifier for the type of this method class.
+            This unqiue ID can never be changed. Saved methods refer to this ID to initialize the method.
+            </summary>
+      <returns>
+      </returns>
+    </member>
+    <member name="M:PalmSens.Techniques.FastCyclicVoltammetry.Validate(PalmSens.Devices.DeviceCapabilities)">
+      <summary>
+            Validate this method
+            </summary>
+      <returns>error string or null if there were no errors</returns>
     </member>
     <member name="T:PalmSens.Techniques.FastPotentiometry">
       <summary>Contains all methodparameters for technique Fast Potentiometry.</summary>
@@ -13320,6 +14453,12 @@
             Eend
             </summary>
     </member>
+    <member name="P:PalmSens.Techniques.ImpedimetricMethod.VersusOCPEndPotential">
+      <summary>
+            The versus ocp end potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
+    </member>
     <member name="P:PalmSens.Techniques.ImpedimetricMethod.StepPotential">
       <summary>
             Estep
@@ -13407,12 +14546,12 @@
       <returns>
       </returns>
     </member>
-    <member name="M:PalmSens.Techniques.ImpedimetricMethod.ReceiveMeasurement(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.ImpedimetricMethod.ReceiveMeasurement(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer)">
       <summary>
             Receives the measurement.
             </summary>
     </member>
-    <member name="M:PalmSens.Techniques.ImpedimetricMethod.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.ImpedimetricMethod.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer,PalmSens.TaskBarrier)">
       <summary>
             Receives the measurement.
             </summary>
@@ -13453,7 +14592,7 @@
             This measurement does not generate a Curve but a PalmSens.EISData, which is also a Plottable.
             </summary>
     </member>
-    <member name="M:PalmSens.Techniques.ImpedimetricMeasurement.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method)">
+    <member name="M:PalmSens.Techniques.ImpedimetricMeasurement.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method,System.Int32,PalmSens.MeasType)">
       <summary>
             Initializes a new instance of the <see cref="T:PalmSens.Techniques.ImpedimetricMeasurement" /> class.
             Note: Impedance measurements are currently not supported for the SDK.
@@ -13463,7 +14602,7 @@
       <param name="conn">Connection on which the measurement takes place</param>
       <param name="method">Method to measure</param>
     </member>
-    <member name="M:PalmSens.Techniques.ImpedimetricMeasurement.ImpedimetricMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Method)">
+    <member name="M:PalmSens.Techniques.ImpedimetricMeasurement.SetImpedimetricMeasurementAsync(PalmSens.Comm.ClientConnection)">
       <summary>
             Initializes a new instance of the <see cref="T:PalmSens.Techniques.ImpedimetricMeasurement" /> class.
             Note: Impedance measurements are currently not supported for the SDK.
@@ -13487,6 +14626,11 @@
     <member name="P:PalmSens.Techniques.ImpedimetricMeasurement.DataSet">
       <summary>
             Use _currentEISdata.DataSet instead.
+            </summary>
+    </member>
+    <member name="F:PalmSens.Techniques.ImpedimetricMeasurement.MeasurementStarted2">
+      <summary>
+             The moment the measurement was started
             </summary>
     </member>
     <member name="P:PalmSens.Techniques.ImpedimetricMeasurement.Method">
@@ -13599,10 +14743,18 @@
       <summary>The applied scan rate.</summary>
       <remarks>The applicable range depends on the value of E step</remarks>
     </member>
-    <member name="P:PalmSens.Techniques.LinearSweep.SupportsAuxInput">
+    <member name="P:PalmSens.Techniques.LinearSweep.SupportsExtraValueMask">
       <summary>
             Gets a value indicating whether this method supports aux input.
             </summary>
+    </member>
+    <member name="P:PalmSens.Techniques.LinearSweep.SupportedExtraValues">
+      <summary>
+            Gets the supported extra values for this technique.
+            </summary>
+      <value>
+            The supported extra values.
+            </value>
     </member>
     <member name="P:PalmSens.Techniques.LinearSweep.SupportsHoldDuringMeasurement">
       <summary>
@@ -13900,7 +15052,7 @@
       </returns>
       <exception cref="T:System.ArgumentOutOfRangeException">stage</exception>
     </member>
-    <member name="M:PalmSens.Techniques.MixedMode.ReceiveMeasurement(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.MixedMode.ReceiveMeasurement(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer)">
       <summary>
             Receives the measurement.
             </summary>
@@ -13908,7 +15060,7 @@
       <returns>
       </returns>
     </member>
-    <member name="M:PalmSens.Techniques.MixedMode.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.MixedMode.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer,PalmSens.TaskBarrier)">
       <summary>
             Receives the measurement.
             </summary>
@@ -14290,7 +15442,7 @@
             Create a new Multistep class
             </summary>
     </member>
-    <member name="P:PalmSens.Techniques.Multistep.SupportsAuxInput">
+    <member name="P:PalmSens.Techniques.Multistep.SupportsExtraValueMask">
       <summary>
             Gets a value indicating whether this method supports aux input.
             </summary>
@@ -14391,7 +15543,7 @@
             </summary>
       <returns>error string or null if there were no errors</returns>
     </member>
-    <member name="M:PalmSens.Techniques.Multistep.ReceiveMeasurement(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.Multistep.ReceiveMeasurement(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer)">
       <summary>
             Receives the measurement.
             </summary>
@@ -14399,7 +15551,7 @@
       <returns>
       </returns>
     </member>
-    <member name="M:PalmSens.Techniques.Multistep.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.Techniques.Multistep.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer,PalmSens.TaskBarrier)">
       <summary>
             Receives the measurement.
             </summary>
@@ -14461,7 +15613,7 @@
             Measurement procedures for MultistepAmperometry. PalmSens is controlled manually with this measurement.
             </summary>
     </member>
-    <member name="M:PalmSens.Techniques.MultistepMeasurementMC.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method)">
+    <member name="M:PalmSens.Techniques.MultistepMeasurementMC.#ctor(PalmSens.Comm.ClientConnection,PalmSens.Method,System.Int32,PalmSens.MeasType)">
       <summary>
             Chrono Amperometry measurement. PalmSens is controlled manually with this measurement.
             </summary>
@@ -14603,7 +15755,7 @@
       <returns>
       </returns>
     </member>
-    <member name="P:PalmSens.Techniques.Potentiometry.SupportsAuxInput">
+    <member name="P:PalmSens.Techniques.Potentiometry.SupportsExtraValueMask">
       <summary>
             Gets a value indicating whether this method supports aux input.
             </summary>
@@ -15146,6 +16298,12 @@
     <member name="P:PalmSens.TimeMethod.Potential">
       <summary>Potential during measurement <c>(AmperometricDetection)</c> or applied before pulse is given <c>PulsedAmpDetection</c>. The applicable range of the potential is -2 V to +2 V.</summary>
     </member>
+    <member name="P:PalmSens.TimeMethod.VersusOCPPotential">
+      <summary>
+            The versus ocp potential, this is assigned in the versus OCP step before the measurement is started
+            The to hex function will use this value when IsVersusOCP is true and it is not a NaN.
+            </summary>
+    </member>
     <member name="P:PalmSens.TimeMethod.BeginPotential">
       <summary>
             Begin potential (also applied during equilibration)
@@ -15225,7 +16383,7 @@
       <param name="o">method to compare to</param>
       <returns>true if objects are equal, false otherwise</returns>
     </member>
-    <member name="M:PalmSens.TimeMethod.ReceiveMeasurement(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.TimeMethod.ReceiveMeasurement(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer)">
       <summary>
             Called to handle receiving a measurement.
             </summary>
@@ -15233,7 +16391,7 @@
       <returns>
       </returns>
     </member>
-    <member name="M:PalmSens.TimeMethod.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,PalmSens.Comm.Buffer)">
+    <member name="M:PalmSens.TimeMethod.ReceiveMeasurementAsync(PalmSens.Comm.ClientConnection,System.Int32,PalmSens.MeasType,PalmSens.Comm.Buffer,PalmSens.TaskBarrier)">
       <summary>
             Called to handle receiving a measurement.
             </summary>

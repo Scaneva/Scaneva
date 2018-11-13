@@ -42,6 +42,7 @@ using PalmSens.Techniques;
 using PalmSens.Windows;
 using PalmSens.Windows.Devices;
 using PalmSens.Data;
+using System.Collections;
 
 namespace Scaneva.Core.Experiments.PalmSens
 {
@@ -172,7 +173,7 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             // Set multiplexer settings to measure on channel 2 and 3 (one at a time).
             imp.MuxMethod = MuxMethod.Sequentially; //only sequential measurements are allowed for EIS
-            imp.UseMuxChannel = new bool[] { false, true, true };
+            imp.UseMuxChannel = new BitArray(new bool[] { false, true, true });
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;

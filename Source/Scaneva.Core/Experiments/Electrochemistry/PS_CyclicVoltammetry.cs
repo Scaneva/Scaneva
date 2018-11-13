@@ -139,7 +139,7 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             string headerString = "Experiment: CyclicVoltammetryExperiment - " + Name + cords + "\r\n";
 
-            if (Settings.BiPotSettings.RecordExtraValue == EnumExtraValue.None)
+            if (Settings.BiPotSettings.RecordExtraValue == ExtraValueMask.None)
             {
                 // 2 columns
                 writeHeader(headerString, new string[] { "Potential [V]", "Current [µA]" }, settingsObj: Settings, positionColumns: false);
@@ -241,7 +241,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             hw.EndMeasurement -= HW_EndMeasurement;
 
             // save data
-            if (cv.RecordExtraValue == EnumExtraValue.None)
+            if (cv.ExtraValueMsk == ExtraValueMask.None)
             {
                 // 2 columns
                 for (int j = 0;  j < resultCurves.Count; j++)

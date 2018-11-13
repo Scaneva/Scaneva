@@ -42,7 +42,7 @@ namespace Scaneva.Core.Experiments.PalmSens
         public string[] ListofCurrentRanges { get => _ListofCurrentRanges; set => _ListofCurrentRanges = value; }
 
         //Bipot settings
-        private EnumExtraValue recordExtraValue = EnumExtraValue.None; //Set to WE2 to record data from bipot
+        private ExtraValueMask recordExtraValue = ExtraValueMask.None; //Set to WE2 to record data from bipot
         private Method.EnumPalmSensBipotMode biPotModePS = Method.EnumPalmSensBipotMode.constant; //Set bipot to a fixed potential (constant) or an offset of the main WE (offset)
         private float biPotPotential = 1f; //Set the fixed or offset potential of WE2 in Volt
         private string biPotCR = null; //Set the current range for the WE2 recordings (autoranging not supported)
@@ -50,7 +50,7 @@ namespace Scaneva.Core.Experiments.PalmSens
         [Category("BiPot Settings")]
         [DisplayName("Auxillary Channel")]
         [Description("Auxillary channel to record. Set to WE2 to record data from bipot.")]
-        public EnumExtraValue RecordExtraValue { get => recordExtraValue; set => recordExtraValue = value; }
+        public ExtraValueMask RecordExtraValue { get => recordExtraValue; set => recordExtraValue = value; }
 
         [Category("BiPot Settings")]
         [DisplayName("BiPot Mode")]
@@ -107,9 +107,9 @@ namespace Scaneva.Core.Experiments.PalmSens
         public void ConfigureMethod(Method meth, PS_PalmSens hw)
         {
             //Bipot settings
-            meth.RecordExtraValue = RecordExtraValue;
+            meth.ExtraValueMsk = RecordExtraValue;
 
-            if (RecordExtraValue != EnumExtraValue.None)
+            if (RecordExtraValue != ExtraValueMask.None)
             {
                 CurrentRange range = hw.SupportedRanges.First(x => x.ToString() == BiPotCR);
                 

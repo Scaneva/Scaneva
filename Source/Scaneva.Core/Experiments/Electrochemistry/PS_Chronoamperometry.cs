@@ -136,7 +136,7 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             string headerString = "Experiment: ChronoamperometryExperiment - " + Name + cords + "\r\n";
 
-            if (Settings.BiPotSettings.RecordExtraValue == EnumExtraValue.None)
+            if (Settings.BiPotSettings.RecordExtraValue == ExtraValueMask.None)
             {
                 // 2 columns
                 writeHeader(headerString, new string[] { "Time [s]", "Current [µA]" }, settingsObj: Settings, positionColumns: false);
@@ -236,7 +236,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             hw.EndMeasurement -= HW_EndMeasurement;
 
             // save data
-            if (ampoD.RecordExtraValue == EnumExtraValue.None)
+            if (ampoD.ExtraValueMsk == ExtraValueMask.None)
             {
                 // 2 columns
                 double[] dataX = resultCurves[0].GetXValues();
