@@ -194,7 +194,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                     // Add first point of 1D Data (Single Value Experiment should only have one)
                     scanData.setValue(dataset,
                         reverseScanX ? (Scanner.NumScanPoints[0] - Scanner.ScanPointIndex[0] - 1) : Scanner.ScanPointIndex[0],
-                        reverseScanY ? (Scanner.NumScanPoints[0] - Scanner.ScanPointIndex[1] - 1) : Scanner.ScanPointIndex[1],
+                        reverseScanY ? (Scanner.NumScanPoints[1] - Scanner.ScanPointIndex[1] - 1) : Scanner.ScanPointIndex[1],
                         data.Get1DData(i)[0]);
                     i++;
                 }
@@ -232,6 +232,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 //the scanner takes care of pre- and post-movements
                 //but also tilt correction if set
                 res = Scanner.NextPosition();
+
+                i++;
             }
 
             //if (!abortExperiment)
