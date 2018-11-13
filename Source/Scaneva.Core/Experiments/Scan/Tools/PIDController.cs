@@ -32,11 +32,10 @@ namespace Scaneva.Core
 {
     public class PIDController : ParametrizableObject
     {
-        double mSetpoint = 0;
-        double mLastControlOutput; //last output of the controller
-        double mDeviationSum = 0;//sum of deviation from the setpoint since last reset
-        double mLastDeviation;//last deviation of the desired setpoint (Regeldifferenz)
-        int error = 0; 
+        double LastControlOutput;  //last output of the controller
+        double DeviationSum = 0;   //sum of deviation from the setpoint since last reset
+        double LastDeviation;      //last deviation of the desired setpoint
+
         public PIDController(LogHelper log) : base(log)
         {
             settings = new PIDControllerSettings();
@@ -55,45 +54,44 @@ namespace Scaneva.Core
             }
         }
 
-        public double Setpoint { get => mSetpoint; set => mSetpoint = value; }
-        public int Error { get => error; set => error = value; }
+        public double Setpoint { get; set; } = 0;
+        public int Error { get; set; } = 0;
 
         public double SimpleCorrection(double _processVariable)
         {
             double res = 0;
-            double deviation = 0;
 
             //deviation of the process variable from the setpoint
-            deviation = (Setpoint - _processVariable); 
+            double deviation = (Setpoint - _processVariable); 
 
             //limit the deviation
-            if (Math.Abs(deviation) > Settings.P)
+            if (Math.Abs(deviation) > Settings.PB)
             {
-                deviation = (deviation < 0) ? -Settings.P : Settings.P;
-                mDeviationSum = 0;
+                deviation = (deviation < 0) ? -Settings.PB : Settings.PB;
+                DeviationSum = 0;
             }
             
-            res = deviation;   //val * µm/val
+            res = deviation * Settings.Kp;   //val * µm/val
 
             //differential component if configured.
-            if ((Settings.D != null) && (Settings.D.Value != 0) && (mLastControlOutput != 0))
+            if ((Settings.Kd != null) && (Settings.Kd.Value != 0) && (LastControlOutput != 0))
             {
-                res -= (((mLastDeviation - deviation) / mLastControlOutput) * Settings.D.Value);
+                res -= (((LastDeviation - deviation) / LastControlOutput) * Settings.Kd.Value);
             }
 
             //integral component if configured
-            if ((Settings.I != null) && (Settings.I.Value != 0))
+            if ((Settings.Ki != null) && (Settings.Ki.Value != 0))
             {
-                res += (mDeviationSum * Settings.I.Value);
+                res += (DeviationSum * Settings.Ki.Value);
             }
 
             //simple Anti-Windup. sum should not exceed MaxDeviationSum or -MaxDeviationSum.
-            if ((Settings.MaxDeviationSum > 0) && (Math.Abs(deviation + mDeviationSum) < Math.Abs(Settings.MaxDeviationSum)))
+            if ((Settings.MaxDeviationSum > 0) && (Math.Abs(deviation + DeviationSum) < Math.Abs(Settings.MaxDeviationSum)))
             {
-                mDeviationSum += deviation;
+                DeviationSum += deviation;
             }
-            mLastDeviation = deviation;
-            mLastControlOutput = res;
+            LastDeviation = deviation;
+            LastControlOutput = res;
             return res;
         }
 
@@ -105,10 +103,10 @@ namespace Scaneva.Core
             if (Math.Abs(deviation) < (Setpoint / 100))
             {
                 //limit the deviation
-                if (Math.Abs(deviation) > Settings.P)
+                if (Math.Abs(deviation) > Settings.Kp)
                 {
-                    res = (deviation < 0) ? -Settings.P : Settings.P;
-                    mDeviationSum = 0;
+                    res = (deviation < 0) ? -Settings.Kp : Settings.Kp;
+                    DeviationSum = 0;
                 }
                 else
                 {
@@ -118,10 +116,10 @@ namespace Scaneva.Core
             else
             {
                 //limit the deviation
-                if (Math.Abs(deviation) > Settings.P)
+                if (Math.Abs(deviation) > Settings.Kp)
                 {
-                    res = (deviation < 0) ? Settings.P : -Settings.P;
-                    mDeviationSum = 0;
+                    res = (deviation < 0) ? Settings.Kp : -Settings.Kp;
+                    DeviationSum = 0;
                 }
                 else
                 {
@@ -130,35 +128,35 @@ namespace Scaneva.Core
             }
 
             // proportional component
-            res *= Settings.P; //val * µm/val
+            res *= Settings.Kp; //val * µm/val
 
             //differential component if configured.
-            if ((Settings.D != null) && (Settings.D.Value != 0) && (mLastControlOutput != 0))
+            if ((Settings.Kd != null) && (Settings.Kd.Value != 0) && (LastControlOutput != 0))
             {
-                res -= (((mLastDeviation - deviation) / mLastControlOutput) * Settings.D.Value);
+                res -= (((LastDeviation - deviation) / LastControlOutput) * Settings.Kd.Value);
             }
 
             //integral component if configured
-            if ((Settings.I != null) && (Settings.I.Value != 0))
+            if ((Settings.Ki != null) && (Settings.Ki.Value != 0))
             {
-                res += (mDeviationSum * Settings.I.Value);
+                res += (DeviationSum * Settings.Ki.Value);
             }
 
             //simple Anti-Windup. sum should not exceed MaxDeviationSum or -MaxDeviationSum.
-            if ((Settings.MaxDeviationSum > 0) && (Math.Abs(deviation + mDeviationSum) < Math.Abs(Settings.MaxDeviationSum)))
+            if ((Settings.MaxDeviationSum > 0) && (Math.Abs(deviation + DeviationSum) < Math.Abs(Settings.MaxDeviationSum)))
             {
-                mDeviationSum += deviation;
+                DeviationSum += deviation;
             }
-            mLastDeviation = deviation;
-            mLastControlOutput = res;
+            LastDeviation = deviation;
+            LastControlOutput = res;
             return res;
         }
 
         public void Reset()
         {
-            mDeviationSum = 0;
-            mLastControlOutput = 0;
-            mLastDeviation = 0;
+            DeviationSum = 0;
+            LastControlOutput = 0;
+            LastDeviation = 0;
         }
     }
 }

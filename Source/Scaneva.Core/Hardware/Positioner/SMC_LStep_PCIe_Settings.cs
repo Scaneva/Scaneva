@@ -58,6 +58,11 @@ namespace Scaneva.Core.Settings
         [Description("Activate this option to reload controller configuration and save the parameters into EEPROM and profile.")]
         public bool SaveConfigurationE { get; set; } = false;
 
+        [Category("1. Controller settings")]
+        [DisplayName("Automatically validate parameters")]
+        [Description("Activate this option to automatically validate speeds and distances.")]
+        public bool AutoValidateParam{ get; set; } = false;
+
         [Category("2. Axis settings")]
         [DisplayNameAttribute("X Axis Settings")]
         public SMC_LStep_Axis_Settings X { get; set; } = new SMC_LStep_Axis_Settings();

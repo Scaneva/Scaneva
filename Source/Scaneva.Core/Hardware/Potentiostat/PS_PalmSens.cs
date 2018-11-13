@@ -469,17 +469,17 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));            
-            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));            
+            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
 
             if (capabilities.BiPotPresent)
             {
-                channels.Add(new TransducerChannel(this, "Potential Bi-Pot", "V", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-                channels.Add(new TransducerChannel(this, "Current Bi-Pot", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-                channels.Add(new TransducerChannel(this, "Current Range Bi-Pot", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-                channels.Add(new TransducerChannel(this, "Cell On Bi-Pot", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
+                channels.Add(new TransducerChannel(this, "Potential Bi-Pot", "V", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Current Bi-Pot", "A", enuPrefix.µ, enuChannelType.passive, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Current Range Bi-Pot", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Cell On Bi-Pot", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
             }
         }
 
@@ -544,9 +544,10 @@ namespace Scaneva.Core.Hardware
             return double.NaN;
         }
 
-        public void SetAveraging(TransducerChannel channel, int _value)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
             channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
         public int GetAveraging(TransducerChannel channel)
@@ -566,7 +567,7 @@ namespace Scaneva.Core.Hardware
 
         }
 
-        public void SetValue(TransducerChannel channel, double _value)
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             if ((Comm != null) && Comm.Active && (channel != null))
             {
@@ -637,11 +638,11 @@ namespace Scaneva.Core.Hardware
                             }
                         }
                         break;
-
-                    default:
-                        break;
                 }
+                return enuTChannelStatus.OK;
             }
+            return enuTChannelStatus.Error;
         }
+        
     }
 }

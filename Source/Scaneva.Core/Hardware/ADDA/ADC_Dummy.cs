@@ -88,8 +88,8 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Dummy potential", "V", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Dummy potential", "V", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.passive, enuTChannelStatus.OK));
         }
 
         public enuTransducerType TransducerType => enuTransducerType.ADC;
@@ -114,17 +114,19 @@ namespace Scaneva.Core.Hardware
             return double.NaN;
         }
 
-        public void SetValue(TransducerChannel channel, double _value)
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             if (channel.Name ==  "Dummy potential")
             {
                 LastPotential = _value;
             }
+            return enuTChannelStatus.OK;
         }
 
-        public void SetAveraging(TransducerChannel channel, int _value)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
             channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
         public int GetAveraging(TransducerChannel channel)

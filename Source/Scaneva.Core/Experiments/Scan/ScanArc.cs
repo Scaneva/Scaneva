@@ -93,8 +93,8 @@ namespace Scaneva.Core.Experiments.ScanEva
         private ScanDataFreeform scanData = null;
         private int currentPosIDX;
         private double currentXPos, currentYPos;
-        private int scanPointsX = 0;
-        private int scanPointsY = 0;
+       // private int scanPointsX = 0;
+        //private int scanPointsY = 0;
 
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
@@ -127,7 +127,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 currentPosIDX = 0;
 
                 // Current Positioner pos
-                Position currentPos = Scanner.Position();
+                Position currentPos = new Position();
+                if (Scanner.Position(ref currentPos) != enuPositionerStatus.Ready) return enExperimentStatus.Error;
                 currentXPos = currentPos.X;
                 currentYPos = currentPos.Y;
 
@@ -157,7 +158,9 @@ namespace Scaneva.Core.Experiments.ScanEva
         /// <returns></returns>
         public override Position Position()
         {
-            return Scanner.Position();
+            Position pos = new Position();
+            Scanner.Position(ref pos);
+            return pos;
         }
 
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)
@@ -219,7 +222,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 currentPosIDX++;
 
                 // Current Positioner pos
-                Position currentPos = Scanner.Position();
+                Position currentPos = new Position();
+                Scanner.Position(ref currentPos);
                 currentXPos = currentPos.X;
                 currentYPos = currentPos.Y;
             }

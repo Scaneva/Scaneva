@@ -174,12 +174,12 @@ namespace Scaneva.Core
             mPositioner = Settings.Positioners[Settings.Positioner];
             if (mPositioner != null)
             {
-                if (mPositioner.Status == enuPositionerStatus.Ready)
+                if (mPositioner.GetPositionerStatus == enuPositionerStatus.Ready)
                 {
                     mSensor = Settings.TransducerChannels[Settings.Channel];
                     if (mSensor != null)
                     {
-                        if (mSensor.Status == enuSensorStatus.OK)
+                        if (mSensor.Status == enuTChannelStatus.OK)
                         {
                             mSensor.Averaging = Settings.Averaging;
                             abortFlag = false;
@@ -232,7 +232,7 @@ namespace Scaneva.Core
                 mStatus |= enuFeedbackStatusFlags.PositionerError;
             }
             //check the sensor
-            if (!mSensor.Status.HasFlag(enuSensorStatus.OK))
+            if (!mSensor.Status.HasFlag(enuTChannelStatus.OK))
             {
                 mStatus &= ~enuFeedbackStatusFlags.OK;
                 mStatus |= enuFeedbackStatusFlags.SensorError;
@@ -246,7 +246,7 @@ namespace Scaneva.Core
             mStatus &= ~enuFeedbackStatusFlags.InRange;
             mStatus &= ~enuFeedbackStatusFlags.AtSetpoint;
 
-            if ((mSensor.Status.HasFlag(enuSensorStatus.Overload)) ||
+            if ((mSensor.Status.HasFlag(enuTChannelStatus.Overload)) ||
                 (signal < Settings.MinSafetyLimit) || (signal > Settings.MaxSafetyLimit))
             {
                 mStatus |= enuFeedbackStatusFlags.LimitsExceeded;
@@ -374,8 +374,11 @@ namespace Scaneva.Core
         {
             double signal = mSensor.GetAveragedValue();
             enuFeedbackStatusFlags stat = CheckFeedback(signal);
+            double mpos = double.NaN;
 
-            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mPositioner.AxisAbsolutePosition(enuAxes.ZAxis), signal));
+            if (mPositioner.GetAxisAbsolutePosition(enuAxes.ZAxis, ref mpos) != enuPositionerStatus.Ready) return enuFeedbackStatusFlags.PositionerError;
+
+            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mpos, signal));
 
             if (stat.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
             {
@@ -395,14 +398,21 @@ namespace Scaneva.Core
             }
 
             Position Correction = new Position();
-            Correction.Z = -PID.SimpleCorrection(signal);
+            Correction.Z = PID.SimpleCorrection(signal);
 
-            if (!mPositioner.RelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
+            if (!mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
             {
                 return enuFeedbackStatusFlags.Aborted;
             }
 
-            log.AddStatusUpdate(0, mPositioner.AbsolutePosition());
+            if ((mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.LowerLimit)) ||
+                (mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.UpperLimit)))
+            {
+                return enuFeedbackStatusFlags.LimitsExceeded;
+            }
+
+            if (mPositioner.GetAxisAbsolutePosition(enuAxes.ZAxis, ref mpos) != enuPositionerStatus.Ready) return enuFeedbackStatusFlags.PositionerError;
+            log.AddStatusUpdate(0, mpos);
 
             return enuFeedbackStatusFlags.Ready;
         }
