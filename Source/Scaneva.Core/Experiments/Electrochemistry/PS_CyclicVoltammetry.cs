@@ -125,6 +125,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             ResultsFilePath = resultsFilePath;
             string cords = "";
             ExperimentContainer container = parent as ExperimentContainer;
+            this.parent = parent;
 
             if (container != null)
             {

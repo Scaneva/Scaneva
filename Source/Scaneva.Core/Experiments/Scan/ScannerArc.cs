@@ -196,7 +196,12 @@ namespace Scaneva.Core.Experiments
 
         public enuPositionerStatus Position(ref Position _pos)
         {// Position relativ zur Startposition
-            return (mPositioner.GetAbsolutePosition(ref _pos));
+            var status = mPositioner.GetAbsolutePosition(ref _pos);
+            if (status == enuPositionerStatus.Ready)
+            {
+                _pos = _pos.Delta(mStartPosition);
+            }
+            return status;
         }
 
         /*

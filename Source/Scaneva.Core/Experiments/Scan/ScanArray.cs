@@ -154,6 +154,24 @@ namespace Scaneva.Core.Experiments.ScanEva
 
         private Task scanArrayTask = null;
 
+        /// <summary>
+        /// Return relative Postion
+        /// </summary>
+        /// <returns></returns>
+        public override string ChildIndexer()
+        {
+            if (Scanner != null)
+            {
+                Position currentPos = new Position();
+                Scanner.Position(ref currentPos);
+                return currentPos.X + "_" + currentPos.Y + "_" + currentPos.Z;
+            }
+            else
+            {
+                return "";
+            }
+        }
+
         public override enExperimentStatus Run()
         {
             if (status == enExperimentStatus.Idle)
