@@ -713,7 +713,7 @@ namespace Scaneva.Core.Hardware
             if (mPosStatus == enuPositionerStatus.Ready)
             {
                 HWStatus = LogError(Positioner.MoveAbsSingleAxis(AxisIndex(_axis), _position, true));
-                if (HWStatus == enuHWStatus.Ready) mPosStatus = enuPositionerStatus.Ready;
+                //if (HWStatus == enuHWStatus.Ready) mPosStatus = enuPositionerStatus.Ready;
             }
             return mPosStatus;
         }
@@ -797,16 +797,17 @@ namespace Scaneva.Core.Hardware
                 double nZ = double.NaN;
                 double mZ = _pos.Z; // remeber the desired z-coordinate
                 if (GetAxisAbsolutePosition(enuAxes.ZAxis, ref nZ) != enuPositionerStatus.Ready) return mPosStatus; // mPosStatus was modified by GetAxisAbsolutePosition already
-                if (mZ <= nZ)
+                if (mZ <= nZ) //the desired height is lower, than the actual
                 {
                     _pos.Z = nZ; //write the current Z-coordinate in the position to move
-                    if (SetAbsolutePosition(_pos) != enuPositionerStatus.Ready) return mPosStatus; // move XY while not changing Z 
+                    HWStatus = LogError(Positioner.MoveAbs(_pos.X, _pos.Y, _pos.Z, 0, true));
+                    if (HWStatus != enuHWStatus.Ready) return mPosStatus; // move XY while not changing Z 
                     if (SetAxisAbsolutePosition(enuAxes.ZAxis, mZ) != enuPositionerStatus.Ready) return mPosStatus; //and move Z 
                 }
                 else
                 {
-                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, mZ) != enuPositionerStatus.Ready) return mPosStatus; //move Z first
-                    if (SetAbsolutePosition(_pos) != enuPositionerStatus.Ready) return mPosStatus; // move XY as Z is already reached
+                    if (SetAxisAbsolutePosition(enuAxes.ZAxis, _pos.Z) != enuPositionerStatus.Ready) return mPosStatus; //move Z first
+                    HWStatus = LogError(Positioner.MoveAbs(_pos.X, _pos.Y, _pos.Z, 0, true));
                 }
             }
             return mPosStatus;
@@ -872,6 +873,9 @@ namespace Scaneva.Core.Hardware
             channels.Add(new TransducerChannel(this, "X-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
             channels.Add(new TransducerChannel(this, "Y-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
             channels.Add(new TransducerChannel(this, "Z-Axis", "m", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "X-Axis relative movement", "m", enuPrefix.µ, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Y-Axis relative movement", "m", enuPrefix.µ, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Z-Axis relative movement", "m", enuPrefix.µ, enuChannelType.active, enuTChannelStatus.OK));
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Positioner;
@@ -937,6 +941,15 @@ namespace Scaneva.Core.Hardware
                     break;
                 case "A-Axis":
                     if (SetAxisAbsolutePosition(enuAxes.AAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "X-Axis relative movement":
+                    if (SetAxisRelativePosition(enuAxes.XAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "Y-Axis relative movement":
+                    if (SetAxisRelativePosition(enuAxes.YAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
+                    break;
+                case "Z-Axis relative movement":
+                    if (SetAxisRelativePosition(enuAxes.ZAxis, _value) != enuPositionerStatus.Ready) return enuTChannelStatus.Error;
                     break;
                 default:
                     return enuTChannelStatus.Error;
