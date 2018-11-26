@@ -62,7 +62,8 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private Generic2DExperimentData experimentData;
-        
+        private Generic2DExperimentData experimentData_PA; // for Post Approach
+
         public override Dictionary<string, IHWManager> HWStore
         {
             get
@@ -159,6 +160,14 @@ namespace Scaneva.Core.Experiments.ScanEva
             positionData = new List<double>(128);
             experimentData.datasetNames.Add("Autoapproach");
 
+            experimentData_PA = new Generic2DExperimentData();
+            experimentData_PA.axisNames.Add(new string[] { "Time", signalChan.Name });
+            experimentData_PA.axisUnits.Add(new string[] { "s", unit });
+            experimentData_PA.data.Add(new double[2][]);
+            signalData_PA = new List<double>(128);
+            timeData_PA = new List<double>(128);
+            experimentData_PA.datasetNames.Add("Post approach");
+
             status = enExperimentStatus.Idle;
             return status;
         }
@@ -167,20 +176,43 @@ namespace Scaneva.Core.Experiments.ScanEva
         {
             if (experimentData != null)
             {
-                signalData.Add(e.Signal);
-                positionData.Add(e.Position);
-                experimentData.data[0][0] = positionData.ToArray();
-                experimentData.data[0][1] = signalData.ToArray();
+                if (e.IsPostApproachPhase)
+                {
+                    if (signalData_PA.Count < 1)
+                    {
+                        appendCommentLines("# ================ Start of post approach ================");
+                    }
 
-                appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
+                    appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
 
-                NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, signalData.Count > 1));
+                    signalData_PA.Add(e.Signal);
+                    timeData_PA.Add(e.Time);
+
+                    experimentData_PA.data[0][0] = timeData_PA.ToArray();
+                    experimentData_PA.data[0][1] = signalData_PA.ToArray();
+
+                    NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData_PA, signalData_PA.Count > 1));
+                }
+                else
+                {
+                    appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
+
+                    signalData.Add(e.Signal);
+                    positionData.Add(e.Position);
+
+                    experimentData.data[0][0] = positionData.ToArray();
+                    experimentData.data[0][1] = signalData.ToArray();
+
+                    NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, signalData.Count > 1));
+                }
             }
         }
 
         Task measurementTask = null;
         private List<double> signalData;
         private List<double> positionData;
+        private List<double> signalData_PA;
+        private List<double> timeData_PA;
 
         public override enExperimentStatus Run()
         {

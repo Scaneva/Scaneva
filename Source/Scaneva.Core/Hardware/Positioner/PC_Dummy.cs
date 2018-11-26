@@ -234,7 +234,6 @@ namespace Scaneva.Core.Hardware
             return 0;
         }
 
-
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
@@ -320,10 +319,10 @@ namespace Scaneva.Core.Hardware
             return enuHWStatus.Ready;
         }
 
-
-
         public enuHWStatus Initialize()
         {
+            InitTransducerChannels();
+
             return enuHWStatus.Ready;
         }
 

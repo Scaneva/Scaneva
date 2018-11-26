@@ -75,14 +75,18 @@ namespace Scaneva.Core
 
     public class FBPositionUpdatedEventArgs : EventArgs
     {
-        public FBPositionUpdatedEventArgs(double position, double signal)
+        public FBPositionUpdatedEventArgs(double position, double signal, bool isPostApproachPhase = false, double time = Double.NaN)
         {
             Position = position;
             Signal = signal;
+            IsPostApproachPhase = isPostApproachPhase;
+            Time = time;
         }
 
         public double Position { get; }
         public double Signal { get; }
+        public double Time { get; }
+        public bool IsPostApproachPhase { get; }
     }
 
     class FeedbackController : ParametrizableObject
@@ -362,7 +366,7 @@ namespace Scaneva.Core
                         log.Add("Post-approach FB control was aborted by user");
                         return Status();
                     }
-                    mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds);
+                    mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds, true);
                     System.Threading.Thread.Sleep(Settings.SPLoopDelay);
                 }
                 while (stopwatch.ElapsedMilliseconds < Settings.PostAppTimeOut);
@@ -370,7 +374,7 @@ namespace Scaneva.Core
             return mStatus;
         }
 
-        private enuFeedbackStatusFlags GotoSetpointStep(long millis)
+        private enuFeedbackStatusFlags GotoSetpointStep(long millis, bool isPostApproachPhase = false)
         {
             double signal = mSensor.GetAveragedValue();
             enuFeedbackStatusFlags stat = CheckFeedback(signal);
@@ -378,7 +382,7 @@ namespace Scaneva.Core
 
             if (mPositioner.GetAxisAbsolutePosition(enuAxes.ZAxis, ref mpos) != enuPositionerStatus.Ready) return enuFeedbackStatusFlags.PositionerError;
 
-            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mpos, signal));
+            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mpos, signal, isPostApproachPhase, millis / 1000.0));
 
             if (stat.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
             {
