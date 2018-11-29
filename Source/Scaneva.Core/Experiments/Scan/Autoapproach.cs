@@ -113,6 +113,33 @@ namespace Scaneva.Core.Experiments.ScanEva
             return enExperimentStatus.Error;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.FeedbackController.Positioner == null) || (!Settings.FeedbackController.Positioners.ContainsKey(Settings.FeedbackController.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            if ((Settings.FeedbackController.Channel == null) || (!Settings.FeedbackController.TransducerChannels.ContainsKey(Settings.FeedbackController.Channel)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected signal channel invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if (Settings.FeedbackController.Averaging <= 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Averaging must be > 0";
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             FBC = new FeedbackController(log);

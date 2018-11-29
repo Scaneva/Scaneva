@@ -120,6 +120,27 @@ namespace Scaneva.Core.Experiments
             return enExperimentStatus.Error;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+            
+            // Check Scan parameters
+            if ((Settings.NumIterations <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Loop iterations must be > 0";
+                return false;
+            }
+
+            // Check Scan parameters
+            if ((Settings.MaxDuration <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Max duration must be > 0";
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             if (status != enExperimentStatus.Running)

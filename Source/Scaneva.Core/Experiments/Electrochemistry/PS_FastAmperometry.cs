@@ -100,6 +100,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureFastAmperometryMethod();
+
+            List<MethodError> errorList = fastAmpo.Validate(hw.Capabilities);
+
+            if (errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -110,17 +141,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
-            CurrentRange range = hw.SupportedRanges.First(x => x.ToString() == Settings.FACurrentRange);
-            fastAmpo.Ranging = new AutoRanging(range, range, range);  //ranges are -1=100 pA, 0=1nA, 1=10nA, 2=100nA, 3=1uA ... 7=10mA
-            fastAmpo.EquilibrationTime = Settings.EquilibrationTime;
-            fastAmpo.EqPotentialFA = Settings.EquilibrationPotential;
-            fastAmpo.Potential = Settings.Potential;
-            fastAmpo.IntervalTime = Settings.IntervalTime;
-            fastAmpo.RunTime = Settings.RunTime;
-
-            // No Aux Input for Fast Amperometry
-            //// Configure Aux/ BiPot Settings
-            //Settings.BiPotSettings.ConfigureMethod(fastAmpo, hw);
+            ConfigureFastAmperometryMethod();
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;
@@ -146,6 +167,21 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             status = enExperimentStatus.Idle;
             return status;
+        }
+
+        private void ConfigureFastAmperometryMethod()
+        {
+            CurrentRange range = hw.SupportedRanges.First(x => x.ToString() == Settings.FACurrentRange);
+            fastAmpo.Ranging = new AutoRanging(range, range, range);  //ranges are -1=100 pA, 0=1nA, 1=10nA, 2=100nA, 3=1uA ... 7=10mA
+            fastAmpo.EquilibrationTime = Settings.EquilibrationTime;
+            fastAmpo.EqPotentialFA = Settings.EquilibrationPotential;
+            fastAmpo.Potential = Settings.Potential;
+            fastAmpo.IntervalTime = Settings.IntervalTime;
+            fastAmpo.RunTime = Settings.RunTime;
+
+            // No Aux Input for Fast Amperometry
+            //// Configure Aux/ BiPot Settings
+            //Settings.BiPotSettings.ConfigureMethod(fastAmpo, hw);
         }
 
         private List<Curve> resultCurves = null;

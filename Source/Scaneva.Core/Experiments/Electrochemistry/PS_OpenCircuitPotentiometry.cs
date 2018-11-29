@@ -87,7 +87,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
-        private OpenCircuitPotentiometry exp = new OpenCircuitPotentiometry();
+        private OpenCircuitPotentiometry ocp = new OpenCircuitPotentiometry();
         private PS_PalmSens hw;
 
         private void refreshCurrentRanges()
@@ -100,6 +100,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureOpenCircuitPotentiometryMethod();
+
+            List<MethodError> errorList = ocp.Validate(hw.Capabilities);
+
+            if (errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -110,18 +141,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
-            Settings.AutoRangingSettings.ConfigureMethod(exp, hw);
-
-            exp.ConditioningTime = Settings.ConditioningTime;
-            exp.ConditioningPotential = Settings.ConditioningPotential;
-            exp.DepositionTime = Settings.DepositionTime;
-            exp.DepositionPotential = Settings.DepositionPotential;
-
-            exp.IntervalTime = Settings.IntervalTime;
-            exp.RunTime = Settings.RunTime;
-
-            // Configure Aux/ BiPot Settings
-            Settings.BiPotSettings.ConfigureMethod(exp, hw);
+            ConfigureOpenCircuitPotentiometryMethod();
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;
@@ -158,6 +178,22 @@ namespace Scaneva.Core.Experiments.PalmSens
             return status;
         }
 
+        private void ConfigureOpenCircuitPotentiometryMethod()
+        {
+            Settings.AutoRangingSettings.ConfigureMethod(ocp, hw);
+
+            ocp.ConditioningTime = Settings.ConditioningTime;
+            ocp.ConditioningPotential = Settings.ConditioningPotential;
+            ocp.DepositionTime = Settings.DepositionTime;
+            ocp.DepositionPotential = Settings.DepositionPotential;
+
+            ocp.IntervalTime = Settings.IntervalTime;
+            ocp.RunTime = Settings.RunTime;
+
+            // Configure Aux/ BiPot Settings
+            Settings.BiPotSettings.ConfigureMethod(ocp, hw);
+        }
+
         private List<Curve> resultCurves = null;
 
         public override enExperimentStatus Run()
@@ -173,7 +209,7 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             resultCurves = new List<Curve>();
 
-            string errors = hw.Measure(exp);
+            string errors = hw.Measure(ocp);
 
             if (!String.IsNullOrEmpty(errors))
             {
@@ -245,7 +281,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             hw.EndMeasurement -= HW_EndMeasurement;
 
             // save data
-            if (exp.ExtraValueMsk == ExtraValueMask.None)
+            if (ocp.ExtraValueMsk == ExtraValueMask.None)
             {
                 // 2 columns
                 double[] dataX = resultCurves[0].GetXValues();

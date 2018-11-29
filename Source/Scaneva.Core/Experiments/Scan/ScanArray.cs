@@ -98,6 +98,37 @@ namespace Scaneva.Core.Experiments.ScanEva
         private bool reverseScanX = false;
         private bool reverseScanY = false;
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.Positioner == null) || (!Settings.Positioners.ContainsKey(Settings.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if (((Settings.Lengths.X != 0) && (Settings.Speeds.X <= 0)) ||
+                ((Settings.Lengths.Y != 0) && (Settings.Speeds.Y <= 0)) ||
+                ((Settings.Lengths.Z != 0) && (Settings.Speeds.Z <= 0)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Speeds must be > 0";
+                return false;
+            }
+
+            if (((Settings.Lengths.X != 0) && (Settings.Increments.X == 0)) ||
+                ((Settings.Lengths.Y != 0) && (Settings.Increments.Y == 0)) ||
+                ((Settings.Lengths.Z != 0) && (Settings.Increments.Z == 0)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Increments must be != 0";
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             if (status != enExperimentStatus.Running)

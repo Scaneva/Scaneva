@@ -80,6 +80,8 @@ namespace Scaneva.Core.Hardware
             refreshDeviceList();
         }
 
+        public DeviceCapabilities Capabilities { get => capabilities; }
+
         private void refreshDeviceList()
         {
             string error = String.Empty;

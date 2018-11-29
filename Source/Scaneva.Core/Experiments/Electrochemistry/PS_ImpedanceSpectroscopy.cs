@@ -100,6 +100,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureImpedimetricMethod();
+
+            List<MethodError> errorList = imp.Validate(hw.Capabilities);
+
+            if (errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -110,6 +141,36 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
+            ConfigureImpedimetricMethod();
+
+            // Setup Results File
+            ResultsFilePath = resultsFilePath;
+            string cords = "";
+            ExperimentContainer container = parent as ExperimentContainer;
+            this.parent = parent;
+
+            if (container != null)
+            {
+                cords = container.ChildIndexer();
+                if (cords != "")
+                {
+                    cords = " " + cords;
+                }
+            }
+
+            ResultsFileName = "ImpedanceSpectroscopyExperiment - " + Name + cords + ".dat";
+
+            string headerString = "Experiment: ImpedanceSpectroscopyExperiment - " + Name + cords + "\r\n";
+
+            // 2 columns
+            writeHeader(headerString, new string[] { /*"Time [s]", "Current [µA]"*/ }, settingsObj: Settings, positionColumns: false);
+
+            status = enExperimentStatus.Idle;
+            return status;
+        }
+
+        private void ConfigureImpedimetricMethod()
+        {
             Settings.AutoRangingSettings.ConfigureMethod(imp, hw);
 
             imp.EquilibrationTime = Settings.EquilibrationTime;
@@ -168,37 +229,13 @@ namespace Scaneva.Core.Experiments.PalmSens
             // Advanced Settings
             if (typeof(EISSettingsPalmSens3).Equals(Settings.AdvancedSettings.GetType()))
             {
-                
+
             }
 
             // Set multiplexer settings to measure on channel 2 and 3 (one at a time).
             imp.MuxMethod = MuxMethod.Sequentially; //only sequential measurements are allowed for EIS
             imp.UseMuxChannel = new BitArray(new bool[] { false, true, true });
 
-            // Setup Results File
-            ResultsFilePath = resultsFilePath;
-            string cords = "";
-            ExperimentContainer container = parent as ExperimentContainer;
-            this.parent = parent;
-
-            if (container != null)
-            {
-                cords = container.ChildIndexer();
-                if (cords != "")
-                {
-                    cords = " " + cords;
-                }
-            }
-
-            ResultsFileName = "ImpedanceSpectroscopyExperiment - " + Name + cords + ".dat";
-
-            string headerString = "Experiment: ImpedanceSpectroscopyExperiment - " + Name + cords + "\r\n";
-
-            // 2 columns
-            writeHeader(headerString, new string[] { /*"Time [s]", "Current [µA]"*/ }, settingsObj: Settings, positionColumns: false);
-
-            status = enExperimentStatus.Idle;
-            return status;
         }
 
         private List<EISData> resultEISData = null;

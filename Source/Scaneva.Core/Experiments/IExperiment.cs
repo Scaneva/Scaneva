@@ -92,6 +92,7 @@ namespace Scaneva.Core
         PositionStore PositionStore { get; set; }
 
         enExperimentStatus Status { get; }
+        bool CheckParametersOk(out string errorMessage);
         enExperimentStatus Configure(IExperiment parent, string resultsFilePath);
         enExperimentStatus Run();
         enExperimentStatus Abort();

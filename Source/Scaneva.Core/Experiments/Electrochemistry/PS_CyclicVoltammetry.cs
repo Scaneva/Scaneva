@@ -99,6 +99,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureCyclicVoltammetryMethod();
+
+            List<MethodError> errorList = cv.Validate(hw.Capabilities);
+
+            if (errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -109,17 +140,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
-            Settings.AutoRangingSettings.ConfigureMethod(cv, hw);
-            cv.EquilibrationTime = Settings.EquilibrationTime;
-            cv.BeginPotential = Settings.BeginPotential;
-            cv.Vtx1Potential = Settings.PotentialVertex1;
-            cv.Vtx2Potential = Settings.PotentialVertex2;
-            cv.Scanrate = Settings.Scanrate;
-            cv.StepPotential = Settings.StepPotential;
-            cv.nScans = Settings.NumberOfSans;
-
-            // Configure Aux/ BiPot Settings
-            Settings.BiPotSettings.ConfigureMethod(cv, hw);
+            ConfigureCyclicVoltammetryMethod();
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;
@@ -153,6 +174,21 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             status = enExperimentStatus.Idle;
             return status;
+        }
+
+        private void ConfigureCyclicVoltammetryMethod()
+        {
+            Settings.AutoRangingSettings.ConfigureMethod(cv, hw);
+            cv.EquilibrationTime = Settings.EquilibrationTime;
+            cv.BeginPotential = Settings.BeginPotential;
+            cv.Vtx1Potential = Settings.PotentialVertex1;
+            cv.Vtx2Potential = Settings.PotentialVertex2;
+            cv.Scanrate = Settings.Scanrate;
+            cv.StepPotential = Settings.StepPotential;
+            cv.nScans = Settings.NumberOfSans;
+
+            // Configure Aux/ BiPot Settings
+            Settings.BiPotSettings.ConfigureMethod(cv, hw);
         }
 
         private List<Curve> resultCurves = null;

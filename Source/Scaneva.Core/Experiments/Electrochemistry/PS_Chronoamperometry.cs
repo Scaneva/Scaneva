@@ -99,6 +99,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureAmperometricDetectionMethod();
+
+            List<MethodError> errorList = ampoD.Validate(hw.Capabilities);
+
+            if(errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -109,14 +140,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
-            Settings.AutoRangingSettings.ConfigureMethod(ampoD, hw);
-            ampoD.EquilibrationTime = Settings.EquilibrationTime;
-            ampoD.Potential = Settings.Potential;
-            ampoD.IntervalTime = Settings.IntervalTime;
-            ampoD.RunTime = Settings.RunTime;
-
-            // Configure Aux/ BiPot Settings
-            Settings.BiPotSettings.ConfigureMethod(ampoD, hw);
+            ConfigureAmperometricDetectionMethod();
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;
@@ -150,6 +174,18 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             status = enExperimentStatus.Idle;
             return status;
+        }
+
+        private void ConfigureAmperometricDetectionMethod()
+        {
+            Settings.AutoRangingSettings.ConfigureMethod(ampoD, hw);
+            ampoD.EquilibrationTime = Settings.EquilibrationTime;
+            ampoD.Potential = Settings.Potential;
+            ampoD.IntervalTime = Settings.IntervalTime;
+            ampoD.RunTime = Settings.RunTime;
+
+            // Configure Aux/ BiPot Settings
+            Settings.BiPotSettings.ConfigureMethod(ampoD, hw);
         }
 
         private List<Curve> resultCurves = null;

@@ -104,6 +104,46 @@ namespace Scaneva.Core.Experiments.ScanEva
             return status;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+            int count = 0;
+
+            if (Settings.Duration <= 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Duration must be > 0";
+                return false;
+            }
+
+            if (Settings.SamplingRate <= 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': SamplingRate must be > 0";
+                return false;
+            }
+
+            for (int i = 0; i < Settings.InputChannelSettings.Channels.Count(); i++)
+            {
+                string chan = Settings.InputChannelSettings.Channels[i];
+
+                if ((chan != null) && (chan != "NONE"))
+                {
+                    if (!transducerChannels.ContainsKey(chan))
+                    {
+                        errorMessage = "Configuration Error in '" + Name + "': Invalid transducer channel " + chan;
+                        return false;
+                    }
+                    count++;
+                }
+            }
+
+            if (count == 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': No transducer channels selected";
+                return false;
+            }
+
+            return true;
+        }
 
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {

@@ -55,6 +55,7 @@ namespace Scaneva.Core.Experiments
         public enExperimentStatus Status { get { return status; } }
 
         public abstract enExperimentStatus Abort();
+        public abstract bool CheckParametersOk(out string errorMessage);
         public abstract enExperimentStatus Configure(IExperiment parent, string resultsFilePath);
         public abstract enExperimentStatus Run();
 

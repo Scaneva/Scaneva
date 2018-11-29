@@ -28,6 +28,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using Scaneva.Core;
 using Scaneva.Core.ExperimentData;
+using Scaneva.Core.Experiments;
 using Scaneva.Tools;
 using System;
 using System.Collections.Generic;
@@ -748,37 +749,47 @@ namespace Scaneva
         {
             if (core.scanMethod.Count > 0)
             {
-                // Ask for Result Directory Name
-                InputDialog dialog = new InputDialog(Cursor.Position.X, Cursor.Position.Y);
-                dialog.Text = "Run Result Path";
-                dialog.TextEntryLabel = "Enter Run Name:";
-                dialog.TextEntry = methodFile.Split(new string[] { ".smf" }, StringSplitOptions.RemoveEmptyEntries).First() + " " + DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
-
-                DialogResult dResult = dialog.ShowDialog();
-                string runName = dialog.TextEntry;
-
-                if (dResult == DialogResult.OK)
+                // Validate Experiment parameters
+                bool valOk = true;
+                foreach (IExperiment exp in core.scanMethod)
                 {
-                    toolStripStatusError.Text = "";
+                    valOk = ValidateMethodParameters(exp) && valOk;
+                }
 
-                    // Stop Live Input if running
-                    StartLiveInput(false);
-                    Thread.Sleep(10);
+                if (valOk)
+                {
+                    // Ask for Result Directory Name
+                    InputDialog dialog = new InputDialog(Cursor.Position.X, Cursor.Position.Y);
+                    dialog.Text = "Run Result Path";
+                    dialog.TextEntryLabel = "Enter Run Name:";
+                    dialog.TextEntry = methodFile.Split(new string[] { ".smf" }, StringSplitOptions.RemoveEmptyEntries).First() + " " + DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
 
-                    lockSettings();
+                    DialogResult dResult = dialog.ShowDialog();
+                    string runName = dialog.TextEntry;
 
-                    setEditObject(null);
-                    treeViewScanMethod.SelectedNode = null;
-                    checkedListBoxHardware.SelectedIndex = -1;
+                    if (dResult == DialogResult.OK)
+                    {
+                        toolStripStatusError.Text = "";
 
-                    // Initialized by Button
-                    //core.InitializeAllHardware();
+                        // Stop Live Input if running
+                        StartLiveInput(false);
+                        Thread.Sleep(10);
 
-                    recentScanDataFree = null;
-                    recentScanData = null;
+                        lockSettings();
 
-                    ResetPlotView("Unnamed");
-                    core.RunScanMethod(runName);
+                        setEditObject(null);
+                        treeViewScanMethod.SelectedNode = null;
+                        checkedListBoxHardware.SelectedIndex = -1;
+
+                        // Initialized by Button
+                        //core.InitializeAllHardware();
+
+                        recentScanDataFree = null;
+                        recentScanData = null;
+
+                        ResetPlotView("Unnamed");
+                        core.RunScanMethod(runName);
+                    }
                 }
             }
             else
@@ -816,6 +827,30 @@ namespace Scaneva
                 //}
             }
 
+        }
+
+        private static bool ValidateMethodParameters(IExperiment exp)
+        {
+            string errorText = String.Empty;
+            bool valOk = exp.CheckParametersOk(out errorText);
+
+            if (errorText != String.Empty)
+            {
+                MessageBox.Show(errorText, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            // is the exp a container?
+            if (typeof(ExperimentContainer).IsAssignableFrom(exp.GetType()))
+            {
+                ExperimentContainer cont = (ExperimentContainer)exp;
+
+                foreach (IExperiment childExp in cont)
+                {
+                    valOk = ValidateMethodParameters(childExp) && valOk;
+                }
+            }
+
+            return valOk;
         }
 
         private void Core_NotifyScanEnded(object sender, ExperimentEndedEventArgs e)

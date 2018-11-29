@@ -93,8 +93,35 @@ namespace Scaneva.Core.Experiments.ScanEva
         private ScanDataFreeform scanData = null;
         private int currentPosIDX;
         private double currentXPos, currentYPos;
-       // private int scanPointsX = 0;
+        // private int scanPointsX = 0;
         //private int scanPointsY = 0;
+
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.Positioner == null) || (!Settings.Positioners.ContainsKey(Settings.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if ((Settings.Speeds.X <= 0) || (Settings.Speeds.Y <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Speeds must be > 0";
+                return false;
+            }
+            
+            if ((Settings.AngularIncrement == 0) || (Settings.RadiusIncrement == 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Increments must be != 0";
+                return false;
+            }
+
+            return true;
+        }
 
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
