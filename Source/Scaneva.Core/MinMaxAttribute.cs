@@ -75,8 +75,8 @@ namespace Scaneva.Core
         /// <param name="decimalPlaces"></param>
         public MinMaxAttribute(double min, double max, double increment = 1d, int decimalPlaces = 0)
         {
-            Min = Convert.ToDecimal(min);
-            Max = Convert.ToDecimal(max);
+            Min = (min < (double)decimal.MinValue) ? decimal.MinValue : Convert.ToDecimal(min);
+            Max = (max > (double)decimal.MaxValue) ? decimal.MaxValue : Convert.ToDecimal(max);
             Increment = Convert.ToDecimal(increment);
             DecimalPlaces = decimalPlaces;
         }

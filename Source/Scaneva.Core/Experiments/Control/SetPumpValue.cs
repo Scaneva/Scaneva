@@ -77,6 +77,39 @@ namespace Scaneva.Core.Experiments
             return status;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.Pump == null) || (!Settings.Pumps.ContainsKey(Settings.Pump)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': No pump selected or pump not present";
+                return false;
+            }
+
+            // Check Composition
+            double total = 0;
+            int count = 0;
+            List<double?> compo = new List<double?>(new double?[] { Settings.CompositionA, Settings.CompositionB, Settings.CompositionC, Settings.CompositionD });
+
+            foreach(double? component in compo)
+            {
+                if (component.HasValue)
+                {
+                    count++;
+                    total += component.Value;
+                }
+            }
+
+            if ((count < 3) || ((count == 3) && (total > 100)) || ((count >= 4) && (total != 100)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Pump composition invalid";
+                return false;
+            }           
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             mPump = Settings.Pumps[Settings.Pump];

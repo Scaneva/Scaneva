@@ -28,11 +28,14 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using Scaneva.Core;
 using Scaneva.Core.ExperimentData;
+using Scaneva.Core.Experiments;
 using Scaneva.Tools;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -44,7 +47,7 @@ namespace Scaneva
 {
     public partial class ScanevaMainGUI : Form
     {
-        private ScanevaCore core = new ScanevaCore();
+        private ScanevaCore core = null;
 
         // rememebr changes
         private ParametrizableObject editedObject = null;
@@ -52,9 +55,12 @@ namespace Scaneva
         private bool hwStoreHasUnsaveChanges = false;
         private Position currentPos = new Position();
 
+        private string methodFile = "New Method.smf";
+
         public ScanevaMainGUI()
         {
             InitializeComponent();
+            updateTitleBar();
 
             // Change culture to en-US for UI
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
@@ -75,7 +81,8 @@ namespace Scaneva
             // set sorting
             propertyGrid1.PropertySort = PropertySort.Categorized;
 
-            UpdateCoreSettings();
+            ScanevaCoreSettings settings = BuildCoreSettings();
+            core = new ScanevaCore(settings);
 
             // Load HW Settings           
             core.LoadHardwareSettings();
@@ -92,13 +99,21 @@ namespace Scaneva
             lockSettings(enViewState.hwConfigView);
         }
 
-        private void UpdateCoreSettings()
+        private void updateTitleBar()
         {
-            core.Settings.DefaultScanMethodDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
-            core.Settings.HWSettingsFilePath = Properties.Settings.Default.HWSettingsFilePath;
-            core.Settings.LogDirectory = Properties.Settings.Default.LogDirectory;
-            core.Settings.PositionStoreFilePath = Properties.Settings.Default.PositionStoreFilePath;
-            core.Settings.ScanResultDirectory = Properties.Settings.Default.ScanResultDirectory;
+            this.Text = "Scaneva - " + methodFile + (scanMethodHasUnsavedChanges ? "*" : "");
+        }
+
+        private ScanevaCoreSettings BuildCoreSettings()
+        {
+            ScanevaCoreSettings settings = new ScanevaCoreSettings();
+            settings.DefaultScanMethodDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            settings.HWSettingsFilePath = Properties.Settings.Default.HWSettingsFilePath;
+            settings.LogDirectory = Properties.Settings.Default.LogDirectory;
+            settings.PositionStoreFilePath = Properties.Settings.Default.PositionStoreFilePath;
+            settings.ScanResultDirectory = Properties.Settings.Default.ScanResultDirectory;
+
+            return settings;
         }
 
         private void Log_StatusUpdated(object sender, StatusUpdatedEventArgs e)
@@ -196,6 +211,21 @@ namespace Scaneva
                     //do nothing
                 }
             }
+
+            if (scanMethodHasUnsavedChanges)
+            {
+                DialogResult dialogResult = MessageBox.Show("Do you want to save changes to Scan Method before exit?", "Save Changes to method?", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    toolStripButtonSaveMethod_Click(null, null);
+                }
+                else if (dialogResult == DialogResult.No)
+                {
+                    //do nothing
+                }
+            }
+            
+
             // Release all Hardware
             try
             {
@@ -221,15 +251,32 @@ namespace Scaneva
                 pName = parent.Label + "." + pName;
             }
 
-            if ((typeof(IHWManager)).IsAssignableFrom(editedObject.GetType()))
+            if (editedObject != null)
             {
-                (editedObject as ParametrizableObject).ParameterChanged(pName);
-                hwStoreHasUnsaveChanges = true;
+                if ((typeof(IHWManager)).IsAssignableFrom(editedObject.GetType()))
+                {
+                    (editedObject as ParametrizableObject).ParameterChanged(pName);
+                    hwStoreHasUnsaveChanges = true;
+                }
+                else if ((typeof(IExperiment)).IsAssignableFrom(editedObject.GetType()))
+                {
+                    (editedObject as ParametrizableObject).ParameterChanged(pName);
+                    scanMethodHasUnsavedChanges = true;
+                    updateTitleBar();
+                }
             }
-            else if ((typeof(IExperiment)).IsAssignableFrom(editedObject.GetType()))
+            else if (propertyGrid1.SelectedObject.GetType().Equals(typeof(DynamicSettingsClass)))
             {
-                (editedObject as ParametrizableObject).ParameterChanged(pName);
-                scanMethodHasUnsavedChanges = true;
+                // Manual Transducer Channel Setting
+                DynamicSettingsClass cc = propertyGrid1.SelectedObject as DynamicSettingsClass;
+                ITransducer hw = cc?.RefObject as ITransducer;
+                if (hw != null)
+                {
+                    if (e.ChangedItem.Value.GetType().Equals(typeof(double)))
+                    {
+                        hw.Channels.Find(x => (x.Name == e.ChangedItem.Label)).SetValue((double)e.ChangedItem.Value);
+                    }
+                }
             }
 
             // refresh para box
@@ -333,6 +380,9 @@ namespace Scaneva
                     // Create new Experiment and update treeView
                     TreeNode newExp = core.AddExperimentToScanMethod(treeViewScanMethod.Nodes, insertAfter, expName, expTypeName);
                     treeViewScanMethod.SelectedNode = newExp;
+
+                    scanMethodHasUnsavedChanges = true;
+                    updateTitleBar();
                 }
             }
         }
@@ -427,6 +477,9 @@ namespace Scaneva
             while (!stopLiveManualInput)
             {
                 System.Threading.Thread.Sleep(delayMS);
+
+                refreshTransducerValues();
+
                 string chan = manualInputChan;
 
                 TimeSpan timeDifference = DateTime.Now.Subtract(startDate);
@@ -532,6 +585,11 @@ namespace Scaneva
             openFileDialog1.CheckFileExists = true;
             openFileDialog1.InitialDirectory = LogHelper.getMainDirectory();
 
+            if (File.GetAttributes(Properties.Settings.Default.DefaultScanMethodDirectory).HasFlag(FileAttributes.Directory))
+            {
+                openFileDialog1.InitialDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            }
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 path = openFileDialog1.FileName;
@@ -542,6 +600,10 @@ namespace Scaneva
 
                 refreshMethod(true);
                 setEditObject(null);
+
+                scanMethodHasUnsavedChanges = false;
+                methodFile = Path.GetFileName(path);
+                updateTitleBar();
             }
         }
 
@@ -553,12 +615,19 @@ namespace Scaneva
             saveFileDialog1.Filter = "Scaneva Method Files (*.smf)|*.smf";
             saveFileDialog1.InitialDirectory = LogHelper.getMainDirectory();
 
+            if (File.GetAttributes(Properties.Settings.Default.DefaultScanMethodDirectory).HasFlag(FileAttributes.Directory))
+            {
+                saveFileDialog1.InitialDirectory = Properties.Settings.Default.DefaultScanMethodDirectory;
+            }
+
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 path = saveFileDialog1.FileName;
 
                 core.SaveScanMethod(path);
                 scanMethodHasUnsavedChanges = false;
+                methodFile = Path.GetFileName(path);
+                updateTitleBar();
             }
         }
 
@@ -572,7 +641,7 @@ namespace Scaneva
                 treeViewScanMethod.SelectedNode = node;
 
                 scanMethodHasUnsavedChanges = true;
-
+                updateTitleBar();
                 refreshMethod();
             }
         }
@@ -587,6 +656,7 @@ namespace Scaneva
                 treeViewScanMethod.SelectedNode = node;
 
                 scanMethodHasUnsavedChanges = true;
+                updateTitleBar();
 
                 refreshMethod();
             }
@@ -679,26 +749,48 @@ namespace Scaneva
         {
             if (core.scanMethod.Count > 0)
             {
-                toolStripStatusError.Text = "";
+                // Validate Experiment parameters
+                bool valOk = true;
+                foreach (IExperiment exp in core.scanMethod)
+                {
+                    valOk = ValidateMethodParameters(exp) && valOk;
+                }
 
-                // Stop Live Input if running
-                StartLiveInput(false);
-                Thread.Sleep(10);
+                if (valOk)
+                {
+                    // Ask for Result Directory Name
+                    InputDialog dialog = new InputDialog(Cursor.Position.X, Cursor.Position.Y);
+                    dialog.Text = "Run Result Path";
+                    dialog.TextEntryLabel = "Enter Run Name:";
+                    dialog.TextEntry = methodFile.Split(new string[] { ".smf" }, StringSplitOptions.RemoveEmptyEntries).First() + " " + DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
 
-                lockSettings();
+                    DialogResult dResult = dialog.ShowDialog();
+                    string runName = dialog.TextEntry;
 
-                setEditObject(null);
-                treeViewScanMethod.SelectedNode = null;
-                checkedListBoxHardware.SelectedIndex = -1;
+                    if (dResult == DialogResult.OK)
+                    {
+                        toolStripStatusError.Text = "";
 
-                // Initialized by Button
-                //core.InitializeAllHardware();
+                        // Stop Live Input if running
+                        StartLiveInput(false);
+                        Thread.Sleep(10);
 
-                recentScanDataFree = null;
-                recentScanData = null;
+                        lockSettings();
 
-                ResetPlotView("Unnamed");
-                core.RunScanMethod();
+                        setEditObject(null);
+                        treeViewScanMethod.SelectedNode = null;
+                        checkedListBoxHardware.SelectedIndex = -1;
+
+                        // Initialized by Button
+                        //core.InitializeAllHardware();
+
+                        recentScanDataFree = null;
+                        recentScanData = null;
+
+                        ResetPlotView("Unnamed");
+                        core.RunScanMethod(runName);
+                    }
+                }
             }
             else
             {
@@ -735,6 +827,30 @@ namespace Scaneva
                 //}
             }
 
+        }
+
+        private static bool ValidateMethodParameters(IExperiment exp)
+        {
+            string errorText = String.Empty;
+            bool valOk = exp.CheckParametersOk(out errorText);
+
+            if (errorText != String.Empty)
+            {
+                MessageBox.Show(errorText, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            // is the exp a container?
+            if (typeof(ExperimentContainer).IsAssignableFrom(exp.GetType()))
+            {
+                ExperimentContainer cont = (ExperimentContainer)exp;
+
+                foreach (IExperiment childExp in cont)
+                {
+                    valOk = ValidateMethodParameters(childExp) && valOk;
+                }
+            }
+
+            return valOk;
         }
 
         private void Core_NotifyScanEnded(object sender, ExperimentEndedEventArgs e)
@@ -1027,53 +1143,57 @@ namespace Scaneva
                     switch ((sender as Button).Name)
                     {
                         case "btnMoveLeft":
-                            pstat = positioner.MoveRelativ(enuAxes.XAxis, -Math.Abs(Convert.ToDouble(txtXIncrement.Text)), Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.XAxis, Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.XAxis, -Math.Abs(Convert.ToDouble(txtXIncrement.Text)));
                             break;
                         case "btnMoveRight":
-                            positioner.MoveRelativ(enuAxes.XAxis, Math.Abs(Convert.ToDouble(txtXIncrement.Text)), Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.XAxis, Convert.ToDouble(txtXSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.XAxis, Math.Abs(Convert.ToDouble(txtXIncrement.Text)));
                             break;
                         case "btnMoveBackward":
-                            positioner.MoveRelativ(enuAxes.YAxis, -Math.Abs(Convert.ToDouble(txtYIncrement.Text)), Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.YAxis, Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.YAxis, -Math.Abs(Convert.ToDouble(txtYIncrement.Text)));
                             break;
                         case "btnMoveForward":
-                            positioner.MoveRelativ(enuAxes.YAxis, Math.Abs(Convert.ToDouble(txtYIncrement.Text)), Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.YAxis, Convert.ToDouble(txtYSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.YAxis, Math.Abs(Convert.ToDouble(txtYIncrement.Text)));
                             break;
                         case "btnMoveUp":
-                            positioner.MoveRelativ(enuAxes.ZAxis, Math.Abs(Convert.ToDouble(txtZIncrement.Text)), Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.ZAxis, Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.ZAxis, Math.Abs(Convert.ToDouble(txtZIncrement.Text)));
                             break;
                         case "btnMoveDown":
-                            positioner.MoveRelativ(enuAxes.ZAxis, -Math.Abs(Convert.ToDouble(txtZIncrement.Text)), Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisSpeed(enuAxes.ZAxis, Convert.ToDouble(txtZSpeed.Text));
+                            pstat = positioner.SetAxisRelativePosition(enuAxes.ZAxis, -Math.Abs(Convert.ToDouble(txtZIncrement.Text)));
                             break;
                         case "btnMoveRelative":
                             Position increments = new Position(Convert.ToDouble(txtXIncrement.Text), Convert.ToDouble(txtYIncrement.Text), Convert.ToDouble(txtZIncrement.Text));
                             Position rspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
-                            pstat = positioner.Speeds(rspeeds);
+                            pstat = positioner.SetSpeeds(rspeeds);
                             if (pstat == enuPositionerStatus.Ready)
                             {
-                                pstat = positioner.RelativePosition(increments);
+                                pstat = positioner.SetRelativePosition(increments);
                             }
                             break;
                         case "btnMoveAbsolute":
                             Position pos = new Position(Convert.ToDouble(txtXIncrement.Text), Convert.ToDouble(txtYIncrement.Text), Convert.ToDouble(txtZIncrement.Text));
                             Position aspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
-                            pstat = positioner.Speeds(aspeeds);
+                            pstat = positioner.SetSpeeds(aspeeds);
                             if (pstat == enuPositionerStatus.Ready)
                             {
-                                pstat = positioner.AbsolutePosition(pos);
+                                pstat = positioner.SetAbsolutePosition(pos);
                             }
                             break;
                         case "btnStopMovement":
-                            pstat = positioner.StopMovement();
+                            pstat = positioner.StopMovement();//todo: stop during the movement - extra thread?
                             break;
                         default:
                             break;
                     }
+                    UpdatePosDisplay(core.positionStore.CurrentAbsolutePosition());
                 }
-                else
-                {
-                    //log and indicate an error
-                }
-                UpdatePosDisplay(core.positionStore.CurrentAbsolutePosition());
+                //todo: if (pstat != enuPositionerStatus.Ready) 
+                
             }
         }
 
@@ -1115,10 +1235,10 @@ namespace Scaneva
                     {
                         Position aspeeds = new Position(Convert.ToDouble(txtXSpeed.Text), Convert.ToDouble(txtYSpeed.Text), Convert.ToDouble(txtZSpeed.Text));
 
-                        enuPositionerStatus pstat = positioner.Speeds(aspeeds);
+                        enuPositionerStatus pstat = positioner.SetSpeeds(aspeeds);
                         if (pstat == enuPositionerStatus.Ready)
                         {
-                            pstat = positioner.AbsolutePosition(newPos);
+                            pstat = positioner.SetAbsolutePosition(newPos);
                         }
                     }
                 }
@@ -1144,6 +1264,10 @@ namespace Scaneva
         private void toolStripButtonConnect_Click(object sender, EventArgs e)
         {
             core.InitializeAllHardware();
+
+            // Add initialized HW to list:
+            listBoxManualHwSelect.Items.Clear();
+            listBoxManualHwSelect.Items.AddRange(core.hwStore.Where(x => x.Value.IsEnabled).Select(x => x.Key).ToArray());
 
             // load Position Store
             foreach (var item in core.positionStore.PositionsList())
@@ -1229,7 +1353,7 @@ namespace Scaneva
             if (dResult == DialogResult.OK)
             {
                 Properties.Settings.Default.Save();
-                UpdateCoreSettings();
+                core.Settings = BuildCoreSettings();
             }
             else
             {
@@ -1242,5 +1366,48 @@ namespace Scaneva
             AboutBox about = new AboutBox();
             about.ShowDialog();
         }
+
+        private void listBoxManualHwSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string hwKey = listBoxManualHwSelect.SelectedItem as string;
+            if (hwKey != null)
+            {
+                ITransducer hw = core.hwStore[hwKey] as ITransducer;
+
+                DynamicSettingsClass expando = new DynamicSettingsClass();
+                expando.Name = hwKey;
+                expando.RefObject = hw;
+
+                foreach (var chan in hw.Channels)
+                {
+                    string unit = (chan.Prefix == enuPrefix.none) ? chan.Unit : chan.Prefix + chan.Unit;
+                    expando.Add(new CustomProperty(chan.Name, chan.Name + " (" + unit + ")", hwKey, double.NaN, typeof(double), chan.ChannelType == enuChannelType.passive, true));
+                }
+
+                propertyGrid1.SelectedObject = expando;
+                refreshTransducerValues(false);
+            }            
+        }
+
+        private void refreshTransducerValues(bool passiveChansOnly = true)
+        {
+            DynamicSettingsClass cc = propertyGrid1.SelectedObject as DynamicSettingsClass;
+            ITransducer hw = cc?.RefObject as ITransducer;
+            if (hw != null)
+            {
+                foreach (var tchan in hw.Channels)
+                {
+                    double val = tchan.GetValue();
+                    CustomProperty cProp = cc.Find(x => (x.Name == tchan.Name));
+                    if ((cProp != null) && ((!passiveChansOnly) || (tchan.ChannelType != enuChannelType.active)))
+                    {
+                        cProp.Value = val;
+                    }
+                }
+            }
+            propertyGrid1.Invoke(new MethodInvoker(delegate { propertyGrid1.Refresh(); }));
+        }
+
+
     }
 }

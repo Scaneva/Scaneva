@@ -37,9 +37,9 @@
     <Reference Include="PalmSens.Core">
       <HintPath>..\..\Dependencies\PSLibraries\PalmSens.Core.dll</HintPath>
     </Reference>
-    <Reference Include="PalmSens.Core.Windows, Version=5.4.223.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="PalmSens.Core.Windows, Version=5.5.1109.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\PSLibraries\PalmSens.Core.Windows.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,6 +71,7 @@
     <Compile Include="Experiments\Control\SetSingleValueSettings.cs" />
     <Compile Include="Hardware\ADDA\ADC_Dummy.cs" />
     <Compile Include="Hardware\ADDA\ADC_Dummy_Settings.cs" />
+    <Compile Include="Hardware\Positioner\SMC_LSTep_PCIe_Axis_Settings.cs" />
     <Compile Include="Hardware\Pump\PumpTubing.cs" />
     <Compile Include="Hardware\Pump\Pump_Jasco_PU_4180.cs" />
     <Compile Include="Hardware\Pump\Pump_Watson-Marlow_520Du.cs" />

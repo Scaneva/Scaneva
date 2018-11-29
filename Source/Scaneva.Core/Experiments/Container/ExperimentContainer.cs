@@ -107,7 +107,21 @@ namespace Scaneva.Core.Experiments
                 currentChildExperiment = exp;
 
                 log.Add("Configuring " + ((ParametrizableObject)exp).Name + "...");
-                enExperimentStatus expStatus = exp.Configure(this, Path.Combine(ResultsFilePath, (exp as ParametrizableObject).Name));
+
+                enExperimentStatus expStatus = enExperimentStatus.Uninitialized;
+
+                // is the child another container?
+                if (typeof(ExperimentContainer).IsAssignableFrom(exp.GetType()))
+                {
+                    // Use the path as is (container will append its on subdirectory)
+                    expStatus = exp.Configure(this, ResultsFilePath);
+                }
+                else
+                {
+                    // For non-container experiments specifiy a sub directory here
+                    expStatus = exp.Configure(this, Path.Combine(ResultsFilePath, (exp as ParametrizableObject).Name));
+                }
+
                 if ((expStatus != enExperimentStatus.OK) && (expStatus != enExperimentStatus.Idle))
                 {
                     log.Warning("Experiment Sequence Aborted due to exp.Configure() returning: " + expStatus);

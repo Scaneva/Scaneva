@@ -156,10 +156,11 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Counter", "l", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Speed", "l/s", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Run", "", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK)); // 1 - run, 0, stop
-            channels.Add(new TransducerChannel(this, "Direction", "", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK)); //1 - CW, 0 - CCW
+            channels.Add(new TransducerChannel(this, "Counter", "l", enuPrefix.µ, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Flowrate", "l/s", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Speed", "rpm", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Run", "", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK)); // 1 - run, 0, stop
+            channels.Add(new TransducerChannel(this, "Direction", "", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK)); //1 - CW, 0 - CCW
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Pump;
@@ -176,6 +177,8 @@ namespace Scaneva.Core.Hardware
                     return Math.Abs(Convert.ToDouble(Run.HasFlag(enuPumpStatus.Direction)));
                 case "Speed":
                     return Speed;
+                case "Flowrate":
+                    return Flowrate.GetValueOrDefault(double.NaN);
                 case "Counter":
                     return Counter;
                 default:
@@ -183,14 +186,32 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double GetAveragedValue(TransducerChannel channel)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
-            return GetValue(channel);
+            channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
-        public int Averaging { get => 1; set => throw new NotImplementedException(); } //todo: get rid of the exception
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
 
-        public void SetValue(TransducerChannel channel, double _value)
+
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
+        }
+
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             switch (channel.Name)
             {
@@ -203,30 +224,32 @@ namespace Scaneva.Core.Hardware
                     {
                         Run &= ~enuPumpStatus.Running;
                     }
-                    return;
+                    break;
 
                 case "Direction":
                     if (_value > 0)
                     {
-                        Run |= enuPumpStatus.Direction;
+                        Direction |= enuPumpStatus.Direction;
                     }
                     else
                     {
-                        Run &= ~enuPumpStatus.Direction;
+                        Direction &= ~enuPumpStatus.Direction;
                     }
-                    return;
+                    break;
 
                 case "Speed":
                     Speed = _value;
-                    return;
+                    break;
+
+                case "Flowrate":
+                    Flowrate = _value;
+                    break;
 
                 case "Counter":
                     Counter = 0;
-                    return;
-
-                default:
-                    return;
+                    break;
             }
+            return enuTChannelStatus.OK;
         }
 
         //IPump
@@ -239,7 +262,7 @@ namespace Scaneva.Core.Hardware
         {
             get
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "RT", out res) != enuHWStatus.Ready)
+                if (sendCommand("RT", null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -247,12 +270,28 @@ namespace Scaneva.Core.Hardware
                 }
                 else
                 {
-                    return Settings.TubingObj.RPM2Speed(1) * Convert.ToDouble(res) / 10982; //10,982 pulses per revolution                 
+                    try
+                    {
+                        if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                        {
+                            string[] substrings = res.Substring(res.IndexOf('<')).Split(',');
+                            return Convert.ToDouble(substrings[1]);
+                        }
+                        else
+                        {
+                            return Settings.TubingObj.RPM2Speed(1) * Convert.ToDouble(res) / 10982; //10,982 pulses per revolution                 
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error(e.ToString());
+                        return double.NaN;
+                    }
                 }
             }
             set
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "TC", out res) != enuHWStatus.Ready)
+                if (sendCommand("TC", null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -260,11 +299,11 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double Speed //in µl/s!
+        public double Speed //in rpm
         {
             get
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "RS", out res) != enuHWStatus.Ready)
+                if (sendCommand("RS", null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -272,14 +311,31 @@ namespace Scaneva.Core.Hardware
                 }
                 else
                 {
-                    String[] substrings = res.Split(new char[0]);
-                    return Settings.TubingObj.RPM2Speed(Convert.ToDouble(substrings[4]));
+                    try
+                    {
+                        string[] substrings;
+                        if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                        {
+                            substrings = res.Substring(res.IndexOf('<')).Split(',');
+                            return Convert.ToDouble(substrings[5]);
+                        }
+                        else
+                        {
+                            substrings = res.Split(' ');
+                            return Convert.ToDouble(substrings[4]);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error(e.ToString());
+                        return double.NaN;
+                    }
                 }
             }
             set
             {
-                double rpm = (value <= Settings.TubingObj.RPM2Speed(220)) ? Settings.TubingObj.Speed2RPM(value) : Settings.TubingObj.RPM2Speed(220);
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "SP" + rpm.ToString("F1"), out res) != enuHWStatus.Ready)
+                double rpm = Math.Min(value, Settings.TubingObj.MaxRPM);
+                if (sendCommand("SP", rpm, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -291,7 +347,7 @@ namespace Scaneva.Core.Hardware
         {
             get
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "ZY", out res) != enuHWStatus.Ready)
+                if (sendCommand("ZY", null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     hwStatus = enuHWStatus.Error;
@@ -299,6 +355,18 @@ namespace Scaneva.Core.Hardware
                 }
                 else
                 {
+                    if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                    {
+                        if (res.IndexOf('<') >= 0)
+                        {
+                            string[] substrings = res.Substring(res.IndexOf('<')).Split(',');
+                            if (substrings.Length > 1)
+                            {
+                                res = substrings[1];
+                            }
+                        }
+                    }
+
                     if (res == "1")
                     {
                         pumpStatus |= enuPumpStatus.Running;
@@ -316,7 +384,7 @@ namespace Scaneva.Core.Hardware
             }
             set
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + (value.HasFlag(enuPumpStatus.Running) ? "GO" : "ST"), out res) != enuHWStatus.Ready)
+                if (sendCommand((value.HasFlag(enuPumpStatus.Running) ? "GO" : "ST"), null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -329,45 +397,64 @@ namespace Scaneva.Core.Hardware
         {
             get
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + "RS", out res) != enuHWStatus.Ready)
+                if (sendCommand("RS", null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
                 }
                 else
                 {
-                    String[] substrings = res.Split(new char[0]);
-                    if (Convert.ToString(substrings[5]) == "CW")
+                    try
                     {
-                        pumpStatus |= enuPumpStatus.Direction;
-                    }
-                    else if (Convert.ToString(substrings[5]) == "CCW")
-                    {
-                        pumpStatus &= ~enuPumpStatus.Direction;
-                    }
-                    else
-                    {
-                        pumpStatus = enuPumpStatus.Error;
-                    }
+                        string[] substrings;
+                        int offset = 0;
+                        if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                        {
+                            substrings = res.Substring(res.IndexOf('<')).Split(',');
+                            offset = 1;
+                        }
+                        else
+                        {
+                            substrings = res.Split(' ');
+                        }
 
-                    if (Convert.ToString(substrings[8]) == "1")
-                    {
-                        pumpStatus |= enuPumpStatus.Running;
+                        if (substrings[5 + offset] == "CW")
+                        {
+                            pumpStatus |= enuPumpStatus.Direction;
+                        }
+                        else if (substrings[5 + offset] == "CCW")
+                        {
+                            pumpStatus &= ~enuPumpStatus.Direction;
+                        }
+                        else
+                        {
+                            pumpStatus = enuPumpStatus.Error;
+                        }
+
+                        if (substrings[8 + offset] == "1")
+                        {
+                            pumpStatus |= enuPumpStatus.Running;
+                        }
+                        else if (substrings[8 + offset] == "0")
+                        {
+                            pumpStatus &= ~enuPumpStatus.Running;
+                        }
+                        else
+                        {
+                            pumpStatus = enuPumpStatus.Error;
+                        }
                     }
-                    else if (Convert.ToString(substrings[5]) == "0")
+                    catch (Exception e)
                     {
-                        pumpStatus &= ~enuPumpStatus.Running;
-                    }
-                    else
-                    {
-                        pumpStatus = enuPumpStatus.Error;
+                        log.Error(e.ToString());
+                        return enuPumpStatus.Error;
                     }
                 }
                 return pumpStatus;
             }
             set
             {
-                if (sendCommand(Convert.ToString(Settings.PumpID) + (value.HasFlag(enuPumpStatus.Direction) ? "RR" : "RL"), out res) != enuHWStatus.Ready)
+                if (sendCommand((value.HasFlag(enuPumpStatus.Direction) ? "RR" : "RL"), null, out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
                     pumpStatus = enuPumpStatus.Error;
@@ -375,35 +462,100 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double? Flowrate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public double Pressure { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        enuPumpStatus IPump.Run { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        enuPumpStatus IPump.Direction { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public Dictionary<int, double?> Composition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public int? Valve { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double? Flowrate //in µl/s!
+        {
+            get
+            {
+                if (sendCommand("RS", null, out res) != enuHWStatus.Ready)
+                {
+                    log.Add("COM communication failed!");
+                    pumpStatus = enuPumpStatus.Error;
+                    return -1;
+                }
+                else
+                {
+                    try
+                    {
+                        string[] substrings;
+                        if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                        {
+                            substrings = res.Substring(res.IndexOf('<')).Split(',');
+                            return Settings.TubingObj.RPM2Speed(Convert.ToDouble(substrings[5]));
+                        }
+                        else
+                        {
+                            substrings = res.Split(' ');
+                            return Settings.TubingObj.RPM2Speed(Convert.ToDouble(substrings[4]));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error(e.ToString());
+                        return double.NaN;
+                    }
+                }
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    double rpm = (value.Value <= Settings.TubingObj.RPM2Speed(220)) ? Settings.TubingObj.Speed2RPM(value.Value) : Settings.TubingObj.RPM2Speed(220);
+                    if (sendCommand("SP", rpm, out res) != enuHWStatus.Ready)
+                    {
+                        log.Add("COM communication failed!");
+                        pumpStatus = enuPumpStatus.Error;
+                    }
+                }
+            }
+        }
+
+
+        public double Pressure { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public Dictionary<int, double?> Composition { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public int? Valve { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
         public enuPumpStatus Status()
         {
-            if (sendCommand(Convert.ToString(Settings.PumpID) + "RS", out res) != enuHWStatus.Ready)
+            if (sendCommand("RS", null, out res) != enuHWStatus.Ready)
             {
                 log.Add("COM communication failed!");
                 pumpStatus = enuPumpStatus.Error;
             }
             else
             {
-                pumpStatus = enuPumpStatus.Ready;
-                String[] substrings = res.Split(new char[0]);
-                if (Convert.ToString(substrings[5]) == "CW")
+                try
                 {
-                    pumpStatus |= enuPumpStatus.Direction;
+                    pumpStatus = enuPumpStatus.Ready;
+
+                    string[] substrings;
+                    int offset = 0;
+                    if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+                    {
+                        substrings = res.Substring(res.IndexOf('<')).Split(',');
+                        offset = 1;
+                    }
+                    else
+                    {
+                        substrings = res.Split(' ');
+                    }
+
+                    if (substrings[5 + offset] == "CW")
+                    {
+                        pumpStatus |= enuPumpStatus.Direction;
+                    }
+                    else if (substrings[5 + offset] == "CCW")
+                    {
+                        pumpStatus &= ~enuPumpStatus.Direction;
+                    }
+                    else
+                    {
+                        pumpStatus = enuPumpStatus.Error;
+                    }
                 }
-                else if (Convert.ToString(substrings[5]) == "CCW")
+                catch (Exception e)
                 {
-                    pumpStatus &= ~enuPumpStatus.Direction;
-                }
-                else
-                {
-                    pumpStatus = enuPumpStatus.Error;
+                    log.Error(e.ToString());
+                    return enuPumpStatus.Error;
                 }
             }
             return pumpStatus;
@@ -412,10 +564,36 @@ namespace Scaneva.Core.Hardware
 
         //private
 
+        private enuHWStatus sendCommand(string commandCode, double? optParameter, out string returnValue)
+        {
+            string command = "";
+            if (Settings.CommunicationProtocol == Pump_Watson_Marlow_520Du_Settings.ProtocolType.Enhanced)
+            {
+                // Enhanced Format
+                command = "<" + Convert.ToString(Settings.PumpID) + "," + commandCode;
+                if (optParameter.HasValue)
+                {
+                    command += "," + optParameter.Value.ToString("F1");
+                }
+                command += ",??>";
+            }
+            else
+            {
+                // Basic Format
+                command = Convert.ToString(Settings.PumpID) + commandCode;
+                if (optParameter.HasValue)
+                {
+                    command += optParameter.Value.ToString("F1");
+                }
+            }
+
+            return sendCommandRaw(command, out returnValue);
+        }
+
         // Send the given command string directly to the serial port
         // <param name="command">Command String to send</param>
         // <param name="returnValue">Response</param>
-        private enuHWStatus sendCommand(string command, out string returnValue)
+        private enuHWStatus sendCommandRaw(string command, out string returnValue)
         {
             //NanoInterfaceReturnCode retCode = NanoInterfaceReturnCode.Return_CommandNotAcknowledged;
             returnValue = "";
@@ -430,7 +608,7 @@ namespace Scaneva.Core.Hardware
 
                 while ((!commComplete) && (timeoutCounter < 1000))
                 {
-                    int idx = serialAsyncReadBuf.IndexOf("\r");
+                    int idx = Math.Max(serialAsyncReadBuf.IndexOf("\r"), serialAsyncReadBuf.IndexOf(">"));
                     if (idx >= 0)
                     {
                         string inputString = serialAsyncReadBuf.Substring(0, idx);
@@ -473,12 +651,19 @@ namespace Scaneva.Core.Hardware
                             SerialDataReceivedEventArgs e)
         {
             // Read Bytes
-            serialAsyncReadBuf += _serialPort.ReadExisting();
+            try
+            {
+                serialAsyncReadBuf += _serialPort.ReadExisting();
+            }
+            catch (Exception ex)
+            {
+                log.Add(ex.ToString());
+            }
 
             if (bAsyncHandlingEnabled)
             {
-                bool bComplete = serialAsyncReadBuf.EndsWith("\r");
-                string[] strs = serialAsyncReadBuf.Split("\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                bool bComplete = serialAsyncReadBuf.EndsWith("\r") || serialAsyncReadBuf.EndsWith(">");
+                string[] strs = serialAsyncReadBuf.Split(new string[] { "\r", ">", "<" }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < (strs.Length - 1); i++)
                 {
                     // AppendToLogReceive(strs[i]);
@@ -550,7 +735,13 @@ namespace Scaneva.Core.Hardware
     }
 }
 
-/*       
+/*
+ 
+New enhanced protocol for 530Du: SOM,address,command,parameter,(parameter,parameter,...)checksum,EOM
+e.g. <1,SP,103.2,CS> 
+
+to omit CS replace with ?? e.g. <1,SP,103.2,??> 
+
 
 RS232 and RS485 command strings
 Command     Parameters              Meaning

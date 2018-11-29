@@ -54,18 +54,21 @@ namespace Scaneva.Core
         mixed = 2
     }
 
-    public enum enuSensorStatus
+    public enum enuTChannelStatus
     {
-        OK = 1,       //sensor is enabled and available
-        Overload = 2,     //sensor was overloaded during last measurement
+        NotInitialized = 0,
+        OK = 1,
+        Busy = 2,
+        Overload = 4,
+        Underload = 8,
+        Error = 16,
     }
-
 
     public class TransducerChannel
     {
         private ITransducer parent;
 
-        public TransducerChannel(ITransducer parent, string name, string unit, enuPrefix prefix, enuChannelType channelType, enuSensorStatus status)
+        public TransducerChannel(ITransducer parent, string name, string unit, enuPrefix prefix, enuChannelType channelType, enuTChannelStatus status, int averaging = 1)
         {
             this.parent = parent;
             Name = name;
@@ -73,14 +76,14 @@ namespace Scaneva.Core
             Prefix = prefix;
             ChannelType = channelType;
             Status = status;
-            Averaging = Averaging;
+            Averaging = averaging;
         }
 
         public string Unit { get; } = "";
         public enuPrefix Prefix { get; } = enuPrefix.none;
         public enuChannelType ChannelType { get; }
         public string Name { get; } = "";
-        public enuSensorStatus Status { get; set; }
+        public enuTChannelStatus Status { get; set; }
         public int Averaging { get; set; } = 1;
 
         public double GetValue()

@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.ComponentModel;
-
-using PalmSens;
-using PalmSens.Comm;
-using static PalmSens.Comm.CommManager;
-#region Copyright (C)
+﻿#region Copyright (C)
 // ---------------------------------------------------------------------------------------------------------------
 //  <copyright file="PS_PalmSens.cs" company="Scaneva">
 // 
@@ -35,15 +23,24 @@ using static PalmSens.Comm.CommManager;
 // --------------------------------------------------------------------------------------------------------------------
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.ComponentModel;
+
+using PalmSens;
+using PalmSens.Comm;
+using static PalmSens.Comm.CommManager;
 using PalmSens.Devices;
 using PalmSens.Plottables;
-using PalmSens.Techniques;
 using PalmSens.Windows;
 using PalmSens.Windows.Devices;
 
 using Scaneva.Core.Settings;
 using Scaneva.Tools;
-
 
 namespace Scaneva.Core.Hardware
 {
@@ -51,6 +48,9 @@ namespace Scaneva.Core.Hardware
     [Category("Potentiostats")]
     public class PS_PalmSens : ParametrizableObject, IHWManager, ITransducer
     {
+        private static List<Device> deviceList = null;
+        private static DateTime lastDeviceRefresh = DateTime.Now;
+
         public enuHWStatus HWStatus => enuHWStatus.Ready;
         public List<CurrentRange> SupportedRanges;
 
@@ -64,6 +64,10 @@ namespace Scaneva.Core.Hardware
         private CommManager Comm = null;
         private Thread CommManagerThread;
         private Device device = null;
+        private DeviceCapabilities capabilities = null;
+
+        private CurrentRange currentRangeBiPot = null;
+        private float setPotentialBiPot = float.NaN;
 
         public PS_PalmSens(LogHelper log)
             : base(log)
@@ -74,33 +78,40 @@ namespace Scaneva.Core.Hardware
             CoreDependencies.Init();
 
             refreshDeviceList();
-
-            
         }
+
+        public DeviceCapabilities Capabilities { get => capabilities; }
 
         private void refreshDeviceList()
         {
             string error = String.Empty;
-            
-            var list = FTDIDevice.DiscoverDevices(ref error);
-            if (error != String.Empty)
+
+            bool bNeedRefresh = (DateTime.Now - lastDeviceRefresh).TotalSeconds > 30; // Refresh after 30 Seconds
+
+            if ((deviceList == null) || (bNeedRefresh))
             {
-                log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
+                lastDeviceRefresh = DateTime.Now;
+
+                deviceList = FTDIDevice.DiscoverDevices(ref error);
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
+                }
+
+                deviceList.AddRange(USBCDCDevice.DiscoverDevices(ref error));
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
+                }
+
+                deviceList.AddRange(SerialPortDevice.DiscoverDevices(ref error));
+                if (error != String.Empty)
+                {
+                    log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
+                }
             }
 
-            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
-            }
-
-            list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
-            }
-            
-            Settings.ListofConnections = list.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
+            Settings.ListofConnections = deviceList.Select(x => ((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", "")))).ToArray();
         }
 
         public PS_PalmSens_Settings Settings
@@ -131,7 +142,7 @@ namespace Scaneva.Core.Hardware
                 default:
                     break;
             }
-            
+
         }
 
         private void FetchCurrentRanges(CommManager lComm)
@@ -182,11 +193,10 @@ namespace Scaneva.Core.Hardware
                         string connName = Settings.Connection;
 
                         string error = String.Empty;
-                        var list = FTDIDevice.DiscoverDevices(ref error);
-                        list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-                        list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
 
-                        Device device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
+                        refreshDeviceList();
+
+                        Device device = deviceList.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
                         device.Open(); //try to open this COM port
 
@@ -211,29 +221,11 @@ namespace Scaneva.Core.Hardware
         {
             log.Add("PS_PalmSens.Initialize");
 
-            string error = String.Empty;
-            var list = FTDIDevice.DiscoverDevices(ref error);
-            if (error != String.Empty)
-            {
-                log.Add("Error calling FTDIDevice.DiscoverDevices: " + error);
-            }
-
-            list.AddRange(USBCDCDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling USBCDCDevice.DiscoverDevices: " + error);
-            }
-
-            list.AddRange(SerialPortDevice.DiscoverDevices(ref error));
-            if (error != String.Empty)
-            {
-                log.Add("Error calling SerialPortDevice.DiscoverDevices: " + error);
-            }
-
+            refreshDeviceList();
 
             // Get Connection Name from Settings and find according Device
             string connName = Settings.Connection;
-            device = list.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
+            device = deviceList.Where(x => (((x.ToString().StartsWith("PalmSens4") || (x.ToString().StartsWith("PalmSens3"))) ? x.ToString() : (Regex.Replace(x.ToString(), @" \[[0-9]+\]", ""))) == connName)).FirstOrDefault() as Device;
 
             if (device == null)
             {
@@ -268,7 +260,7 @@ namespace Scaneva.Core.Hardware
                     {
                         commSarted.SetResult(ex);
                     }
-                        
+
                 });
                 CommManagerThread.Start();
 
@@ -299,14 +291,16 @@ namespace Scaneva.Core.Hardware
             Comm.EndMeasurement -= Comm_EndMeasurement;
             Comm.StateChanged -= Comm_StateChanged;
             Comm.UnknownDataEvent -= Comm_UnknownDataEvent;
-            Comm.CommErrorOccorred -= Comm_CommErrorOccorred;
+            Comm.CommErrorOccurred -= Comm_CommErrorOccurred;
 
             //Add Comm events
             Comm.ReceiveStatus += Comm_ReceiveStatus;
             Comm.EndMeasurement += Comm_EndMeasurement;
             Comm.StateChanged += Comm_StateChanged;
             Comm.UnknownDataEvent += Comm_UnknownDataEvent;
-            Comm.CommErrorOccorred += Comm_CommErrorOccorred;
+            Comm.CommErrorOccurred += Comm_CommErrorOccurred;
+
+            capabilities = Comm.Capabilities;
 
             InitTransducerChannels();
 
@@ -367,22 +361,29 @@ namespace Scaneva.Core.Hardware
             log.Add("PamSensHW " + Name + " - UnknownDataEvent [" + e.Data + "]", "Error");
         }
 
-        private void Comm_CommErrorOccorred(Exception e)
+        private void Comm_CommErrorOccurred(Exception e)
         {
             log.Add("PamSensHW " + Name + " - CommErrorOccorred [" + e.ToString() + "]", "Error");
         }
 
         private void Comm_ReceiveStatus(object sender, StatusEventArgs e)
-        {         
-            string txtPotential = e.GetStatus().PotentialReading.GetFormattedValue();
-            string txtCurrent = e.GetStatus().CurrentReading.ReadingStatus.ToString();
-            if (e.GetStatus().CurrentReading.ReadingStatus == ReadingStatus.OK)
+        {
+            Status stat = e.GetStatus();
+            if (stat != null)
             {
-                 txtCurrent = $"{e.GetStatus().CurrentReading.ValueInRange:0.000}";
+                PalmSens.Data.CurrentReading cReading = stat.CurrentReading;
+                PalmSens.Data.VoltageReading pReading = stat.PotentialReading;
+
+                string txtPotential = pReading.GetFormattedValue();
+                string txtCurrent = cReading.ReadingStatus.ToString();
+                if (cReading.ReadingStatus == ReadingStatus.OK)
+                {
+                    txtCurrent = $"{cReading.ValueInRange:0.000}";
+                }
+                string txtCR = $"{cReading.CurrentRange}";
+                string txtStatus = $"{cReading.ReadingStatus}";
+                log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");
             }
-            string txtCR = $"{e.GetStatus().CurrentReading.CurrentRange}";
-            string txtStatus = $"{e.GetStatus().CurrentReading.ReadingStatus}";
-            log.Add("PamSensHW " + Name + " - Status [Potential = " + txtPotential + "V, Current = " + txtCurrent + " * " + txtCR + ", Status = " + txtStatus + "]");         
         }
 
         private void Comm_EndMeasurement(object sender, EventArgs e)
@@ -470,17 +471,23 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "BiPot Potential", "A", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "WE2 Current", "A", enuPrefix.µ, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Potential", "V", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Current", "A", enuPrefix.µ, enuChannelType.mixed, enuTChannelStatus.OK));            
+            channels.Add(new TransducerChannel(this, "Current Range", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Cell On", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+
+            if (capabilities.BiPotPresent)
+            {
+                channels.Add(new TransducerChannel(this, "Potential Bi-Pot", "V", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Current Bi-Pot", "A", enuPrefix.µ, enuChannelType.passive, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Current Range Bi-Pot", "-1 .. 7", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+                channels.Add(new TransducerChannel(this, "Cell On Bi-Pot", "On (1)/Off (0)", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+            }
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Potentiostat;
 
         public List<TransducerChannel> Channels { get => channels; }
-        public int Averaging { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public double GetValue(TransducerChannel channel)
         {
@@ -493,15 +500,35 @@ namespace Scaneva.Core.Hardware
                     switch (channel.Name)
                     {
                         case "Potential":
-                            t = new Task<float>(() => {return (Comm?.Potential).GetValueOrDefault(float.NaN); });
+                            t = new Task<float>(() => { return (Comm?.Potential).GetValueOrDefault(float.NaN); });
                             break;
 
                         case "Current":
-                            t = new Task<float>(() => {return (Comm?.Current).GetValueOrDefault(float.NaN); });
+                            t = new Task<float>(() => { return (Comm?.Current).GetValueOrDefault(float.NaN); });
                             break;
 
-                        case "WE2 Current":
+                        case "Current Range":
+                            t = new Task<float>(() => { return ((float?)Comm?.CurrentRange?.CRbyte).GetValueOrDefault(float.NaN); });
+                            break;
+
+                        case "Cell On":
+                            t = new Task<float>(() => { return (Comm?.CellOn).GetValueOrDefault(false) ? 1.0f : 0.0f; });
+                            break;
+
+                        case "Potential Bi-Pot":
+                            t = new Task<float>(() => { return setPotentialBiPot; });
+                            break;
+
+                        case "Current Bi-Pot":
                             t = new Task<float>(() => { return (float)(Comm?.ReadBiPotCurrent).GetValueOrDefault(double.NaN); });
+                            break;                   
+
+                        case "Current Range Bi-Pot":
+                            t = new Task<float>(() => { return ((float?)Comm?.BiPotCurrentRange?.CRbyte).GetValueOrDefault(float.NaN); });
+                            break;
+
+                        case "Cell On Bi-Pot":
+                            t = new Task<float>(() => { return (Comm?.IsBipotOn).GetValueOrDefault(false) ? 1.0f : 0.0f; });
                             break;
 
                         default:
@@ -519,39 +546,119 @@ namespace Scaneva.Core.Hardware
             return double.NaN;
         }
 
-        public double GetAveragedValue(TransducerChannel channel)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
-            return GetValue(channel);
-            //todo: make internal avaraging
+            channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
-        public void SetValue(TransducerChannel channel, double _value)
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
+        
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value += GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+        }
+
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             if ((Comm != null) && Comm.Active && (channel != null))
             {
+                Task<bool> t = null;
                 switch (channel.Name)
                 {
                     case "Potential":
-                        Comm.Potential = (float)_value;
+                        t = new Task<bool>(() => { Comm.Potential = (float)_value; return true; });
                         break;
 
                     case "Current":
-                        Comm.Current = (float)_value;
+                        t = new Task<bool>(() => { Comm.Current = (float)_value; return true; });
                         break;
 
-                    case "BiPot Potential":
-                        Comm.BiPotPotential = (float)_value;
+                    case "Current Range":
+                        t = new Task<bool>(() => {
+                            try
+                            {
+                                sbyte sbRange = Convert.ToSByte(_value);
+                                CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
+                                if (cr != null)
+                                {
+                                    Comm.CurrentRange = cr;
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            return true;
+                        });
                         break;
 
                     case "Cell On":
-                        Comm.CellOn = (_value != 0.0);  // 0 is off, everything else on
+                        t = new Task<bool>(() => { Comm.CellOn = (_value != 0.0); return true; });  // 0 is off, everything else on
                         break;
 
-                    default:
+                    case "Potential Bi-Pot":
+                        t = new Task<bool>(() => {
+                            setPotentialBiPot = (float)_value;
+                            Comm.BiPotPotential = (float)_value;
+                            return true;
+                        });
+                        break;
+
+                    case "Current Range Bi-Pot":
+                        t = new Task<bool>(() => {
+                            try
+                            {
+                                sbyte sbRange = Convert.ToSByte(_value);
+                                CurrentRange cr = SupportedRanges.Find(x => (x.CRbyte == sbRange));
+                                if (cr != null)
+                                {
+                                    Comm.BiPotCurrentRange = cr;
+                                    currentRangeBiPot = cr;
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            return true;
+                        });
+                        break;
+
+                    case "Cell On Bi-Pot":
+                        t = new Task<bool>(() => {
+                            if (_value == 0)
+                            {
+                                Comm.SetBipotOff();
+                            }
+                            else
+                            {
+                                if (currentRangeBiPot != null)
+                                {
+                                    Comm.SetBipotOnAndCurrentRange(currentRangeBiPot);
+                                }
+                                else
+                                {
+                                    Comm.SetBipotOnAndCurrentRange(SupportedRanges.Last());
+                                }
+                            }
+                            return true;
+                        });        
                         break;
                 }
+                Comm.ClientConnection.Run(t).Wait();
+                return enuTChannelStatus.OK;
             }
+            return enuTChannelStatus.Error;
         }
-
+        
     }
 }

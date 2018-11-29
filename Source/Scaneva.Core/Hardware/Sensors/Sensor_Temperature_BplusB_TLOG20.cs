@@ -45,7 +45,7 @@ namespace Scaneva.Core.Hardware
         private byte[] byteRxBuffer = new byte[1024];
         private string serialAsyncReadBuf = "";
         private bool bAsyncHandlingEnabled = true;
-        string res = ""; //todo: good to have it global?
+       // string res = ""; //todo: good to have it global?
 
         //transducer stuff
         public List<TransducerChannel> channels = new List<TransducerChannel>();
@@ -76,7 +76,7 @@ namespace Scaneva.Core.Hardware
             _serialPort.DiscardInBuffer();
             _serialPort.DiscardOutBuffer();
 
-            if (true)
+            if (true) //todo: check RS232 connection status
             {
                 InitTransducerChannels();
                 hwStatus = enuHWStatus.Ready;
@@ -126,7 +126,7 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Temperature", "°C", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Temperature", "°C", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Sensor;
@@ -144,16 +144,34 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double GetAveragedValue(TransducerChannel channel)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
-            return GetValue(channel);
+            channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
-        public int Averaging { get => 1; set => throw new NotImplementedException(); } //todo: get rid of the exception
-
-        public void SetValue(TransducerChannel channel, double _value)
+        public int GetAveraging(TransducerChannel channel)
         {
-           //noop;
+            return channel.Averaging;
+        }
+
+
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
+        }
+
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
+        {
+            return enuTChannelStatus.OK;
         }
 
         private double Temperature //°C

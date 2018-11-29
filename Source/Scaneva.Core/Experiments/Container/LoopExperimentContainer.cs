@@ -76,13 +76,17 @@ namespace Scaneva.Core.Experiments
 
         private void RunChildren()
         {
-            loopCounter = 0;
+            loopCounter = 1;
             DateTime startTime = DateTime.Now;
+            string baseResultsFilePath = ResultsFilePath;
+
+            int numDigits = (int)Math.Floor(Math.Log10(Settings.NumIterations)) + 1;
             
             // loop till a) iterations finsihed b) max duration elapsed or c) experiment was aborted
-            while ((loopCounter < Settings.NumIterations) && (!abortExperiment) &&
+            while ((loopCounter <= Settings.NumIterations) && (!abortExperiment) &&
                 ((Settings.MaxDuration == null) || ((DateTime.Now - startTime).TotalSeconds < Settings.MaxDuration.Value)))
             {
+                ResultsFilePath = Path.Combine(baseResultsFilePath, loopCounter.ToString("D"+ numDigits));
                 Task childRunner = RunChildExperiments();
                 // Wait for completion of ChildExperiments
                 childRunner.Wait();
@@ -116,6 +120,27 @@ namespace Scaneva.Core.Experiments
             return enExperimentStatus.Error;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+            
+            // Check Scan parameters
+            if ((Settings.NumIterations <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Loop iterations must be > 0";
+                return false;
+            }
+
+            // Check Scan parameters
+            if ((Settings.MaxDuration <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Max duration must be > 0";
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             if (status != enExperimentStatus.Running)
@@ -135,7 +160,8 @@ namespace Scaneva.Core.Experiments
         /// <returns></returns>
         public override string ChildIndexer()
         {
-            return loopCounter.ToString();
+            int numDigits = (int)Math.Floor(Math.Log10(Settings.NumIterations)) + 1;
+            return loopCounter.ToString("D" + numDigits);
         }
 
     }

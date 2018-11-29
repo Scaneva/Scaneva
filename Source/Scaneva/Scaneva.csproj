@@ -78,6 +78,7 @@
     <Compile Include="AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="DynamicSettingsClass.cs" />
     <Compile Include="InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>

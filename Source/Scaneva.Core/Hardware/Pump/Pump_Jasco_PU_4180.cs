@@ -110,7 +110,7 @@ namespace Scaneva.Core.Hardware
         public Pump_Jasco_PU_4180(LogHelper log) : base(log)
         {
             settings = new Pump_Jasco_PU_4180_Setting();
-            log.Add("Initializing Jasco PU-4180 HPLC pump");         
+            log.Add("Initializing Jasco PU-4180 HPLC pump");
         }
 
         public Pump_Jasco_PU_4180_Setting Settings
@@ -129,18 +129,18 @@ namespace Scaneva.Core.Hardware
         private void InitTransducerChannels()
         {
             channels = new List<TransducerChannel>();
-            channels.Add(new TransducerChannel(this, "Flowrate", "l/min", enuPrefix.m, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Max. pressure", "g/cm2", enuPrefix.k, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Min. pressure", "g/cm2", enuPrefix.k, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Actual pressure", "g/cm2", enuPrefix.k, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Elapsed time", "s", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Pump-off timer", "h", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Pump-on timer", "h", enuPrefix.none, enuChannelType.active, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Valve position", "#", enuPrefix.none, enuChannelType.mixed, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Composition A", "%", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Composition B", "%", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Composition C", "%", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
-            channels.Add(new TransducerChannel(this, "Composition D", "%", enuPrefix.none, enuChannelType.passive, enuSensorStatus.OK));
+            channels.Add(new TransducerChannel(this, "Flowrate", "l/min", enuPrefix.m, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Max. pressure", "g/cm2", enuPrefix.k, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Min. pressure", "g/cm2", enuPrefix.k, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Actual pressure", "g/cm2", enuPrefix.k, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Elapsed time", "s", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Pump-off timer", "h", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Pump-on timer", "h", enuPrefix.none, enuChannelType.active, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Valve position", "#", enuPrefix.none, enuChannelType.mixed, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Composition A", "%", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Composition B", "%", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Composition C", "%", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
+            channels.Add(new TransducerChannel(this, "Composition D", "%", enuPrefix.none, enuChannelType.passive, enuTChannelStatus.OK));
         }
 
         public enuTransducerType TransducerType => enuTransducerType.Pump;
@@ -176,35 +176,53 @@ namespace Scaneva.Core.Hardware
             }
         }
 
-        public double GetAveragedValue(TransducerChannel channel)
+        public enuTChannelStatus SetAveraging(TransducerChannel channel, int _value)
         {
-            return GetValue(channel);
+            channel.Averaging = _value;
+            return enuTChannelStatus.OK;
         }
 
-        public int Averaging { get => 1; set => throw new NotImplementedException(); } //todo: get rid of the exception
+        public int GetAveraging(TransducerChannel channel)
+        {
+            return channel.Averaging;
+        }
 
-        public void SetValue(TransducerChannel channel, double _value)
+
+        public double GetAveragedValue(TransducerChannel channel)
+        {
+            double value = 0;
+            for (int i = 1; i <= channel.Averaging; i++)
+            {
+                value = +GetValue(channel);
+            }
+
+            return value / channel.Averaging;
+
+            //todo: make internal avaraging
+        }
+        public enuTChannelStatus SetValue(TransducerChannel channel, double _value)
         {
             switch (channel.Name)
             {
 
                 case "Flowrate":
                     Flowrate = _value;
-                    return;
+                    break;
                 case "Max. pressure":
                     MaxPressure = _value;
-                    return;
+                    break;
                 case "Min. pressure":
                     MinPressure = _value;
-                    return;
+                    break;
                 case "Pump-off timer":
+                    break;
                 case "Pump-on timer":
+                    break;
                 case "Valve position":
                     Valve = Convert.ToInt16(_value);
-                    return;
-                default:
-                    return;
+                    break;
             }
+            return enuTChannelStatus.OK;
         }
 
         //IHPump
@@ -373,7 +391,7 @@ namespace Scaneva.Core.Hardware
             }
             set
             {
-                if (value !=null)
+                if (value != null)
                 {
                     //xxx  0 - 700 in steps of 1 kg/cm2
                     if (sendCommand(value.Value.ToString("F0") + " valve set", out res) != enuHWStatus.Ready)
@@ -471,8 +489,8 @@ namespace Scaneva.Core.Hardware
                 for (int i = 0; i < 4; i++)
                     if (value[i] != null)
                     {
-                        dict.Add(i, value[i].Value);        
-                        j = j + Convert.ToInt32 (Math.Pow(2, i));
+                        dict.Add(i, value[i].Value);
+                        j = j + Convert.ToInt32(Math.Pow(2, i));
                     }
                 switch (j)
                 {
@@ -570,9 +588,9 @@ namespace Scaneva.Core.Hardware
             if ((_time <= 999.9) && (_time >= 0) && (_A + _B + _C <= 100) && (_A >= 0) && (_B >= 0) && (_C >= 0) && (_A <= 100) && (_B <= 100) && (_C <= 100))
             {
                 if (sendCommand(_time.ToString("0.00", CultureInfo.InvariantCulture) + " "
-                    + _A.ToString("000.0", CultureInfo.InvariantCulture) + " " 
-                    + _B.ToString("000.0", CultureInfo.InvariantCulture) + " " 
-                    + _C.ToString("000.0", CultureInfo.InvariantCulture) 
+                    + _A.ToString("000.0", CultureInfo.InvariantCulture) + " "
+                    + _B.ToString("000.0", CultureInfo.InvariantCulture) + " "
+                    + _C.ToString("000.0", CultureInfo.InvariantCulture)
                     + " comp set", out res) != enuHWStatus.Ready)
                 {
                     log.Add("COM communication failed!");
@@ -681,7 +699,14 @@ namespace Scaneva.Core.Hardware
                             SerialDataReceivedEventArgs e)
         {
             // Read Bytes
-            serialAsyncReadBuf += _serialPort.ReadExisting();
+            try
+            {
+                serialAsyncReadBuf += _serialPort.ReadExisting();
+            }
+            catch (Exception ex)
+            {
+                log.Add(ex.ToString());
+            }
 
             if (bAsyncHandlingEnabled)
             {

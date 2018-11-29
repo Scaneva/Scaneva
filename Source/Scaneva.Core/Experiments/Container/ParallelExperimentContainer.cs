@@ -186,6 +186,13 @@ namespace Scaneva.Core.Experiments
             return enExperimentStatus.Error;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            // Nothing to Check
+            errorMessage = String.Empty;
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             if (status != enExperimentStatus.Running)

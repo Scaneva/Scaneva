@@ -55,6 +55,7 @@ namespace Scaneva.Core.Experiments
         public enExperimentStatus Status { get { return status; } }
 
         public abstract enExperimentStatus Abort();
+        public abstract bool CheckParametersOk(out string errorMessage);
         public abstract enExperimentStatus Configure(IExperiment parent, string resultsFilePath);
         public abstract enExperimentStatus Run();
 
@@ -95,7 +96,10 @@ namespace Scaneva.Core.Experiments
             }
         }
 
-        protected void writeHeader(string header, string[] valueColumnNames, object settingsObj = null, bool positionColumns = true)
+        private DateTime expStartTime = DateTime.Now;
+        private bool bHasTimeColumn = false;
+
+        protected void writeHeader(string header, string[] valueColumnNames, object settingsObj = null, bool positionColumns = true, bool timeColumn = false)
         {
             // write header only once
             if (!File.Exists(Path.Combine(ResultsFilePath, ResultsFileName)))
@@ -121,7 +125,8 @@ namespace Scaneva.Core.Experiments
                     formattedHeader += "# ================\r\n";
                 }
 
-                formattedHeader += "# Start Time: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n";
+                expStartTime = DateTime.Now;
+                formattedHeader += "# Start Time: " + expStartTime.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n";
 
                 // Current Absolute Position
                 Position currPos = PositionStore.CurrentAbsolutePosition();
@@ -131,7 +136,8 @@ namespace Scaneva.Core.Experiments
                 formattedHeader += "# Start Abs. Z [µm]: " + currPos.Z.ToString("F6", CultureInfo.InvariantCulture) + "\r\n";
 
                 appendResultsText(formattedHeader);
-                writeColumnHeaders(valueColumnNames, positionColumns);
+                writeColumnHeaders(valueColumnNames, positionColumns, timeColumn);
+                bHasTimeColumn = timeColumn;
             }
         }
 
@@ -172,14 +178,23 @@ namespace Scaneva.Core.Experiments
         }
     
 
-        private void writeColumnHeaders(string[] valueColumnNames, bool positionColumns)
+        private void writeColumnHeaders(string[] valueColumnNames, bool positionColumns, bool timeColumn)
         {
             string header = "# ";
             int i = 0;
+            if (timeColumn)
+            {
+                header += "Time [s]";
+                i++;
+            }
             if(positionColumns)
             {
+                if (i > 0)
+                {
+                    header += ", ";
+                }
                 header += "X [µm], Y [µm], Z [µm]";
-                i = 3;
+                i += 3;
             }
             foreach (string val in valueColumnNames)
             {
@@ -216,11 +231,20 @@ namespace Scaneva.Core.Experiments
         {
             string valueString = "";
             int i = 0;
+            if (bHasTimeColumn)
+            {
+                valueString += ((DateTime.Now - expStartTime).TotalMilliseconds / 1000.0).ToString("F3", CultureInfo.InvariantCulture);
+                i++;
+            }
             if (positionColumns)
             {
                 // Current Position
                 Position currPos = PositionStore.CurrentRelativePosition();
 
+                if (i > 0)
+                {
+                    valueString += ", ";
+                }
                 valueString += currPos.X.ToString("F6", CultureInfo.InvariantCulture);
                 valueString += ", " + currPos.Y.ToString("F6", CultureInfo.InvariantCulture);
                 valueString += ", " + currPos.Z.ToString("F6", CultureInfo.InvariantCulture);

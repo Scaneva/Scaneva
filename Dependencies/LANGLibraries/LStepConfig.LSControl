@@ -111,7 +111,7 @@
 !poswindowtimeout z 0
 !modulo z 0
 !dim z 1
-!pitch z 1
+!pitch z 0.4
 !gearnumerator z 1
 !geardenominator z 1
 !axisdir z 0

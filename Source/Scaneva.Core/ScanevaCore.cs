@@ -333,12 +333,16 @@ namespace Scaneva.Core
 
         private bool cancelRunningExperiments = false;
 
-        public void RunScanMethod()
+        public void RunScanMethod(string resultPath = "")
         {
+            if (resultPath == "")
+            {
+                resultPath = DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss");
+            }
             if (scanMethod.Count > 0)
             {
                 cancelRunningExperiments = false;
-                scanMethodResultsPath = Path.Combine(Settings.ScanResultDirectory, DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss"));
+                scanMethodResultsPath = Path.Combine(Settings.ScanResultDirectory, resultPath);
                 RunNextExperiment(0);
             }
         }

@@ -169,12 +169,13 @@ namespace Scaneva.Core
         public Position CurrentAbsolutePosition()
         {
             Position pos = new Position(0, 0, 0);
-
+            Position ipos = new Position(0, 0, 0);
             var positioners = hwStore.Where(x => typeof(IPositioner).IsAssignableFrom(x.Value.GetType())).Select(x => x);
             foreach (var iterator in positioners)
             {
                 IPositioner positioner = iterator.Value as IPositioner;
-                pos = pos.Sum(positioner.AbsolutePosition());
+                positioner.GetAbsolutePosition(ref ipos);
+                pos = pos.Sum(ipos);
             }
             return pos;
         }

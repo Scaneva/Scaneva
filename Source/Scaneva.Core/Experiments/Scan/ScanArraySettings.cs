@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,12 +36,21 @@ namespace Scaneva.Core.Experiments.ScanEva
 {
     public class ScanArraySettings : ISettings
     {
-        private Dictionary<string, IPositioner> positioners = new Dictionary<string, IPositioner>();
+        public enum ScanMode
+        {
+            Saw = 0,
+            Comb,
+            Meander
+        }
+
         private Dictionary<string, IPositioner> tiltpositioners = new Dictionary<string, IPositioner>();
 
         [Browsable(false)]
         [XmlIgnore]
-        public Dictionary<string, IPositioner> Positioners { get => positioners; set => positioners = value; }
+        public Dictionary<string, IPositioner> Positioners { get; set; } = new Dictionary<string, IPositioner>();
+        [Browsable(false)]
+        [XmlIgnore]
+        public List<string> ScannerModes { get; set; } = new List<string>();
 
         [Category("1. Hardware")]
         [DisplayName("Select positioner")]
@@ -76,7 +86,28 @@ namespace Scaneva.Core.Experiments.ScanEva
         [Category("2. Scanner settings")]
         [DisplayName("Increments (µm)")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
+        //[Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, long.MaxValue, 1)] todo!
         public Position Increments { get; set; } = new Position();
+
+        [Category("2. Scanner settings")]
+        [DisplayName("Scanner mode")]
+        public ScanMode ScannerMode { get; set; } = ScanMode.Comb;
+        
+        [Category("2. Scanner settings")]
+        [DisplayName("X-delay (ms)")]
+        [Editor(typeof(NumericUpDownTypeEditor), typeof(UITypeEditor)), MinMax(0, long.MaxValue, 1)]
+        [Description("Delay after movement to new scan point.")]
+        public long XDelay { get; set; } = 0;
+
+        [Category("2. Scanner settings")]
+        [DisplayName("Y-delay (ms)")]
+        [Description("Delay after movement to new scan line. Y-delay will be ignored for scan mode meander.")]
+        public long YDelay { get; set; } = 0;
+
+        [Category("2. Scanner settings")]
+        [DisplayName("Z-delay (ms)")]
+        [Description("Delay after movement to a new scan plane.")]
+        public long ZDelay { get; set; } = 0;
 
         [Category("3. Tilt correction")]
         [DisplayName("Use tilt correction")]

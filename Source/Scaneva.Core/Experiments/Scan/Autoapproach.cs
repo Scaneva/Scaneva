@@ -62,7 +62,8 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private Generic2DExperimentData experimentData;
-        
+        private Generic2DExperimentData experimentData_PA; // for Post Approach
+
         public override Dictionary<string, IHWManager> HWStore
         {
             get
@@ -112,11 +113,38 @@ namespace Scaneva.Core.Experiments.ScanEva
             return enExperimentStatus.Error;
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.FeedbackController.Positioner == null) || (!Settings.FeedbackController.Positioners.ContainsKey(Settings.FeedbackController.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            if ((Settings.FeedbackController.Channel == null) || (!Settings.FeedbackController.TransducerChannels.ContainsKey(Settings.FeedbackController.Channel)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected signal channel invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if (Settings.FeedbackController.Averaging <= 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Averaging must be > 0";
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             FBC = new FeedbackController(log);
             FBC.Settings = Settings.FeedbackController;
-            FBC.FBPosotionUpdated += FBC_FBPosotionUpdated;
+            FBC.FBPositionUpdated += FBC_FBPositionUpdated;
 
             if (!FBC.Initialize().HasFlag(enuFeedbackStatusFlags.Ready))
             {
@@ -126,6 +154,7 @@ namespace Scaneva.Core.Experiments.ScanEva
             ResultsFilePath = resultsFilePath;
             string cords = "";
             ExperimentContainer container = parent as ExperimentContainer;
+            this.parent = parent;
 
             if (container != null)
             {
@@ -147,7 +176,7 @@ namespace Scaneva.Core.Experiments.ScanEva
 
             headerString += "Positioner: " + FBC.Settings.Positioner + "\r\n";
             headerString += "Sensor: " + FBC.Settings.Channel + "\r\n";
-            writeHeader(headerString, dataColumnHeaders.ToArray(), settingsObj: Settings, positionColumns: false);
+            writeHeader(headerString, dataColumnHeaders.ToArray(), settingsObj: Settings, positionColumns: false, timeColumn: true);
 
             // Init ResultData
             experimentData = new Generic2DExperimentData();
@@ -158,28 +187,59 @@ namespace Scaneva.Core.Experiments.ScanEva
             positionData = new List<double>(128);
             experimentData.datasetNames.Add("Autoapproach");
 
+            experimentData_PA = new Generic2DExperimentData();
+            experimentData_PA.axisNames.Add(new string[] { "Time", signalChan.Name });
+            experimentData_PA.axisUnits.Add(new string[] { "s", unit });
+            experimentData_PA.data.Add(new double[2][]);
+            signalData_PA = new List<double>(128);
+            timeData_PA = new List<double>(128);
+            experimentData_PA.datasetNames.Add("Post approach");
+
             status = enExperimentStatus.Idle;
             return status;
         }
 
-        private void FBC_FBPosotionUpdated(object sender, FBPositionUpdatedEventArgs e)
+        private void FBC_FBPositionUpdated(object sender, FBPositionUpdatedEventArgs e)
         {
             if (experimentData != null)
             {
-                signalData.Add(e.Signal);
-                positionData.Add(e.Position);
-                experimentData.data[0][0] = positionData.ToArray();
-                experimentData.data[0][1] = signalData.ToArray();
+                if (e.IsPostApproachPhase)
+                {
+                    if (signalData_PA.Count < 1)
+                    {
+                        appendCommentLines("# ================ Start of post approach ================");
+                    }
 
-                appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
+                    appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
 
-                NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, signalData.Count > 1));
+                    signalData_PA.Add(e.Signal);
+                    timeData_PA.Add(e.Time);
+
+                    experimentData_PA.data[0][0] = timeData_PA.ToArray();
+                    experimentData_PA.data[0][1] = signalData_PA.ToArray();
+
+                    NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData_PA, signalData_PA.Count > 1));
+                }
+                else
+                {
+                    appendResultsValues(new double[] { e.Position, e.Signal }, positionColumns: false);
+
+                    signalData.Add(e.Signal);
+                    positionData.Add(e.Position);
+
+                    experimentData.data[0][0] = positionData.ToArray();
+                    experimentData.data[0][1] = signalData.ToArray();
+
+                    NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, signalData.Count > 1));
+                }
             }
         }
 
         Task measurementTask = null;
         private List<double> signalData;
         private List<double> positionData;
+        private List<double> signalData_PA;
+        private List<double> timeData_PA;
 
         public override enExperimentStatus Run()
         {

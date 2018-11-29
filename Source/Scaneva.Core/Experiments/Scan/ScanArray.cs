@@ -52,6 +52,8 @@ namespace Scaneva.Core.Experiments.ScanEva
             : base(log)
         {
             settings = new ScanArraySettings();
+            Settings.ScannerModes.Add("Comb");
+            Settings.ScannerModes.Add("Meander");
         }
 
         public ScanArraySettings Settings
@@ -93,11 +95,39 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private ScanData scanData = null;
-        private int currentXPos, currentYPos;
-        private int scanPointsX = 0;
-        private int scanPointsY = 0;
         private bool reverseScanX = false;
         private bool reverseScanY = false;
+
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.Positioner == null) || (!Settings.Positioners.ContainsKey(Settings.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if (((Settings.Lengths.X != 0) && (Settings.Speeds.X <= 0)) ||
+                ((Settings.Lengths.Y != 0) && (Settings.Speeds.Y <= 0)) ||
+                ((Settings.Lengths.Z != 0) && (Settings.Speeds.Z <= 0)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Speeds must be > 0";
+                return false;
+            }
+
+            if (((Settings.Lengths.X != 0) && (Settings.Increments.X == 0)) ||
+                ((Settings.Lengths.Y != 0) && (Settings.Increments.Y == 0)) ||
+                ((Settings.Lengths.Z != 0) && (Settings.Increments.Z == 0)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Increments must be != 0";
+                return false;
+            }
+
+            return true;
+        }
 
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
@@ -116,8 +146,10 @@ namespace Scaneva.Core.Experiments.ScanEva
                     Tilt.PositionStore = PositionStore;
                 }
 
-                Scanner = new ScannerArray( pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
-                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt);
+                Scanner = new ScannerArray(Settings.ScannerMode, pos, Settings.Lengths, Settings.Increments, Settings.Speeds,
+                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt,
+                    Settings.XDelay, Settings.YDelay, Settings.ZDelay,
+                    log);
                 Scanner.Initialize();
 
                 //safety check: if the tilt correction is in use, a scan in Z direction is not a good idea.
@@ -132,22 +164,19 @@ namespace Scaneva.Core.Experiments.ScanEva
                 scanData = new ScanData();
                 scanData.experimentName = Name;
 
-                scanPointsX = (int)Math.Floor(Math.Abs(Settings.Lengths.X / Settings.Increments.X)) + 1;
-                scanPointsY = (int)Math.Floor(Math.Abs(Settings.Lengths.Y / Settings.Increments.Y)) + 1;
-                currentXPos = 0; //todo: consider scan direction and starting point
-                currentYPos = 0;
                 reverseScanX = Settings.Increments.X < 0;
                 reverseScanY = Settings.Increments.Y < 0;
-                scanData.setScanDimensions(scanPointsX, scanPointsY);
+                scanData.setScanDimensions(Scanner.NumScanPoints[0], Scanner.NumScanPoints[1]);
 
                 // Current Positioner pos
-                Position startPos = pos.AbsolutePosition();
+                Position startPos = new Position();
+                if(pos.GetAbsolutePosition(ref startPos) != enuPositionerStatus.Ready) return enExperimentStatus.Error;
 
                 // set scanData dimensions
-                scanData.X0 = Math.Min(startPos.X, (scanPointsX - 1) * Settings.Increments.X);
-                scanData.Y0 = Math.Min(startPos.Y, (scanPointsY - 1) * Settings.Increments.Y);
-                scanData.X1 = Math.Max(startPos.X, (scanPointsX - 1) * Settings.Increments.X);
-                scanData.Y1 = Math.Max(startPos.Y, (scanPointsY - 1) * Settings.Increments.Y);
+                scanData.X0 = Math.Min(startPos.X, (Scanner.NumScanPoints[0] - 1) * Settings.Increments.X);
+                scanData.Y0 = Math.Min(startPos.Y, (Scanner.NumScanPoints[1] - 1) * Settings.Increments.Y);
+                scanData.X1 = Math.Max(startPos.X, (Scanner.NumScanPoints[0] - 1) * Settings.Increments.X);
+                scanData.Y1 = Math.Max(startPos.Y, (Scanner.NumScanPoints[1] - 1) * Settings.Increments.Y);
                 status = enExperimentStatus.Idle;
                 return status;
             }
@@ -155,6 +184,24 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private Task scanArrayTask = null;
+
+        /// <summary>
+        /// Return relative Postion
+        /// </summary>
+        /// <returns></returns>
+        public override string ChildIndexer()
+        {
+            if (Scanner != null)
+            {
+                Position currentPos = new Position();
+                Scanner.Position(ref currentPos);
+                return currentPos.X + "_" + currentPos.Y + "_" + currentPos.Z;
+            }
+            else
+            {
+                return "";
+            }
+        }
 
         public override enExperimentStatus Run()
         {
@@ -169,22 +216,15 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         /// <summary>
-        /// Default implementation returns no offset for Experiment
-        /// override if necessary
+        /// Return current Scanner Position relative to scan start
         /// </summary>
         /// <returns></returns>
-        public override Position Position()
+
+        public enuPositionerStatus Position(ref Position _pos)
         {
-            if (parent != null)
-            {
-                return parent.Position();
-            }
-            //kopie liefern, keine Referenz aufs Originalobjekt
-            Position pos = new Position();
-            pos = Scanner.Position();
-            return pos;
+            return Scanner.Position(ref _pos);
         }
-        
+
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)
         {
             // Get Data from single vlaue experiments
@@ -196,14 +236,14 @@ namespace Scaneva.Core.Experiments.ScanEva
                 foreach (string dataset in data.datasetNames)
                 {
                     // only add datasets once
-                    if ((currentXPos == 0) && (currentYPos == 0) && (!scanData.GetDatasetNames().Contains(dataset)))
+                    if ((Scanner.ScanPointIndex[0] == 0) && (Scanner.ScanPointIndex[1] == 0) && (!scanData.GetDatasetNames().Contains(dataset)))
                     {
                         scanData.addDataset(dataset, data.axisNames[0] + " (" + data.axisUnits[0] + ")");
                     }
                     // Add first point of 1D Data (Single Value Experiment should only have one)
                     scanData.setValue(dataset,
-                        reverseScanX ? (scanPointsX - currentXPos - 1) : currentXPos,
-                        reverseScanY ? (scanPointsY - currentYPos - 1) : currentYPos,
+                        reverseScanX ? (Scanner.NumScanPoints[0] - Scanner.ScanPointIndex[0] - 1) : Scanner.ScanPointIndex[0],
+                        reverseScanY ? (Scanner.NumScanPoints[1] - Scanner.ScanPointIndex[1] - 1) : Scanner.ScanPointIndex[1],
                         data.Get1DData(i)[0]);
                     i++;
                 }
@@ -220,7 +260,7 @@ namespace Scaneva.Core.Experiments.ScanEva
 
             int i = 0;
             enuScannerErrors res = enuScannerErrors.Ready;
-            while ((!res.HasFlag( enuScannerErrors.Finished)) && (!abortExperiment))
+            while ((!res.HasFlag(enuScannerErrors.Finished)) && (!abortExperiment))
             {
                 // Here we run all child experiments including Autoapproch if contained in the queue at the first (and may be single) point of the scan
                 Task childRunner = RunChildExperiments();
@@ -242,43 +282,30 @@ namespace Scaneva.Core.Experiments.ScanEva
                 //but also tilt correction if set
                 res = Scanner.NextPosition();
 
-                //todo: get coordinate from the scanner
                 i++;
-                currentXPos++;
-                if (currentXPos >= scanPointsX)
-                {
-                    currentXPos = 0;
-                    currentYPos++;
-                    if (currentYPos >= scanPointsY)
-                    {
-                        currentYPos = 0;
-                    }
-                }
             }
 
-            if (!abortExperiment)
-            {
-                Scanner.BackToStart();
-            }
+            //if (!abortExperiment)
+            Scanner.BackToStart();
 
             // Signal Experiment end
             if (abortExperiment)
             {
                 // Experiment was aborted
                 status = enExperimentStatus.Aborted;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));               
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));
             }
-            else if (res == enuScannerErrors.Finished)
+            else if (res.HasFlag(enuScannerErrors.Finished))
             {
                 // Experiment ended regularly
                 status = enExperimentStatus.Completed;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Completed, scanData));                
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Completed, scanData));
             }
             else
             {
                 // Something else happend => error
                 status = enExperimentStatus.Error;
-                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Error, null));                
+                NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Error, null));
             }
         }
     }

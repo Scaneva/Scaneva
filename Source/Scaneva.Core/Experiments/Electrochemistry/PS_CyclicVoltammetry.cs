@@ -99,6 +99,37 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
         }
 
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if ((Settings.HwName == null) || (!HWStore.ContainsKey(Settings.HwName)) || !HWStore[Settings.HwName].IsEnabled)
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected hardware invalid or disabled";
+                return false;
+            }
+
+            // Try to configure
+            hw = (PS_PalmSens)HWStore[Settings.HwName];
+
+            ConfigureCyclicVoltammetryMethod();
+
+            List<MethodError> errorList = cv.Validate(hw.Capabilities);
+
+            if (errorList.Count > 0)
+            {
+                errorMessage = "Configuration Error in '" + Name + "':\r\n";
+                foreach (MethodError me in errorList)
+                {
+                    errorMessage += "Parameter " + me.Parameter + ": " + me.Message + "\r\n";
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
             // get Reference to HW from Store
@@ -109,22 +140,13 @@ namespace Scaneva.Core.Experiments.PalmSens
             }
             hw = (PS_PalmSens)HWStore[Settings.HwName];
 
-            Settings.AutoRangingSettings.ConfigureMethod(cv, hw);
-            cv.EquilibrationTime = Settings.EquilibrationTime;
-            cv.BeginPotential = Settings.BeginPotential;
-            cv.Vtx1Potential = Settings.PotentialVertex1;
-            cv.Vtx2Potential = Settings.PotentialVertex2;
-            cv.Scanrate = Settings.Scanrate;
-            cv.StepPotential = Settings.StepPotential;
-            cv.nScans = Settings.NumberOfSans;
-
-            // Configure Aux/ BiPot Settings
-            Settings.BiPotSettings.ConfigureMethod(cv, hw);
+            ConfigureCyclicVoltammetryMethod();
 
             // Setup Results File
             ResultsFilePath = resultsFilePath;
             string cords = "";
             ExperimentContainer container = parent as ExperimentContainer;
+            this.parent = parent;
 
             if (container != null)
             {
@@ -139,7 +161,7 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             string headerString = "Experiment: CyclicVoltammetryExperiment - " + Name + cords + "\r\n";
 
-            if (Settings.BiPotSettings.RecordExtraValue == EnumExtraValue.None)
+            if (Settings.BiPotSettings.RecordExtraValue == ExtraValueMask.None)
             {
                 // 2 columns
                 writeHeader(headerString, new string[] { "Potential [V]", "Current [µA]" }, settingsObj: Settings, positionColumns: false);
@@ -152,6 +174,21 @@ namespace Scaneva.Core.Experiments.PalmSens
 
             status = enExperimentStatus.Idle;
             return status;
+        }
+
+        private void ConfigureCyclicVoltammetryMethod()
+        {
+            Settings.AutoRangingSettings.ConfigureMethod(cv, hw);
+            cv.EquilibrationTime = Settings.EquilibrationTime;
+            cv.BeginPotential = Settings.BeginPotential;
+            cv.Vtx1Potential = Settings.PotentialVertex1;
+            cv.Vtx2Potential = Settings.PotentialVertex2;
+            cv.Scanrate = Settings.Scanrate;
+            cv.StepPotential = Settings.StepPotential;
+            cv.nScans = Settings.NumberOfSans;
+
+            // Configure Aux/ BiPot Settings
+            Settings.BiPotSettings.ConfigureMethod(cv, hw);
         }
 
         private List<Curve> resultCurves = null;
@@ -220,20 +257,13 @@ namespace Scaneva.Core.Experiments.PalmSens
         private void HW_NewDataAdded(object sender, ArrayDataAddedEventArgs e)
         {
             var curve = sender as Curve;
+            int curveIdx = resultCurves.IndexOf(curve);
 
             double[] xVals = curve.GetXValues();
             double[] yVals = curve.GetYValues();
 
-            if (curve.YAxisDataArray.ArrayType != (int)DataArrayType.ExtraValue) //Check if curve contains Bipot (WE2) data
-            {
-                experimentData.data[0][0] = xVals;
-                experimentData.data[0][1] = yVals;
-            }
-            else
-            {
-                experimentData.data[1][0] = xVals;
-                experimentData.data[1][1] = yVals;
-            }
+            experimentData.data[curveIdx][0] = xVals;
+            experimentData.data[curveIdx][1] = yVals;
 
             NotifyExperimentDataUpdatedNow(new ExperimentDataEventArgs(experimentData, true));
         }
@@ -248,7 +278,7 @@ namespace Scaneva.Core.Experiments.PalmSens
             hw.EndMeasurement -= HW_EndMeasurement;
 
             // save data
-            if (cv.RecordExtraValue == EnumExtraValue.None)
+            if (cv.ExtraValueMsk == ExtraValueMask.None)
             {
                 // 2 columns
                 for (int j = 0;  j < resultCurves.Count; j++)

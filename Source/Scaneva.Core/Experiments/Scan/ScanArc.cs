@@ -93,8 +93,35 @@ namespace Scaneva.Core.Experiments.ScanEva
         private ScanDataFreeform scanData = null;
         private int currentPosIDX;
         private double currentXPos, currentYPos;
-        private int scanPointsX = 0;
-        private int scanPointsY = 0;
+        // private int scanPointsX = 0;
+        //private int scanPointsY = 0;
+
+        public override bool CheckParametersOk(out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            // Check positioner
+            if ((Settings.Positioner == null) || (!Settings.Positioners.ContainsKey(Settings.Positioner)))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Selected positioner invalid or disabled";
+                return false;
+            }
+
+            // Check Scan parameters
+            if ((Settings.Speeds.X <= 0) || (Settings.Speeds.Y <= 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Speeds must be > 0";
+                return false;
+            }
+            
+            if ((Settings.AngularIncrement == 0) || (Settings.RadiusIncrement == 0))
+            {
+                errorMessage = "Configuration Error in '" + Name + "': Increments must be != 0";
+                return false;
+            }
+
+            return true;
+        }
 
         public override enExperimentStatus Configure(IExperiment parent, string resultsFilePath)
         {
@@ -116,7 +143,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                 Position Parameters = new Position(Settings.Radius, Settings.RadiusIncrement, Settings.AngularIncrement);
                 //we just create a scanner object and it is dealing with the rest
                 Scanner = new ScannerArc( pos, Parameters, Settings.Speeds,
-                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt);
+                    Settings.ReverseSpeeds, Settings.PreMovementHook, Settings.PostMovementHook, Tilt, log);
                 Scanner.Initialize();
 
                 // create ScanData container
@@ -127,7 +154,8 @@ namespace Scaneva.Core.Experiments.ScanEva
                 currentPosIDX = 0;
 
                 // Current Positioner pos
-                Position currentPos = Scanner.Position();
+                Position currentPos = new Position();
+                if (Scanner.Position(ref currentPos) != enuPositionerStatus.Ready) return enExperimentStatus.Error;
                 currentXPos = currentPos.X;
                 currentYPos = currentPos.Y;
 
@@ -138,6 +166,24 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         private Task scanArrayTask = null;
+
+        /// <summary>
+        /// Return relative Postion
+        /// </summary>
+        /// <returns></returns>
+        public override string ChildIndexer()
+        {
+            if (Scanner != null)
+            {
+                Position currentPos = new Position();
+                Scanner.Position(ref currentPos);
+                return currentPos.X + "_" + currentPos.Y + "_" + currentPos.Z;
+            }
+            else
+            {
+                return "";
+            }
+        }
 
         public override enExperimentStatus Run()
         {
@@ -152,22 +198,16 @@ namespace Scaneva.Core.Experiments.ScanEva
         }
 
         /// <summary>
-        /// Default implementation returns no offset for Experiment
-        /// override if necessary
+        /// Return current Scanner Position relative to scan start
         /// </summary>
         /// <returns></returns>
         public override Position Position()
         {
-            if (parent != null)
-            {
-                return parent.Position();
-            }
-            //kopie liefern, keine Referenz aufs Originalobjekt
             Position pos = new Position();
-            pos = Scanner.Position();
+            Scanner.Position(ref pos);
             return pos;
         }
-        
+
         protected override void Child_ExperimentEndedHook(object sender, ExperimentEndedEventArgs e)
         {
             // Get Data from single vlaue experiments
@@ -227,16 +267,15 @@ namespace Scaneva.Core.Experiments.ScanEva
                 currentPosIDX++;
 
                 // Current Positioner pos
-                Position currentPos = Scanner.Position();
+                Position currentPos = new Position();
+                Scanner.Position(ref currentPos);
                 currentXPos = currentPos.X;
                 currentYPos = currentPos.Y;
             }
 
-            if (!abortExperiment)
-            {
-                Scanner.BackToStart();
-            }
-
+            //if (!abortExperiment)
+            Scanner.BackToStart();
+            
             // Signal Experiment end
             if (abortExperiment)
             {               
@@ -244,7 +283,7 @@ namespace Scaneva.Core.Experiments.ScanEva
                 NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Aborted, null));
                 status = enExperimentStatus.Aborted;
             }
-            else if (res == enuScannerErrors.Finished)
+            else if (res.HasFlag(enuScannerErrors.Finished))
             {
                 // Experiment ended regularly
                 NotifyExperimentEndedNow(new ExperimentEndedEventArgs(enExperimentStatus.Completed, scanData));

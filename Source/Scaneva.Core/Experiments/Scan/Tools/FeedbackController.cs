@@ -75,19 +75,22 @@ namespace Scaneva.Core
 
     public class FBPositionUpdatedEventArgs : EventArgs
     {
-        public FBPositionUpdatedEventArgs(double position, double signal)
+        public FBPositionUpdatedEventArgs(double position, double signal, bool isPostApproachPhase = false, double time = Double.NaN)
         {
             Position = position;
             Signal = signal;
+            IsPostApproachPhase = isPostApproachPhase;
+            Time = time;
         }
 
         public double Position { get; }
         public double Signal { get; }
+        public double Time { get; }
+        public bool IsPostApproachPhase { get; }
     }
 
     class FeedbackController : ParametrizableObject
     {
-
         private Dictionary<string, IHWManager> hwStore;
         private Dictionary<string, TransducerChannel> transducerChannels;
 
@@ -97,13 +100,12 @@ namespace Scaneva.Core
         private double SetPoint = 0;
         //current baseline
         private double BulkSignal = double.NaN;
-
         private PIDController PID;
 
         /// <summary>
         /// An event to notify about each movement step
         /// </summary>        
-        public event EventHandler<FBPositionUpdatedEventArgs> FBPosotionUpdated;
+        public event EventHandler<FBPositionUpdatedEventArgs> FBPositionUpdated;
 
         //Hardware
         private IPositioner mPositioner = null;
@@ -166,9 +168,9 @@ namespace Scaneva.Core
         /// Invoke the FBPosotionUpdated event
         /// </summary>
         /// <param name="e"></param>
-        protected virtual void OnFBPosotionUpdated(FBPositionUpdatedEventArgs e)
+        protected virtual void OnFBPositionUpdated(FBPositionUpdatedEventArgs e)
         {
-            FBPosotionUpdated?.Invoke(this, e);
+            FBPositionUpdated?.Invoke(this, e);
         }
 
         public enuFeedbackStatusFlags Initialize()
@@ -176,13 +178,14 @@ namespace Scaneva.Core
             mPositioner = Settings.Positioners[Settings.Positioner];
             if (mPositioner != null)
             {
-                if (mPositioner.Status == enuPositionerStatus.Ready)
+                if (mPositioner.GetPositionerStatus == enuPositionerStatus.Ready)
                 {
                     mSensor = Settings.TransducerChannels[Settings.Channel];
                     if (mSensor != null)
                     {
-                        if (mSensor.Status == enuSensorStatus.OK)
+                        if (mSensor.Status == enuTChannelStatus.OK)
                         {
+                            mSensor.Averaging = Settings.Averaging;
                             abortFlag = false;
                             PID = new PIDController(log);
                             PID.Settings = Settings.PIDController;
@@ -233,7 +236,7 @@ namespace Scaneva.Core
                 mStatus |= enuFeedbackStatusFlags.PositionerError;
             }
             //check the sensor
-            if (!mSensor.Status.HasFlag(enuSensorStatus.OK))
+            if (!mSensor.Status.HasFlag(enuTChannelStatus.OK))
             {
                 mStatus &= ~enuFeedbackStatusFlags.OK;
                 mStatus |= enuFeedbackStatusFlags.SensorError;
@@ -247,7 +250,7 @@ namespace Scaneva.Core
             mStatus &= ~enuFeedbackStatusFlags.InRange;
             mStatus &= ~enuFeedbackStatusFlags.AtSetpoint;
 
-            if ((mSensor.Status.HasFlag(enuSensorStatus.Overload)) ||
+            if ((mSensor.Status.HasFlag(enuTChannelStatus.Overload)) ||
                 (signal < Settings.MinSafetyLimit) || (signal > Settings.MaxSafetyLimit))
             {
                 mStatus |= enuFeedbackStatusFlags.LimitsExceeded;
@@ -334,27 +337,52 @@ namespace Scaneva.Core
                 if (abortFlag)
                 {
                     mStatus |= enuFeedbackStatusFlags.Aborted;
-                    log.Add("GotoSetpoint() aborted by user");
+                    log.Add("GotoSetpoint() was aborted by user");
                     return Status();
                 }
                 mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds);
 
-                if (mStatus.HasFlag(enuFeedbackStatusFlags.AtSetpoint)
-                    || mStatus.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
+                if (stopwatch.ElapsedMilliseconds > Settings.TimeOut)
+                {
+                    return enuFeedbackStatusFlags.Timeout;
+                }
+
+                if (mStatus.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
                 {
                     return mStatus;
                 }
-                System.Threading.Thread.Sleep(Settings.LoopDelay); //todo: make it properly considering time passed
-            } while (stopwatch.ElapsedMilliseconds < Settings.TimeOut);
-            return enuFeedbackStatusFlags.Timeout;
+
+                System.Threading.Thread.Sleep(Settings.LoopDelay);
+            } while (!mStatus.HasFlag(enuFeedbackStatusFlags.AtSetpoint));
+
+            if (Settings.PostAppFBC)
+            {
+               stopwatch.Restart();
+                do
+                {
+                    if (abortFlag)
+                    {
+                        mStatus |= enuFeedbackStatusFlags.Aborted;
+                        log.Add("Post-approach FB control was aborted by user");
+                        return Status();
+                    }
+                    mStatus = GotoSetpointStep(stopwatch.ElapsedMilliseconds, true);
+                    System.Threading.Thread.Sleep(Settings.SPLoopDelay);
+                }
+                while (stopwatch.ElapsedMilliseconds < Settings.PostAppTimeOut);
+            }
+            return mStatus;
         }
 
-        private enuFeedbackStatusFlags GotoSetpointStep(long millis)
+        private enuFeedbackStatusFlags GotoSetpointStep(long millis, bool isPostApproachPhase = false)
         {
             double signal = mSensor.GetAveragedValue();
             enuFeedbackStatusFlags stat = CheckFeedback(signal);
+            double mpos = double.NaN;
 
-            OnFBPosotionUpdated(new FBPositionUpdatedEventArgs(mPositioner.AxisAbsolutePosition(enuAxes.ZAxis), signal));
+            if (mPositioner.GetAxisAbsolutePosition(enuAxes.ZAxis, ref mpos) != enuPositionerStatus.Ready) return enuFeedbackStatusFlags.PositionerError;
+
+            OnFBPositionUpdated(new FBPositionUpdatedEventArgs(mpos, signal, isPostApproachPhase, millis / 1000.0));
 
             if (stat.HasFlag(enuFeedbackStatusFlags.LimitsExceeded))
             {
@@ -376,12 +404,19 @@ namespace Scaneva.Core
             Position Correction = new Position();
             Correction.Z = PID.SimpleCorrection(signal);
 
-            if (!mPositioner.RelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
+            if (!mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.Ready))
             {
                 return enuFeedbackStatusFlags.Aborted;
             }
 
-            log.AddStatusUpdate(0, mPositioner.AbsolutePosition());
+            if ((mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.LowerLimit)) ||
+                (mPositioner.SetRelativePosition(Correction).HasFlag(enuPositionerStatus.UpperLimit)))
+            {
+                return enuFeedbackStatusFlags.LimitsExceeded;
+            }
+
+            if (mPositioner.GetAxisAbsolutePosition(enuAxes.ZAxis, ref mpos) != enuPositionerStatus.Ready) return enuFeedbackStatusFlags.PositionerError;
+            log.AddStatusUpdate(0, mpos);
 
             return enuFeedbackStatusFlags.Ready;
         }
