@@ -343,6 +343,11 @@ namespace Scaneva.Core
             {
                 cancelRunningExperiments = false;
                 scanMethodResultsPath = Path.Combine(Settings.ScanResultDirectory, resultPath);
+
+                // Save current method configuration
+                Directory.CreateDirectory(scanMethodResultsPath);
+                SaveScanMethod(Path.Combine(scanMethodResultsPath, resultPath + ".smf"));
+
                 RunNextExperiment(0);
             }
         }

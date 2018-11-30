@@ -136,7 +136,12 @@ namespace Scaneva.Core.Experiments.ScanEva
                 this.parent = parent;
 
                 ResultsFilePath = Path.Combine(resultsFilePath, Name); ;
-                ResultsFileName = "ExpScanArray - " + Name + ".dat";
+                ResultsFileName = "ScanArray - " + Name + ".dat";
+
+                string headerString = "Experiment: ScanArray - " + Name + "\r\n";
+
+                // write result file Header
+                writeHeader(headerString, new string[] {}, settingsObj: Settings, positionColumns: false);
 
                 IPositioner pos = Settings.Positioners[Settings.Positioner];
                 if (Settings.Tilt)
