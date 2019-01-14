@@ -342,3 +342,6 @@ ASALocalRun/
 # Scaneva PI Dlls
 PI_GCS2_DLL.dll
 PI_GCS2_DLL_x64.dll
+
+# Tecan DLL
+PumpCommServer.dll

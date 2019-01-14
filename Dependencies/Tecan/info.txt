@@ -1,0 +1,7 @@
+Tecan Library "PumpCommServer.dll" Version 1.0.1.5 is needed in addition to wrapper PumpCommServerTypeLib.dll
+
+Register the Library with command:
+Regsvr32 PumpCommServer.dll
+
+Wrapper was generated with tlbimp:
+tlbimp PumpCommServer.dll /transform:dispret /out:PumpCommServerTypeLib.dll
