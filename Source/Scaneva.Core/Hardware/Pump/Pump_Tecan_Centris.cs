@@ -90,16 +90,13 @@ namespace Scaneva.Core.Hardware.Pump
         public enuHWStatus Connect()
         {
             try
-            {
+            {string answerString = "";
                 mCommPort = new PumpComm();
                 mCommPort.LogComPort = true;
                 mCommPort.PumpEnableLogWindow(1);
-
                 mCommPort.BaudRate = Settings.Baudrate;
                 mCommPort.PumpInitComm(byte.Parse(Settings.COMPort.Substring(3)));
-
-                int devStatus = mCommPort.PumpCheckDevStatus(Settings.PumpAdress);
-                string answerString = "";
+                int devStatus = mCommPort.PumpCheckDevStatus(Settings.PumpAdress);       
 
                 switch (devStatus)
                 {
@@ -143,7 +140,7 @@ namespace Scaneva.Core.Hardware.Pump
 
         public void Release()
         {
-            mCommPort.PumpExitComm();
+          //  mCommPort.PumpExitComm();
         }
 
         public double SyringeVolume
