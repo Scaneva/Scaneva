@@ -1,0 +1,72 @@
+Versionshistorie MEGSV.DLL
+Wetz, 16.3.2012
+
+Start: Version 1.50 übernommen von Kornel Wieliczek
+
+Version 1.51:
+Neu:
+in GSVDispSetNorm:
+Bei Geräten mit Modell-No >=2 ist auch das Setzen von 7- und 8-stelligen
+Normierungen möglich. Bei alten Geräten sind es - wie bisher - nur 6-stellige maximale Normierungen.
+Der Wertebereich der Normierung ist also:
+Minimum: Stets 0,1587238
+Maximum:
+- Modell-No < 2: 158.723,8
+- Modell-No >= 2: 15.872.380
+
+Version 1.52:	15.1.2014
+Neu:
+Die Anzeigenormierung darf nun negativ sein. Das dementsprechnede Vorzeichenbit wird in Bit23
+des Mantissenwertes gespeichert und in GSVDispSetNorm durch den Firmware-Befehl SetNorm (d16) an den
+Messverstärker gegeben. Nur neue Firmwareversionen unterstützen eine negative Anzeigenormierung:
+GSV-2: Ab Version 1.5.02
+GSV-3: Ab Version 1.2.08
+Achtung: Bei aelteren GSV-3 bitte keine negative Norm uebergeben. Die dll fürhrt keine
+Versionsprüfung durch. Ältere GSV-2 hingegen weisen in SetNorm Werte ab, bei denen Bit 23 =1 ist.
+In GSVDispGetNorm ist deshalb neuerdings die Fehlerrückgabe ausnahmsweise 0 und NICHT MEHR -1.
+Neue Funktionen:
+ GSVsetUserOffset @450
+   GSVgetUserOffset @451
+   GSVsetTransmissionDelta @452
+   GSVgetTransmissionDelta @453
+   GSVsetAdaptFilterLearnVals @454
+   GSVgetAdaptFilterLearnVals @455
+   GSVsetAdaptFilterMask @456
+   GSVgetAdaptFilterMask @457
+   GSVsetSensorCapacity @458
+   GSVgetSensorCapacity @459
+   GSVsetRatedOutput @460
+   GSVgetRatedOutput @461
+   GSVsetAdaptFilterThreshold @463
+   GSVgetAdaptFilterThreshold @464
+
+Version 1.53: 5.10.2015
+Neue Funktion:
+	GSVgetSensortextAssign @465
+	
+To Do 1.54:
+Problem: GSVsetCanID / GSVgetCanID Funktioniert nicht mit GSV-2CANopen
+(FW-Index CANsettings: 0x7D)
+Lösung:
+#define GSV_CANSET_MANUFACTURER_ID 0x00
+#define GSV_CANSET_COMMAND_ID 0x01
+#define GSV_CANSET_MESSAGE_ID 0x02
+ergänzen durch
+#define GSV_CANSET_CANOPEN_NODEID 0x7D
+und o.g. Fkt ändern
+
+Version 1.54: 01.02.2016 16:35
+- in GSVclearBuffer und GSVrelease eingefuehrt: PURGE_LOOP_MAX=15 (*100ms = 1,5s):
+	sicherer, da PurgeComm in div. Treibern (aeltere usbser.sys zB) schlecht funktioniert
+- in Megsv.h:
+#define GSV_CANSET_CANOPEN_INHT_RAM 0x5A /* GSV-2CANopen inhibit time in RAM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_EVT_RAM 0x5B /* GSV-2CANopen Event timer time in RAM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_HB_RAM 0x5C /* GSV-2CANopen heartbeat in RAM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_NODEID_RAM 0x5D /* GSV-2CANopen Node-ID in RAM new this ver 1.54 */
+#define GSV_CANSET_BAUD_RAM 0x5E /* GSV-2CANopen baud rate in RAM new this ver 1.54 */
+#define GSV_CANSET_FLAGS_RAM 0x5F	/* GSV-2CANopen flags in RAM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_INHT_EE 0x7A /* GSV-2CANopen inhibit time in EEPROM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_EVT_EE 0x7B /* GSV-2CANopen Event timer time in EEPROM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_HB_EE 0x7C /* GSV-2CANopen heartbeat in EEPROM new this ver 1.54 */
+#define GSV_CANSET_CANOPEN_NODEID_EE 0x7D /* GSV-2CANopen Node-ID in in EEPROM new this ver 1.54 */
+um NodeID zu setzen / zu lesen kann GSVsetCanID / GSVgetCanID mit stype=GSV_CANSET_CANOPEN_NODEID_EE verwendet werden

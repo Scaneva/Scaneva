@@ -41,7 +41,7 @@ namespace Scaneva.Core
 
         double Speed { get; set; } //µl/s!
 
-        double PlungerPostion { get; set; } // set or get Plunger absolute position in microliters
+        double PlungerPosition { get; set; } // set or get Plunger absolute position in microliters
         double RelativePickup { set; } //µl
         double RelativeDispense { set; } //µl
 

@@ -78,6 +78,8 @@
     <Compile Include="Hardware\Positioner\SMC_LSTep_PCIe_Axis_Settings.cs" />
     <Compile Include="Hardware\Pump\ISyringePump.cs" />
     <Compile Include="Hardware\Pump\PumpTubing.cs" />
+    <Compile Include="Hardware\Pump\Pump_Hamilton_PSD.cs" />
+    <Compile Include="Hardware\Pump\Pump_Hamilton_PSD_Settings.cs" />
     <Compile Include="Hardware\Pump\Pump_Jasco_PU_4180.cs" />
     <Compile Include="Hardware\Pump\Pump_Tecan_Centris.cs" />
     <Compile Include="Hardware\Pump\Pump_Tecan_Centris_Settings.cs" />
@@ -163,6 +165,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
