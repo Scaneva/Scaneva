@@ -65,6 +65,19 @@ namespace Scaneva.Core.Hardware.Pump
             Valve_12port = 12
         }
 
+        public enum MicrostepMode : int
+        {
+            [Description("Normal mode")]
+            Normal = 0,
+
+            [Description("Fine positioning mode")]
+            Fine = 1,
+
+            [Description("Micro-step mode")]
+            Microstep = 2,
+
+        }
+
         public enum SyringeVolume : int
         {
             [Description("250 µL")]
@@ -99,48 +112,53 @@ namespace Scaneva.Core.Hardware.Pump
         [XmlIgnore]
         public List<string> ComPortList { get; set; } = new List<string>();
 
-        [Category("Tecan Centris pump settings")]
+        [Category("1. Communication settings")]
         [DisplayName("COM port")]
         [Description("COM port used by the pump")]
         [TypeConverter(typeof(DropdownListConverter))]
         [DropdownList("ComPortList")]
         public string COMPort { get; set; } = "COM1";
 
-        [Category("Tecan Centris pump settings")]
+        [Category("1. Communication settings")]
         [DisplayName("Baud rate")]
         public EBaudRate Baudrate { get; set; } = EBaudRate.Baud9600;
 
-        [Category("Tecan Centris pump settings")]
+        [Category("1. Communication settings")]
         [DisplayName("Pump Adress")]
         [Description("Address of pump as selected by switch on the back panel of the pump. Up to sixteen (16) Centris pumps can be connected together in a multi-pump configuration.")]
         public byte PumpAdress { get; set; } = 0;
 
-        [Category("Tecan Centris pump settings")]
-        [DisplayName("Syringe volume")]
-        public SyringeVolume Volume { get; set; } = SyringeVolume.Volume_1250uL;
-
-        [Category("Tecan Centris pump settings")]
+        [Category("2. Valve settings")]
         [DisplayName("Valve type")]
         public ValveType Valve { get; set; } = ValveType.Valve_3way;
 
-        [Category("Tecan Centris initialization settings")]
+        [Category("2. Valve settings")]
         [DisplayName("Valve polarity")]
         [Description("Valve initialization direction.\r\nClockwise: Homes the valve in a clockwise direction. Valve ports are numbered 1–X, starting in a clockwise direction at the first port after the syringe port.\r\nCounter-Clockwise: Homes the valve in a counter - clockwise direction. Valve ports are numbered 1 - X in a counterclockwise direction starting with the first port after the syringe port.")]
         public enValveMode InitializationValvePolarity { get; set; } = enValveMode.Clockwise;
 
-        [Category("Tecan Centris initialization settings")]
-        [DisplayName("Initialization speed")]
-        [Description("Initializes at the speed code (4-25). See the [S] command for list of speed codes (default 7).")]
-        public byte InitializationSpeed { get; set; } = 7;
-
-        [Category("Tecan Centris initialization settings")]
+        [Category("2. Valve settings")]
         [DisplayName("Input port")]
         [Description("Sets initialization input port 1-x : Sets initialization input port for distribution valves, where X is the number of ports on the valve. 0 : Sets initialization input port to port 1 (default).")]
         public byte InitializationInputPort { get; set; } = 0;
 
-        [Category("Tecan Centris initialization settings")]
+        [Category("2. Valve settings")]
         [DisplayName("Output port")]
         [Description("Sets initialization output port 1-x : Sets initialization output port for distribution valves, where X is the number of ports on the valve. 0 : Sets initialization output port to port X (default).")]
         public byte InitializationOutputPort { get; set; } = 0;
+
+        [Category("3. Syringe settings")]
+        [DisplayName("Initialization speed")]
+        [Description("Initializes at the speed code (4-25). See the [S] command for list of speed codes (default 7).")]
+        public byte InitializationSpeed { get; set; } = 7;
+
+        [Category("3. Syringe settings")]
+        [DisplayName("Syringe volume")]
+        public SyringeVolume Volume { get; set; } = SyringeVolume.Volume_1250uL;
+
+        [Category("3. Syringe settings")]
+        [DisplayName("Microstepping")]
+        public MicrostepMode Mode { get; set; } = MicrostepMode.Normal;
+
     }
 }

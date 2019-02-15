@@ -88,6 +88,8 @@
     <Compile Include="Hardware\Potentiostat\PS_PalmSens.cs" />
     <Compile Include="Hardware\Potentiostat\PS_PalmSens_Settings.cs" />
     <Compile Include="Experiments\DataAcquisition\Tools\MathGeneratorStore.cs" />
+    <Compile Include="Hardware\Sensors\Sensor_Force_ME_GSV3_Settings.cs" />
+    <Compile Include="Hardware\Sensors\Sensor_Force_ME_GSV3.cs" />
     <Compile Include="Hardware\Sensors\Sensor_Temperature_BplusB_TLOG20_Settings.cs" />
     <Compile Include="Hardware\Sensors\Sensor_Temperature_BplusB_TLOG20.cs" />
     <Compile Include="MinMaxAttribute.cs" />

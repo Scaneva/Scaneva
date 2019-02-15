@@ -348,10 +348,12 @@ namespace Scaneva.Core.Hardware.Pump
                         string answerString = "";
                         try
                         {
+                            double steps = (Settings.Mode == Pump_Tecan_Centris_Settings.MicrostepMode.Normal) ? (value * 6000 / SyringeVolume) : (value * 4800 / SyringeVolume);
+
                             // P<n1>, <n2> Relative Pickup
                             // <n2> = 1 Relative position in microliters. Up to 3 decimal places are allowed.
-                            mCommPort.PumpSendCommand("P" + value.ToString("0:0.###") + ",1R", Settings.PumpAdress, ref answerString);
-                            log.Add(Name + ": Plunger picked up " + value.ToString("0:0.###") + " µL - answer: " + answerString);
+                            mCommPort.PumpSendCommand("P" + steps.ToString() + "R", Settings.PumpAdress, ref answerString);
+                            log.Add(Name + ": Plunger picked up " + value.ToString("") + " µL - answer: " + answerString);
                         }
                         catch (Exception e)
                         {
@@ -361,6 +363,7 @@ namespace Scaneva.Core.Hardware.Pump
                 }
             }
         }
+
 
         public double RelativeDispense //µl
         {
@@ -377,9 +380,10 @@ namespace Scaneva.Core.Hardware.Pump
                         string answerString = "";
                         try
                         {
+                            double steps = (Settings.Mode == Pump_Tecan_Centris_Settings.MicrostepMode.Normal) ? (value * 6000 / SyringeVolume) : (value * 4800 / SyringeVolume);
                             // D<n1>, <n2> Relative Dispense
                             // <n2> = 1 Relative position in microliters. Up to 3 decimal places are allowed.
-                            mCommPort.PumpSendCommand("A" + value.ToString("0:0.###") + ",1R", Settings.PumpAdress, ref answerString);
+                            mCommPort.PumpSendCommand("D" + steps.ToString() + "R", Settings.PumpAdress, ref answerString);
                             log.Add(Name + ": Plunger dispense " + value.ToString("0:0.###") + " µL - answer: " + answerString);
                         }
                         catch (Exception e)
