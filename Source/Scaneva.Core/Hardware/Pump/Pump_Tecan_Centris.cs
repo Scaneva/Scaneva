@@ -100,7 +100,6 @@ namespace Scaneva.Core.Hardware.Pump
 
                 int devStatus = mCommPort.PumpCheckDevStatus(Settings.PumpAdress);
                 string answerString = "";
-                int plungerForce = 0;
 
                 switch (devStatus)
                 {
@@ -110,40 +109,90 @@ namespace Scaneva.Core.Hardware.Pump
                         break;
 
                     case 1:
-                        
+                        mCommPort.PumpSendCommand("U31R", Settings.PumpAdress, ref answerString); // Clear Run From Non-Volatile Memory
 
-                        // mCommPort.PumpSendCommand("U11R", Settings.PumpAdress, ref answerString);
-                        //mCommPort.PumpSendCommand("U41R", Settings.PumpAdress, ref answerString);
-                        // mCommPort.PumpSendCommand("U8R", Settings.PumpAdress, ref answerString);
-                        //mCommPort.PumpSendCommand("U31R", Settings.PumpAdress, ref answerString);
-                          mCommPort.PumpSendCommand("zR", Settings.PumpAdress, ref answerString);
-                          mCommPort.PumpSendCommand("U30R", Settings.PumpAdress, ref answerString);
-                      //  mCommPort.PumpSendCommand("W1R", Settings.PumpAdress, ref answerString);
-                        if (SyringeVolume < 1000)
+                        // Check pump syringe volume and set if it differs
+                        mCommPort.PumpSendCommand("?17", Settings.PumpAdress, ref answerString); // Report syringe volume
+                        bool isNumeric = int.TryParse(answerString, out int nSyrVol);
+                        if ((!answerString.EndsWith("uL")) && (isNumeric))
                         {
-                            plungerForce = 1; //Initializes at half plunger force and at default initialization speed
-                        }
-                        if (SyringeVolume <= 100)
-                        {
-                            plungerForce = 2; //Initializes at one-third plunger force and at default initialization speed                                         
+                            answerString += "uL";
                         }
 
-                        //  mCommPort.PumpSendCommand("N0R", Settings.PumpAdress, ref answerString);
+                        Pump_Tecan_Centris_Settings.SyringeVolume syrVol = (Pump_Tecan_Centris_Settings.SyringeVolume)Enum.Parse(typeof(Pump_Tecan_Centris_Settings.SyringeVolume), "Volume_" + answerString);
+
+                        // Check if Syringe Volume matches Settings
+                        if (Settings.Volume != syrVol)
+                        {
+                            mCommPort.PumpSendCommand("U" + (int)Settings.Volume + "R", Settings.PumpAdress, ref answerString); // U<n> Write Pump Configuration to Non-Volatile Memory (n: 90-98 Set syringe Volume)
+
+                            log.Error("Pump " + Name + " adress " + Settings.PumpAdress + " on " + Settings.COMPort + " syringe volume change. Commands take effect on the pump's next power-up.");
+                        }
+
+                        // Check pump valve type and set if it differs
+                        mCommPort.PumpSendCommand("?76", Settings.PumpAdress, ref answerString); // Report syringe volume
+
+                        string[] pumpConfig = answerString.Split(new string[] { "|" }, StringSplitOptions.None);
+                        Pump_Tecan_Centris_Settings.ValveType valveType = Pump_Tecan_Centris_Settings.ValveType.NoValve;
+
+                        switch (pumpConfig[0])
+                        {
+                            //‘3 WAY’ 3 - way valve(Y type)
+                            case "3 WAY":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_3way;
+                                break;
+
+                            //‘4 WAY’ 4 - way valve
+                            case "4 WAY":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_4way;
+                                break;
+
+                            //‘3+PL’ 3 - port distribution valve(90 - Degrees)
+                            case "3+PL":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_3port;
+                                break;
+
+                            //‘6+’ 6 - port distribution valve
+                            case "6+":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_6port;
+                                break;
+
+                            //‘9+’ 9 - port distribution valve
+                            case "9+":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_9port;
+                                break;
+
+                            //‘12+’ 12 - port distribution valve
+                            case "12+":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_12port;
+                                break;
+
+                            //‘DUAL’ Dual - loop valve
+                            case "DUAL":
+                                valveType = Pump_Tecan_Centris_Settings.ValveType.Valve_4port_dl;
+                                break;
+
+                        }
+
+                        // Check if Valve Type matches Settings
+                        if (Settings.Valve != valveType)
+                        {
+                            mCommPort.PumpSendCommand("U" + (int)Settings.Valve + "R", Settings.PumpAdress, ref answerString); // U<n> Write Pump Configuration to Non-Volatile Memory (n: 0-12 Valve Type)
+
+                            log.Error("Pump " + Name + " adress " + Settings.PumpAdress + " on " + Settings.COMPort + " valve type change. Commands take effect on the pump's next power-up.");
+                        }
 
                         if (Settings.InitializationValvePolarity == enValveMode.Clockwise)
                         {
                             //Initialize Plunger and Valve Drive(CW Polarity)
-                            mCommPort.PumpSendCommand("Z" + plungerForce + "," + Settings.InitializationInputPort + "," + Settings.InitializationOutputPort + "R", Settings.PumpAdress, ref answerString);  // R for Execute.
+                            mCommPort.PumpSendCommand("Z" + Settings.InitializationSpeed + "," + Settings.InitializationInputPort + "," + Settings.InitializationOutputPort + "R", Settings.PumpAdress, ref answerString);  // R for Execute.
 
                         }
                         else
                         {
                             //Initialize Plunger and Valve Drive (CCW Polarity)
-                            mCommPort.PumpSendCommand("Y" + plungerForce + "," + Settings.InitializationInputPort + "," + Settings.InitializationOutputPort + "R", Settings.PumpAdress, ref answerString);  // R for Execute.
+                            mCommPort.PumpSendCommand("Y" + Settings.InitializationSpeed + "," + Settings.InitializationInputPort + "," + Settings.InitializationOutputPort + "R", Settings.PumpAdress, ref answerString);  // R for Execute.
                         }
-
-
-
 
                         log.Add("Pump " + Name + " adress " + Settings.PumpAdress + " on " + Settings.COMPort + " was successfully initialized.");
 
@@ -168,7 +217,7 @@ namespace Scaneva.Core.Hardware.Pump
 
         public void Release()
         {
-            mCommPort.PumpExitComm();
+            mCommPort?.PumpExitComm();
         }
 
         public double SyringeVolume
@@ -336,7 +385,7 @@ namespace Scaneva.Core.Hardware.Pump
                 {
                     if ((value < Math.Max(0.001, SyringeVolume / 1e5)) || (value > (SyringeVolume * 1.1)))
                     {
-                        log.Error("Cannot set Speed to value smaler " + Math.Max(0.001, SyringeVolume / 1e5).ToString("0:0.###") + " or value greater " + (SyringeVolume * 1.1).ToString("0:0.###"));
+                        log.Error("Cannot set Speed to value smaler " + Math.Max(0.001, SyringeVolume / 1e5).ToString("0.###") + " or value greater " + (SyringeVolume * 1.1).ToString("0.###"));
                     }
                     else
                     {
@@ -346,8 +395,8 @@ namespace Scaneva.Core.Hardware.Pump
                             // V<n1>, <n2> Set Top Speed
                             // <n2> = 1 : Set top speed in microliters per second. Up to 3 decimal places are allowed.
                             // The equivalent speed in Inc/Sec is calculated based on the configured syringe volume and rounded to 1 decimal place. This is set to the new top speed.
-                            mCommPort.PumpSendCommand("V" + value.ToString("0:0.###") + ",1R", Settings.PumpAdress, ref answerString);
-                            log.Add(Name + ": Plunger Top speed set to " + value.ToString("0:0.###") + " µL/s - answer: " + answerString);
+                            mCommPort.PumpSendCommand("V" + value.ToString("0.###") + ",1R", Settings.PumpAdress, ref answerString);
+                            log.Add(Name + ": Plunger Top speed set to " + value.ToString("0.###") + " µL/s - answer: " + answerString);
                         }
                         catch (Exception e)
                         {
@@ -373,12 +422,10 @@ namespace Scaneva.Core.Hardware.Pump
                         string answerString = "";
                         try
                         {
-                            double steps = (Settings.Mode == Pump_Tecan_Centris_Settings.MicrostepMode.Normal) ? (value * 6000 / SyringeVolume) : (value * 4800 / SyringeVolume);
-
                             // P<n1>, <n2> Relative Pickup
                             // <n2> = 1 Relative position in microliters. Up to 3 decimal places are allowed.
-                            mCommPort.PumpSendCommand("P" + steps.ToString() + "R", Settings.PumpAdress, ref answerString);
-                            log.Add(Name + ": Plunger picked up " + value.ToString("") + " µL - answer: " + answerString);
+                            mCommPort.PumpSendCommand("P" + value.ToString("0.###") + ",1R", Settings.PumpAdress, ref answerString);
+                            log.Add(Name + ": Plunger picked up " + value.ToString("0.###") + " µL - answer: " + answerString);
                         }
                         catch (Exception e)
                         {
@@ -405,11 +452,10 @@ namespace Scaneva.Core.Hardware.Pump
                         string answerString = "";
                         try
                         {
-                            double steps = (Settings.Mode == Pump_Tecan_Centris_Settings.MicrostepMode.Normal) ? (value * 6000 / SyringeVolume) : (value * 4800 / SyringeVolume);
                             // D<n1>, <n2> Relative Dispense
                             // <n2> = 1 Relative position in microliters. Up to 3 decimal places are allowed.
-                            mCommPort.PumpSendCommand("D" + steps.ToString() + "R", Settings.PumpAdress, ref answerString);
-                            log.Add(Name + ": Plunger dispense " + value.ToString("0:0.###") + " µL - answer: " + answerString);
+                            mCommPort.PumpSendCommand("D" + value.ToString("0.###") + ",1R", Settings.PumpAdress, ref answerString);
+                            log.Add(Name + ": Plunger dispense " + value.ToString("0.###") + " µL - answer: " + answerString);
                         }
                         catch (Exception e)
                         {
@@ -457,9 +503,8 @@ namespace Scaneva.Core.Hardware.Pump
                         {
                             // A<n1>, <n2> Absolute Position
                             // <n2> = 1 Absolute position in microliters. Up to 3 decimal places are allowed.
-                            double steps = (Settings.Mode == Pump_Tecan_Centris_Settings.MicrostepMode.Normal) ? (value * 6000 / SyringeVolume) : (value * 4800 / SyringeVolume);
-                            mCommPort.PumpSendCommand("A" + steps.ToString() + "R", Settings.PumpAdress, ref answerString);
-                            log.Add(Name + ": Plunger moved to position " + value.ToString() + " µL - answer: " + answerString);
+                            mCommPort.PumpSendCommand("A" + value.ToString("0.###") + ",1R", Settings.PumpAdress, ref answerString);
+                            log.Add(Name + ": Plunger moved to position " + value.ToString("0.###") + " µL - answer: " + answerString);
                         }
                         catch (Exception e)
                         {
