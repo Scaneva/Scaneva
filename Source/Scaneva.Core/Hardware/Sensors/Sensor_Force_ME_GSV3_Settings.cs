@@ -1,6 +1,6 @@
 ﻿#region Copyright (C)
 // ---------------------------------------------------------------------------------------------------------------
-//  <copyright file="Sensor_Temperature_BplusB_TLOG20_Settings.cs" company="Scaneva">
+//  <copyright file="Sensor_Force_ME_GSV3_Settings.cs" company="Scaneva">
 // 
 //  Copyright (C) 2018 Roche Diabetes Care GmbH (Kirill Sliozberg, Christoph Pieper)
 // 

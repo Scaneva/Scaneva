@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Experiments\DataAcquisition\AirTrackerExperiment.cs" />
+    <Compile Include="Experiments\DataAcquisition\AirTrackerExperimentSettings.cs" />
     <Compile Include="Experiments\ExperimentData\Generic1DExperimentData.cs" />
     <Compile Include="Experiments\ExperimentData\ScanData.cs" />
     <Compile Include="Experiments\ExperimentData\ScanDataFreeform.cs" />
@@ -90,6 +92,8 @@
     <Compile Include="Hardware\Potentiostat\PS_PalmSens.cs" />
     <Compile Include="Hardware\Potentiostat\PS_PalmSens_Settings.cs" />
     <Compile Include="Experiments\DataAcquisition\Tools\MathGeneratorStore.cs" />
+    <Compile Include="Hardware\Sensors\Generic_SerialConnection.cs" />
+    <Compile Include="Hardware\Sensors\Generic_SerialConnection_Settings.cs" />
     <Compile Include="Hardware\Sensors\Sensor_Force_ME_GSV3_Settings.cs" />
     <Compile Include="Hardware\Sensors\Sensor_Force_ME_GSV3.cs" />
     <Compile Include="Hardware\Sensors\Sensor_Temperature_BplusB_TLOG20_Settings.cs" />

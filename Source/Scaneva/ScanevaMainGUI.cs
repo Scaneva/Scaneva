@@ -1267,7 +1267,7 @@ namespace Scaneva
 
             // Add initialized HW to list:
             listBoxManualHwSelect.Items.Clear();
-            listBoxManualHwSelect.Items.AddRange(core.hwStore.Where(x => x.Value.IsEnabled).Select(x => x.Key).ToArray());
+            listBoxManualHwSelect.Items.AddRange(core.hwStore.Where(x => (x.Value.IsEnabled && (typeof(ITransducer).IsAssignableFrom(x.Value.GetType())))).Select(x => x.Key).ToArray());
 
             // load Position Store
             foreach (var item in core.positionStore.PositionsList())
