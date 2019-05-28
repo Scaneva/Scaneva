@@ -174,11 +174,11 @@ namespace Scaneva.Core.Experiments.DataAcquisition
                     }
                 }
 
-                if ((reply != "OK") && (reply != "Er"))
-                {
-                    log.Error("Error communicating with AirTracker");
-                    return enExperimentStatus.Error;
-                }
+                //if ((reply != "OK") && (reply != "Er"))
+                //{
+                //    log.Error("Error communicating with AirTracker");
+                //    return enExperimentStatus.Error;
+                //}
 
                 // turn Of potentiostat
                 start = DateTime.Now;
@@ -189,17 +189,17 @@ namespace Scaneva.Core.Experiments.DataAcquisition
                 {
                     Thread.Sleep(10);
                     MessageObject item;
-                    if(messageQueue.TryDequeue(out item))
+                    if (messageQueue.TryDequeue(out item))
                     {
                         reply = item.Message;
                     }
                 }
 
-                if ((reply != "OK") && (reply != "Er"))
-                {
-                    log.Error("Error communicating with AirTracker");
-                    return enExperimentStatus.Error;
-                }
+                //if ((reply != "OK") && (reply != "Er"))
+                //{
+                //    log.Error("Error communicating with AirTracker");
+                //    return enExperimentStatus.Error;
+                //}
 
                 // turn On potentiostat
                 start = DateTime.Now;
@@ -258,8 +258,8 @@ namespace Scaneva.Core.Experiments.DataAcquisition
                     }
                 }
 
-                string[] results = reply.Split(new string[] {" "}, StringSplitOptions.None);
-                if (results.Length != 9)
+                string[] results = reply.Split(new string[] { " " }, StringSplitOptions.None);
+                if (results.Length != 10)
                 {
                     log.Error("Error communicating with AirTracker");
                     return enExperimentStatus.Error;
@@ -301,7 +301,7 @@ namespace Scaneva.Core.Experiments.DataAcquisition
             string[] chans = new string[] { "Polariasation Voltage", "Sensor Current", "Regulation Voltage", "Impedance" };
             string[] unit = new string[] { "mV", "nA", "mV", "Ohm" };
 
-            for(int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
                 data.datasetNames.Add(chans[j]);
                 data.axisNames.Add(new string[] { "Time", chans[j] });
@@ -331,13 +331,13 @@ namespace Scaneva.Core.Experiments.DataAcquisition
                 if (messageQueue.TryDequeue(out item))
                 {
                     string[] results = item.Message.Split(new string[] { " " }, StringSplitOptions.None);
-                    if (results.Length == 9)
+                    if (results.Length == 10)
                     {
                         double[] values = new double[5];
 
                         values[0] = (item.TimeStamp - start).TotalMilliseconds / 1000d;
 
-                        values[1] = double.Parse(results[5]); // Polarization Voltage
+                        values[1] = double.Parse(results[5], System.Globalization.CultureInfo.InvariantCulture); // Polarization Voltage
                         values[2] = double.Parse(results[6], System.Globalization.CultureInfo.InvariantCulture); // Sensor Current (nA)
                         values[3] = double.Parse(results[7], System.Globalization.CultureInfo.InvariantCulture) / 10; // Regulation Voltage
                         values[4] = double.Parse(results[8], System.Globalization.CultureInfo.InvariantCulture) * 10; // Impedance
@@ -347,7 +347,7 @@ namespace Scaneva.Core.Experiments.DataAcquisition
                         for (int j = 0; j < 3; j++)
                         {
                             data.data[j][0][currentBufferIdx] = values[0];
-                            data.data[j][1][currentBufferIdx] = values[j+1];
+                            data.data[j][1][currentBufferIdx] = values[j + 1];
 
                             data.data[j][0][nextBufferIdx] = double.NaN;
                             data.data[j][1][nextBufferIdx] = double.NaN;
